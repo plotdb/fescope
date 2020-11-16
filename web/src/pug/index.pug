@@ -1,0 +1,18 @@
+extends /base.pug
+block head
+block body
+  .py-4: .w-1024.rwd.mx-auto.my-4
+    .row
+      .col-md
+        .text-center: h5 Rendered with D3 v3
+        .aspect-ratio.ratio-1by1: svg#d3v3.w-100.h-100.bg-light.rounded.shadow
+      .col-md
+        .text-center: h5 Rendered with D3 v4
+        .aspect-ratio.ratio-1by1: svg#d3v4.w-100.h-100.bg-light.rounded.shadow
+  .ldcv: .base.w-480: .inner.card: .card-body: .p-4
+    .text-center: h1 It Works!
+    .py-4
+      p fescope dynamically load JS libraries and related dependencies, in a context mannger.
+    .btn.btn-lg.btn-block.btn-primary(data-ldcv-set="") Dismiss
+block script
+  +script("/js/index.js")
