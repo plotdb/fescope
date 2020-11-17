@@ -60,6 +60,8 @@ With delegate set to true, all libraries loaded with the rescope object will wor
 ## TODO
 
  - Browser compatibility check
+   - works in all major browsers ( latest Chrome, Firefox, Safari, Opera, Edge )
+   - doesn't work in IE11
  - Performance benchmark
 
 
