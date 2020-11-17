@@ -1,4 +1,4 @@
-# fescope
+# rescope
 
 experimental project. Load and scope any external JavaScript and reload scope on demand. 
 
@@ -11,13 +11,13 @@ For example, assume here are the list of js url we'd like to load, which kept in
  - assets/lib/ldview/main/ldview.min.js
 
 
-We can load all above js files with fescope, with a resolveed hash containing all imported variables:
+We can load all above js files with rescope, with a resolveed hash containing all imported variables:
 
-    scope = new fescope!
+    scope = new rescope!
     scope.load libs .then (hash) -> myfunc!
 
 
-However, we don't have to access the returned `hash` object. Instead we simply enter desired context:
+However, we actually don't have to access the returned `hash` object. Instead we simply enter desired context:
 
     myfunc = ->
       scope.context libs, ->
@@ -33,7 +33,7 @@ This is useful when you need the same library with different versions:
       v3: 'https://d3js.org/d3.v3.min.js'
       b6: 'https://d3js.org/d3.v6.min.js'
 
-    scope = new fescope!
+    scope = new rescope!
     scope.load d3.v6
       .then -> scope.load d3.v3
       .then -> scope.context d3.v6, -> /* run v6 code ... */
@@ -46,6 +46,15 @@ By default all script are loaded asynchronously. You can force them loaded in sy
 
  - url: URL to load
  - async: load asynchronously if set to true. default true.
+
+
+## Delegate Window
+
+You can load libraries with an iframe window object as delegate:
+
+    new rescope({delegate: true});
+
+With delegate set to true, all libraries loaded with the rescope object will work under a separated window and document object. Please note, it won't work as expected when cross refer libraries between two different global scope, so don't mix up libraries in different global scope.
 
 
 ## TODO

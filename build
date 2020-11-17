@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 mkdir -p dist
-echo "build src/main.ls -> dist/fescope.js ..."
-./node_modules/.bin/lsc --no-header -cp src/main.ls > dist/fescope.js
-echo "minifying fescope.js ..."
-./node_modules/.bin/uglifyjs dist/fescope.js > dist/fescope.min.js
+echo "build src/main.ls -> dist/rescope.js ..."
+./node_modules/.bin/lsc --no-header -cp src/main.ls > dist/rescope.js
+echo "minifying rescope.js ..."
+./node_modules/.bin/uglifyjs dist/rescope.js > dist/rescope.min.js
 echo "update web assets ..."
-mkdir -p web/static/assets/lib/fescope/dev
-cp dist/* web/static/assets/lib/fescope/dev/
+mkdir -p web/static/assets/lib/rescope/dev
+cp dist/* web/static/assets/lib/rescope/dev/
 echo "done."

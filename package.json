@@ -1,15 +1,15 @@
 {
   "author": "zbryikt",
-  "name": "fescope",
+  "name": "@plotdb/rescope",
   "license": "MIT",
-  "description": "descope",
+  "description": "rescope your code with any JS libraries",
   "version": "0.0.1",
-  "homepage": "https://github.com/plotdb/fescope",
+  "homepage": "https://github.com/plotdb/rescope",
   "files": ["dist/**/*"],
-  "main": "dist/fescope.js",
+  "main": "dist/rescope.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/plotdb/fescope"
+    "url": "https://github.com/plotdb/rescope"
   },
   "engines": {
     "node": ">=10.14.1",
@@ -19,7 +19,7 @@
     "start": "cd web; npx server",
     "deploy": "npx deploy web/static"
   },
-  "dependencies": {
+  "devDependencies": {
     "@loadingio/ldquery": "^1.1.0",
     "LiveScript": ">=1.2.0",
     "bootstrap": "^4.5.3",
