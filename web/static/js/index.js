@@ -6,7 +6,7 @@ pkg = {
     'assets/lib/bootstrap.native/main/bootstrap-native.min.js', 'assets/lib/bootstrap.ldui/main/bootstrap.ldui.min.js', {
       url: 'assets/lib/@loadingio/ldquery/main/ldq.min.js',
       async: false
-    }, 'assets/lib/ldcover/main/ldcv.min.js', 'assets/lib/ldview/main/ldview.min.js'
+    }, 'assets/lib/ldcover/main/ldcv.min.js', 'assets/lib/ldview/main/ldview.min.js', 'js/functest.js'
   ]
 };
 d3pkg = {
@@ -26,11 +26,7 @@ d3pkg = {
 };
 scope.load(pkg.lib).then(function(){
   return scope.context(pkg.lib, function(){
-    var ldcv;
-    ldcv = new ldCover({
-      root: '.ldcv'
-    });
-    return ldcv.toggle();
+    return functest();
   });
 }).then(function(){
   return scope.load(d3pkg.v3);

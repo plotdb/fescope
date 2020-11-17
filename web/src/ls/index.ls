@@ -6,6 +6,7 @@ pkg = do
     {url: \assets/lib/@loadingio/ldquery/main/ldq.min.js, async: false}
     \assets/lib/ldcover/main/ldcv.min.js
     \assets/lib/ldview/main/ldview.min.js
+    \js/functest.js
   ]
 
 d3pkg = do
@@ -24,12 +25,11 @@ d3pkg = do
     "https://d3js.org/d3-force.v2.min.js"
   ]
 
-
 scope.load pkg.lib
   .then ->
-    scope.context pkg.lib, ->
-      ldcv = new ldCover { root: \.ldcv }
-      ldcv.toggle!
+    scope.context pkg.lib, -> functest!
+    #ldcv = new ldCover { root: \.ldcv }
+    #ldcv.toggle!
   .then -> scope.load d3pkg.v3
   .then -> scope.load d3pkg.v4
   .then ->
