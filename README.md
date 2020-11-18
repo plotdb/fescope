@@ -63,6 +63,9 @@ With delegate set to true, all libraries loaded with the rescope object will wor
    - works in all major browsers ( latest Chrome, Firefox, Safari, Opera, Edge )
    - doesn't work in IE11
  - Performance benchmark
+ - returned scope might be affected if host window is running some scripts that update window object in the same time when some scripts are loading. This can be resolved by loading scripts twice - one in delegate to determine the keys to capture, and one in host to capture based on those keys.
+
+
 
 
 ## License 
