@@ -67,6 +67,15 @@ With delegate set to true, all libraries loaded with the rescope object will wor
 
 
 
+## Resources
+
+ - Realm may help in what we want to do:
+   - https://github.com/tc39/proposal-realms/#ecmascript-spec-proposal-for-realms-api
+   - https://github.com/Agoric/realms-shim
+   - https://www.figma.com/blog/how-we-built-the-figma-plugin-system/
+ - also check how Vue does its own scoping in template:
+   - https://github.com/vuejs/vue/blob/v2.6.10/src/core/instance/proxy.js#L9
+
 
 ## License 
 
