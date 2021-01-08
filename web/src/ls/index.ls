@@ -1,5 +1,7 @@
-window.d3 = 'hi'
-scope = new rescope {delegate: false, global: window}
+# d3 check for window.d3 before initing so we should never do things like this:
+# window.d3 = 'hi'
+
+scope = new rescope {global: window}
 scope.init!
   .then ->
     pkg = do
@@ -33,18 +35,22 @@ scope.init!
     scope.load pkg.lib
       .then -> scope.context pkg.lib, -> it.functest!
       .then -> scope.load d3pkg.v3
+
       .then -> scope.load d3pkg.v4
       .then ->
         scope.context d3pkg.v3, -> 
           box = document.getElementById \d3v3 .getBoundingClientRect!
+
           d3.select \svg#d3v3 .selectAll \circle
             .data [0 to 100].map -> {x: Math.random!, y: Math.random!, r: Math.random!}
             .enter!append \circle
               .attr do
-                cx: -> it.x * box.width
+                cx: ->
+                  it.x * box.width
                 cy: -> it.y * box.height
                 r: -> it.r * 20
                 fill: -> \#000
+        debounce 1
       .then ->
         scope.context d3pkg.v4, -> 
           box = document.getElementById \d3v4 .getBoundingClientRect!
@@ -55,3 +61,4 @@ scope.init!
               .attr \cy, -> it.y * box.height
               .attr \r, -> it.r * 20
               .attr \fill, -> \#000
+

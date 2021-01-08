@@ -1,5 +1,5 @@
 rescope = (opt = {}) ->
-  @opt = opt
+  @opt = {delegate: true, use-delegate-lib: false} <<< opt
   @global = opt.global or window
   @scope = {}
   @
@@ -37,7 +37,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       document.body.appendChild node
 
   context: (url, func, delegate = true) ->
-    if delegate and @opt.delegate =>
+    if delegate and @opt.delegate and @opt.use-delegate-lib =>
       return @delegate.context(url, func)
 
     url = if Array.isArray(url) => url else [url]
@@ -57,28 +57,28 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       for k of scope => @global[k] = stack[k]
 
   load: (url, delegate = true) ->
-    if delegate and @opt.delegate =>
-      return @delegate.load(url).then ~>
-        @scope <<< @delegate._scope.scope 
-        return it
-
     if !url => return Promise.resolve!
     url = if Array.isArray(url) => url else [url]
-    ret = {}
-    new Promise (res, rej) ~> 
-      _ = (list, idx) ~>
-        items = []
-        if idx >= list.length => return res ret
-        for i from idx til list.length =>
-          items.push list[i]
-          if list[i].async? and !list[i].async => break
-
-        if !items.length => return res ret
-
-        Promise.all(items.map ~> @_load(it.url or it).then ~> ret <<< it)
-          .then ~> @context items.map(-> it.url or it), -> _(list, idx + items.length)
-
-      _ url, 0
+    Promise.resolve!
+      .then ~>
+        return if delegate and @opt.delegate =>
+          @delegate.load(url).then ~>
+            @scope <<< @delegate._scope.scope
+            return it
+        else Promise.resolve!
+      .then ~>
+        ret = {}
+        new Promise (res, rej) ~>
+          _ = (list, idx) ~>
+            items = []
+            if idx >= list.length => return res ret
+            for i from idx til list.length =>
+              items.push list[i]
+              if list[i].async? and !list[i].async => break
+            if !items.length => return res ret
+            Promise.all(items.map ~> @_load(it.url or it).then ~> ret <<< it)
+              .then ~> @context items.map(-> it.url or it), -> _(list, idx + items.length)
+          _ url, 0
 
   _load: (url) ->
     new Promise (res, rej) ~>
@@ -87,16 +87,26 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       for k,v of @global => hash[k] = v
       script.onerror = ~> rej it
       script.onload = ~>
-        @scope[url] = scope = {}
-        for k,v of @global =>
-          # treat `k` as imported var if:
-          # A. `k` changed. 
-          # if (hash[k]? and hash[k] == @global[k]) or !(@global[k]?) => continue
-          # B. `k` added. can't detect/restore overwritten object.
-          if hash[k]? or !(@global[k]?) => continue
-          # if host script touches window object, both A. and B. might give incorrect result.
-          scope[k] = @global[k]
-          @global[k] = hash[k]
+        # if we have @scope - it either is load twice, or is from delegate.
+        # we can simply adopt the calculated scope members, and copy them from vars loaded in host.
+        if @scope[url] =>
+          scope = @scope[url]
+          for k,v of scope =>
+            scope[k] = @global[k]
+            @global[k] = hash[k]
+        else
+          @scope[url] = scope = {}
+          for k,v of @global =>
+            # treat `k` as imported var if:
+            # A. `k` changed.
+            # if (hash[k]? and hash[k] == @global[k]) or !(@global[k]?) => continue
+            # B. `k` added. can't detect/restore overwritten object.
+            #    however in delegate this should be okay.
+            if hash[k]? or !(@global[k]?) => continue
+            # if host script touches window object, both A. and B. might give incorrect result.
+            # thus, we always use delegate to load, but run with context of host.
+            scope[k] = @global[k]
+            @global[k] = hash[k]
         res scope
       # we might in iframe sandbox run in blob URL. so we have to use absolute URL.
       full-url = if /(https?:)?\/\//.exec(url) => url

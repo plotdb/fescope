@@ -2,7 +2,10 @@
   var rescope;
   rescope = function(opt){
     opt == null && (opt = {});
-    this.opt = opt;
+    this.opt = import$({
+      delegate: true,
+      useDelegateLib: false
+    }, opt);
     this.global = opt.global || window;
     this.scope = {};
     return this;
@@ -47,7 +50,7 @@
     context: function(url, func, delegate){
       var stacks, scopes, i$, to$, i, ref$, stack, scope, k, lresult$, results$ = [];
       delegate == null && (delegate = true);
-      if (delegate && this.opt.delegate) {
+      if (delegate && this.opt.delegate && this.opt.useDelegateLib) {
         return this.delegate.context(url, func);
       }
       url = Array.isArray(url)
@@ -79,52 +82,56 @@
       return results$;
     },
     load: function(url, delegate){
-      var ret, this$ = this;
+      var this$ = this;
       delegate == null && (delegate = true);
-      if (delegate && this.opt.delegate) {
-        return this.delegate.load(url).then(function(it){
-          import$(this$.scope, this$.delegate._scope.scope);
-          return it;
-        });
-      }
       if (!url) {
         return Promise.resolve();
       }
       url = Array.isArray(url)
         ? url
         : [url];
-      ret = {};
-      return new Promise(function(res, rej){
-        var _;
-        _ = function(list, idx){
-          var items, i$, to$, i;
-          items = [];
-          if (idx >= list.length) {
-            return res(ret);
-          }
-          for (i$ = idx, to$ = list.length; i$ < to$; ++i$) {
-            i = i$;
-            items.push(list[i]);
-            if (list[i].async != null && !list[i].async) {
-              break;
+      return Promise.resolve().then(function(){
+        return delegate && this$.opt.delegate
+          ? this$.delegate.load(url).then(function(it){
+            import$(this$.scope, this$.delegate._scope.scope);
+            return it;
+          })
+          : Promise.resolve();
+      }).then(function(){
+        var ret;
+        ret = {};
+        return new Promise(function(res, rej){
+          var _;
+          _ = function(list, idx){
+            var items, i$, to$, i;
+            items = [];
+            if (idx >= list.length) {
+              return res(ret);
             }
-          }
-          if (!items.length) {
-            return res(ret);
-          }
-          return Promise.all(items.map(function(it){
-            return this$._load(it.url || it).then(function(it){
-              return import$(ret, it);
+            for (i$ = idx, to$ = list.length; i$ < to$; ++i$) {
+              i = i$;
+              items.push(list[i]);
+              if (list[i].async != null && !list[i].async) {
+                break;
+              }
+            }
+            if (!items.length) {
+              return res(ret);
+            }
+            return Promise.all(items.map(function(it){
+              return this$._load(it.url || it).then(function(it){
+                return import$(ret, it);
+              });
+            })).then(function(){
+              return this$.context(items.map(function(it){
+                return it.url || it;
+              }), function(){
+                return _(list, idx + items.length);
+              });
             });
-          })).then(function(){
-            return this$.context(items.map(function(it){
-              return it.url || it;
-            }), function(){
-              return _(list, idx + items.length);
-            });
-          });
-        };
-        return _(url, 0);
+          };
+          return _(url, 0);
+        });
       });
     },
     _load: function(url){
@@ -141,15 +148,24 @@
           return rej(it);
         };
         script.onload = function(){
-          var scope, k, ref$, v;
-          this$.scope[url] = scope = {};
-          for (k in ref$ = this$.global) {
-            v = ref$[k];
-            if (hash[k] != null || !(this$.global[k] != null)) {
-              continue;
+          var scope, k, v, ref$;
+          if (this$.scope[url]) {
+            scope = this$.scope[url];
+            for (k in scope) {
+              v = scope[k];
+              scope[k] = this$.global[k];
+              this$.global[k] = hash[k];
             }
-            scope[k] = this$.global[k];
-            this$.global[k] = hash[k];
+          } else {
+            this$.scope[url] = scope = {};
+            for (k in ref$ = this$.global) {
+              v = ref$[k];
+              if (hash[k] != null || !(this$.global[k] != null)) {
+                continue;
+              }
+              scope[k] = this$.global[k];
+              this$.global[k] = hash[k];
+            }
           }
           return res(scope);
         };

@@ -50,11 +50,22 @@ By default all script are loaded asynchronously. You can force them loaded in sy
 
 ## Delegate Window
 
-You can load libraries with an iframe window object as delegate:
+By default `rescope` uses iframe window to preload libraries and peek variables they defined. The iframe is called delegate window. Apparently behavior for the host and the delegate is not the same.
 
-    new rescope({delegate: true});
+We specify an option `delegate` and set it to false to tell `Rescope` that this instance doesn't use delegate ( itself is a delegate ):
 
-With delegate set to true, all libraries loaded with the rescope object will work under a separated window and document object. Please note, it won't work as expected when cross refer libraries between two different global scope, so don't mix up libraries in different global scope.
+    new rescope({delegate: false});
+
+Additionally, you can also run code within delegate's context, by setting 'useDelegateLib' to `true`:
+
+    new resope({useDelegateLib: true})
+
+This will only work when `delegate` is set to true ( which is by default ). With `useDelegateLib` set to true, all libraries loaded with the rescope object will work under a separated window and document object. Please note, it won't work as expected when cross refer libraries between two different global scope, so don't mix up libraries in different global scope.
+
+Even with `useDelegateLib` set to true, you can still enter host context by setting the second parameter to `false` when calling `context`:
+
+    res = new rescope({useDelegateLib: true});
+    res.context("some-lib", false, function() { ... });
 
 
 ## TODO
@@ -63,8 +74,12 @@ With delegate set to true, all libraries loaded with the rescope object will wor
    - works in all major browsers ( latest Chrome, Firefox, Safari, Opera, Edge )
    - doesn't work in IE11
  - Performance benchmark
- - returned scope might be affected if host window is running some scripts that update window object in the same time when some scripts are loading. This can be resolved by loading scripts twice - one in delegate to determine the keys to capture, and one in host to capture based on those keys.
 
+
+## Note
+
+ - This is not meant to be used for sandboxing or for security reason. Rescope never prevent any scripts from accessing document, and all scripts are still run in the main thread.
+ - some libraries such as `d3` may check and use object with the name they are going to use if exists. Thus we always have to restore context in case of disrupt their initialization process.
 
 
 ## Resources
