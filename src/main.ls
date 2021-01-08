@@ -43,14 +43,16 @@ rescope.prototype = Object.create(Object.prototype) <<< do
     url = if Array.isArray(url) => url else [url]
     stacks = []
     scopes = []
+    context = {}
     for i from 0 til url.length =>
       [stack,scope] = [{}, @scope[url[i].url or url[i]] or {}]
       for k of scope =>
         stack[k] = @global[k]
         @global[k] = scope[k]
+        context[k] = scope[k]
       stacks.push stack
       scopes.push scope
-    func @global
+    func context
     for i from scopes.length - 1 to 0 by -1
       scope = scopes[i]
       stack = stacks[i]

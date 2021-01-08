@@ -48,7 +48,7 @@
       });
     },
     context: function(url, func, delegate){
-      var stacks, scopes, i$, to$, i, ref$, stack, scope, k, lresult$, results$ = [];
+      var stacks, scopes, context, i$, to$, i, ref$, stack, scope, k, lresult$, results$ = [];
       delegate == null && (delegate = true);
       if (delegate && this.opt.delegate && this.opt.useDelegateLib) {
         return this.delegate.context(url, func);
@@ -58,17 +58,19 @@
         : [url];
       stacks = [];
       scopes = [];
+      context = {};
       for (i$ = 0, to$ = url.length; i$ < to$; ++i$) {
         i = i$;
         ref$ = [{}, this.scope[url[i].url || url[i]] || {}], stack = ref$[0], scope = ref$[1];
         for (k in scope) {
           stack[k] = this.global[k];
           this.global[k] = scope[k];
+          context[k] = scope[k];
         }
         stacks.push(stack);
         scopes.push(scope);
       }
-      func(this.global);
+      func(context);
       for (i$ = scopes.length - 1; i$ >= 0; --i$) {
         i = i$;
         lresult$ = [];

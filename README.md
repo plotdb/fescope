@@ -20,7 +20,7 @@ We can load all above js files with rescope, with a resolveed hash containing al
 However, we actually don't have to access the returned `hash` object. Instead we simply enter desired context:
 
     myfunc = ->
-      scope.context libs, ->
+      scope.context libs, (context) ->
         # now ldCover and ld$ are available ...
         ldcv = new ldCover do
           root: ld$.find('.ldcv', 0)
