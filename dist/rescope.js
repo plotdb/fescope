@@ -12,7 +12,7 @@
   };
   rescope.prototype = import$(Object.create(Object.prototype), {
     peekScope: function(){
-      console.log("is delegate: " + !!this.global._rescopeDelegate);
+      console.log("in delegate frame: " + !!this.global._rescopeDelegate);
       return this.global._rescopeDelegate;
     },
     init: function(){
@@ -23,6 +23,7 @@
       return new Promise(function(res, rej){
         var node, ref$, code;
         node = document.createElement('iframe');
+        node.setAttribute('name', "delegator-" + Math.random().toString(36).substring(2));
         node.setAttribute('sandbox', 'allow-same-origin allow-scripts');
         ref$ = node.style;
         ref$.opacity = 0;
@@ -30,7 +31,7 @@
         ref$.pointerEvents = 'none';
         ref$.width = '0px';
         ref$.height = '0px';
-        code = "<html><body>\n<script>\nfunction init() {\n  if(!window._scope) { window._scope = new rescope({delegate:false,global:window}) }\n}\nfunction load(url) {\n  init();\n  return _scope.load(url,false);\n}\nfunction context(url,func) {\n  init();\n  _scope.context(url,func,false);\n}\n</script></body></html>";
+        code = "<html><body>\n<script>\nfunction init() {\n  if(!window._scope) { window._scope = new rescope({delegate:false,global:window}) }\n}\nfunction load(url) {\n  init();\n  return _scope.load(url,false);\n}\nfunction context(url,func,delegate,untilResolve) {\n  init();\n  _scope.context(url,func,false,untilResolve);\n}\n</script></body></html>";
         node.onerror = function(it){
           return rej(it);
         };
@@ -47,9 +48,10 @@
         return document.body.appendChild(node);
       });
     },
-    context: function(url, func, delegate){
-      var stacks, scopes, context, i$, to$, i, ref$, stack, scope, k, lresult$, results$ = [];
+    context: function(url, func, delegate, untilResolve){
+      var stacks, scopes, context, i$, to$, i, ref$, stack, scope, k, ret, p, this$ = this;
       delegate == null && (delegate = true);
+      untilResolve == null && (untilResolve = false);
       if (delegate && this.opt.delegate && this.opt.useDelegateLib) {
         return this.delegate.context(url, func);
       }
@@ -70,18 +72,24 @@
         stacks.push(stack);
         scopes.push(scope);
       }
-      func(context);
-      for (i$ = scopes.length - 1; i$ >= 0; --i$) {
-        i = i$;
-        lresult$ = [];
-        scope = scopes[i];
-        stack = stacks[i];
-        for (k in scope) {
-          lresult$.push(this.global[k] = stack[k]);
+      ret = func(context);
+      p = untilResolve && ret && ret.then
+        ? ret
+        : Promise.resolve();
+      return p.then(function(){
+        var i$, i, lresult$, scope, stack, k, results$ = [];
+        for (i$ = scopes.length - 1; i$ >= 0; --i$) {
+          i = i$;
+          lresult$ = [];
+          scope = scopes[i];
+          stack = stacks[i];
+          for (k in scope) {
+            lresult$.push(this$.global[k] = stack[k]);
+          }
+          results$.push(lresult$);
         }
-        results$.push(lresult$);
-      }
-      return results$;
+        return results$;
+      });
     },
     load: function(url, delegate){
       var this$ = this;
@@ -129,7 +137,7 @@
                 return it.url || it;
               }), function(){
                 return _(list, idx + items.length);
-              });
+              }, false, true);
             });
           };
           return _(url, 0);

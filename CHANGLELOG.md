@@ -1,3 +1,11 @@
+# 0.2.1
+
+ - bug fix: if context function return Promise, we should wait until it resolve to discharge scope.
+   - add `until-resolve` parameter in `context` for enabling this.
+   - this is only for script loading procedure. 
+ - add random name in delegator for identifying current scope.
+
+
 # 0.2.0
 
  - in context, passing only the loaded libraries instead of the whole global object to callback function.

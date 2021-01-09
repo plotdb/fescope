@@ -11,13 +11,13 @@ For example, assume here are the list of js url we'd like to load, which kept in
  - assets/lib/ldview/main/ldview.min.js
 
 
-We can load all above js files with rescope, with a resolveed hash containing all imported variables:
+We can load all above js files with rescope, with a resolveed context containing all imported variables:
 
     scope = new rescope!
-    scope.load libs .then (hash) -> myfunc!
+    scope.load libs .then (context) -> myfunc!
 
 
-However, we actually don't have to access the returned `hash` object. Instead we simply enter desired context:
+However, we actually don't have to access the returned `context` object. Instead we simply enter desired context:
 
     myfunc = ->
       scope.context libs, (context) ->
@@ -31,13 +31,15 @@ This is useful when you need the same library with different versions:
 
     d3 = do
       v3: 'https://d3js.org/d3.v3.min.js'
-      b6: 'https://d3js.org/d3.v6.min.js'
+      v6: 'https://d3js.org/d3.v6.min.js'
 
     scope = new rescope!
     scope.load d3.v6
       .then -> scope.load d3.v3
       .then -> scope.context d3.v6, -> /* run v6 code ... */
       .then -> scope.context d3.v3, -> /* run v3 code ... */
+
+Note that for asynchronous functions, context may change if there are concurrent `scope.context` running so window object may be overwritten In this case, always rely on the passed `context` object to access required libraries.
 
 
 ## Asynchronous Script Loading

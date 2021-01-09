@@ -5,13 +5,14 @@ rescope = (opt = {}) ->
   @
 
 rescope.prototype = Object.create(Object.prototype) <<< do
-  peek-scope: -> console.log "is delegate: #{!!@global._rescopeDelegate}"; return @global._rescopeDelegate
+  peek-scope: -> console.log "in delegate frame: #{!!@global._rescopeDelegate}"; return @global._rescopeDelegate
   init: ->
     if !@opt.delegate => return Promise.resolve!
     # if we are in the host window, use delegate iframe to load script
     # so we won't affect host window object.
     new Promise (res, rej) ~>
       node = document.createElement \iframe
+      node.setAttribute \name, "delegator-#{Math.random!toString(36)substring(2)}"
       node.setAttribute \sandbox, ('allow-same-origin allow-scripts')
       node.style <<< opacity: 0, z-index: -1, pointer-events: \none, width: '0px', height: '0px'
       # `load` is exposed via contentWindow and used to load libs in sandbox.
@@ -25,9 +26,9 @@ rescope.prototype = Object.create(Object.prototype) <<< do
         init();
         return _scope.load(url,false);
       }
-      function context(url,func) {
+      function context(url,func,delegate,untilResolve) {
         init();
-        _scope.context(url,func,false);
+        _scope.context(url,func,false,untilResolve);
       }
       </script></body></html>"""
       node.onerror = -> rej it
@@ -36,7 +37,10 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       node.src = URL.createObjectURL(new Blob([code], {type: \text/html}))
       document.body.appendChild node
 
-  context: (url, func, delegate = true) ->
+  # until-resolve: is this call for loading procedure?
+  #   - we should always wait func returned promise to resolve, if it's loading procedure.
+  #   - this should be lib only since it may lead strange behavior in concurrent contexts.
+  context: (url, func, delegate = true, until-resolve = false) ->
     if delegate and @opt.delegate and @opt.use-delegate-lib =>
       return @delegate.context(url, func)
 
@@ -52,11 +56,17 @@ rescope.prototype = Object.create(Object.prototype) <<< do
         context[k] = scope[k]
       stacks.push stack
       scopes.push scope
-    func context
-    for i from scopes.length - 1 to 0 by -1
-      scope = scopes[i]
-      stack = stacks[i]
-      for k of scope => @global[k] = stack[k]
+
+    ret = func context
+
+    # func may be `load` in rescope, and it is batched until a sync script is found.
+    # we need to wait until it resolves otherwise its dependenies may fail.
+    p = if until-resolve and ret and ret.then => ret else Promise.resolve!
+    p.then ~>
+      for i from scopes.length - 1 to 0 by -1
+        scope = scopes[i]
+        stack = stacks[i]
+        for k of scope => @global[k] = stack[k]
 
   load: (url, delegate = true) ->
     if !url => return Promise.resolve!
@@ -79,7 +89,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
               if list[i].async? and !list[i].async => break
             if !items.length => return res ret
             Promise.all(items.map ~> @_load(it.url or it).then ~> ret <<< it)
-              .then ~> @context items.map(-> it.url or it), -> _(list, idx + items.length)
+              .then ~> @context(items.map(-> it.url or it), (-> _(list, idx + items.length)), false, true)
           _ url, 0
 
   _load: (url) ->
