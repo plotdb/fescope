@@ -90,6 +90,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
             if !items.length => return res ret
             Promise.all(items.map ~> @_load(it.url or it).then ~> ret <<< it)
               .then ~> @context(items.map(-> it.url or it), (-> _(list, idx + items.length)), false, true)
+              .catch -> rej it
           _ url, 0
 
   _load: (url) ->

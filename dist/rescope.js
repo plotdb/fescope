@@ -138,6 +138,8 @@
               }), function(){
                 return _(list, idx + items.length);
               }, false, true);
+            })['catch'](function(it){
+              return rej(it);
             });
           };
           return _(url, 0);

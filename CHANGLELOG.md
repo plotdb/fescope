@@ -1,3 +1,8 @@
+# 0.2.2
+
+ - bug fix: rejection during loading failure should be passed to rejection callback.
+
+
 # 0.2.1
 
  - bug fix: if context function return Promise, we should wait until it resolve to discharge scope.
