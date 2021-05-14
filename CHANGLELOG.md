@@ -1,3 +1,8 @@
+# 0.2.3 ( upcoming )
+
+ - upgrade packages and fix vulnerabilities
+
+
 # 0.2.2
 
  - bug fix: rejection during loading failure should be passed to rejection callback.
