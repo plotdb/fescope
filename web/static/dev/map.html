@@ -1,0 +1,162 @@
+<!DOCTYPE html><html><head><link rel="stylesheet" type="text/css" href="assets/lib/bootstrap/main/css/bootstrap.min.css"><link rel="stylesheet" type="text/css" href="assets/lib/bootstrap.ldui/main/bootstrap.ldui.min.css"><link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,700|Roboto+Mono"><link rel="stylesheet" type="text/css" href="assets/lib/ldcover/main/ldcv.min.css"><link rel="stylesheet" type="text/css" href="css/index.css"></head><body><div class="w-1024 rwd mx-auto"><div class="aspect-ratio ratio-2by1" id="root"><svg class="w-100 border h-100 shadow-sm"></svg></div></div><script type="text/javascript" src="assets/lib/@loadingio/debounce.js/main/debounce.min.js"></script><script type="text/javascript" src="assets/lib/rescope/dev/rescope.js"></script><script type="text/javascript" src="/assets/lib/@loadingio/ldquery/main/ldq.min.js"></script><script>var libs, libs2, wrapper, rescope, scope;
+libs = [
+  {
+    url: "https://d3js.org/d3.v4.js",
+    async: false
+  }, {
+    url: "https://d3js.org/d3-dispatch.v2.min.js",
+    async: false
+  }, {
+    url: "https://d3js.org/d3-selection.v2.min.js"
+  }, {
+    url: "https://d3js.org/d3-transition.v2.min.js"
+  }, {
+    url: "https://d3js.org/d3-format.v2.min.js"
+  }, {
+    url: "https://d3js.org/d3-array.v2.min.js"
+  }, {
+    url: "https://d3js.org/topojson.v2.min.js"
+  }, {
+    url: "https://d3js.org/d3-color.v2.min.js"
+  }, {
+    url: "https://d3js.org/d3-interpolate.v2.min.js",
+    async: false
+  }, {
+    url: "https://d3js.org/d3-scale-chromatic.v1.min.js"
+  }, {
+    url: "https://d3js.org/d3-ease.v2.min.js"
+  }, {
+    url: "https://d3js.org/d3-quadtree.v2.min.js"
+  }, {
+    url: "https://d3js.org/d3-timer.v2.min.js"
+  }, {
+    url: "https://d3js.org/d3-force.v2.min.js",
+    async: false
+  }, {
+    url: "https://d3js.org/d3-hierarchy.v2.min.js"
+  }, {
+    url: "https://unpkg.com/d3-force-boundary@0.0.1/dist/d3-force-boundary.min.js"
+  }, {
+    url: "https://d3js.org/d3-random.v2.min.js"
+  }, {
+    url: "https://unpkg.com/ldcolor@0.0.3/dist/ldcolor.min.js"
+  }, {
+    url: "https://d3js.org/d3-drag.v2.min.js",
+    async: false
+  }, {
+    url: "https://d3js.org/d3-brush.v2.min.js"
+  }, {
+    url: "/assets/lib/@plotdb/pdmap-world/main/index.js"
+  }
+];
+libs2 = [
+  {
+    url: "https://d3js.org/d3.v4.js",
+    async: false
+  }, {
+    url: "https://d3js.org/d3-array.v2.js"
+  }, {
+    url: "https://d3js.org/d3-geo.v2.js"
+  }
+];
+/*
+scope.init!
+  .then -> scope.load libs
+  .then (context) ->
+    console.log context
+    scope.context libs, ->
+      svg = ld$.find 'svg', 0
+      obj = new pdmap-world { root: svg }
+      obj.init!then ~> obj.fit!
+*/
+wrapper = function(code, context){
+  var ctx, i$, len$, c, _code, k, v, ret;
+  context == null && (context = []);
+  ctx = {};
+  for (i$ = 0, len$ = context.length; i$ < len$; ++i$) {
+    c = context[i$];
+    import$(ctx, c);
+  }
+  _code = "";
+  _code = (function(){
+    var ref$, results$ = [];
+    for (k in ref$ = ctx) {
+      v = ref$[k];
+      results$.push("var " + k + " = ctx." + k + ";");
+    }
+    return results$;
+  }()).join('\n') + '\n';
+  _code += "(function() {\n  var global = this;\n  var globalThis = this;\n  var window = this;\n  var self = this;\n  " + code + "\n  return this;\n}).apply(ctx);";
+  ret = eval(_code);
+  return ret;
+};
+rescope = function(opt){
+  opt == null && (opt = {});
+  return this;
+};
+rescope.prototype = import$(Object.create(Object.prototype), {
+  peekScope: function(){},
+  init: function(){
+    return Promise.resolve();
+  },
+  context: function(url, func){
+    return this.load(url).then(function(ctx){
+      var ret;
+      return ret = func(ctx[ctx.length - 1]);
+    });
+  },
+  load: function(url){
+    url = Array.isArray(url)
+      ? url
+      : [url];
+    return Promise.resolve().then(function(){
+      return new Promise(function(res, rej){
+        var ctx, _;
+        ctx = [];
+        _ = function(list, idx){
+          var url;
+          idx == null && (idx = 0);
+          if (idx >= list.length) {
+            return res(ctx);
+          }
+          url = list[idx].url || list[idx];
+          return ld$.fetch(url, {
+            method: "GET"
+          }, {
+            type: 'text'
+          }).then(function(it){
+            var c;
+            c = wrapper(it, ctx);
+            return ctx.push(c);
+          }).then(function(){
+            return _(list, idx + 1);
+          })['catch'](function(it){
+            return rej(it);
+          });
+        };
+        return _(url);
+      });
+    });
+  }
+});
+scope = new rescope();
+scope.load(libs).then(function(it){
+  var pdmapWorld, svg;
+  console.log(it);
+  pdmapWorld = it[it.length - 1].pdmapWorld;
+  svg = ld$.find('svg', 0);
+  return setTimeout(function(){
+    var obj;
+    obj = new pdmapWorld({
+      root: svg
+    });
+    return obj.init().then(function(){
+      return obj.fit();
+    });
+  }, 1000);
+}).then(function(){});
+function import$(obj, src){
+  var own = {}.hasOwnProperty;
+  for (var key in src) if (own.call(src, key)) obj[key] = src[key];
+  return obj;
+}</script></body></html>
