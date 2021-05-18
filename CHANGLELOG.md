@@ -1,6 +1,7 @@
-# 0.2.3 ( upcoming )
+# 1.0.0
 
  - upgrade packages and fix vulnerabilities
+ - rewrite the entire module - wrap libraries in scope to prevent failure when running asynchronous task inside library context.
 
 
 # 0.2.2

@@ -158,7 +158,7 @@ pug_mixins["script"]("https://d3js.org/d3-drag.v2.min.js");
 ;pug_debug_line = 18;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Findex.pug";
 pug_mixins["script"]("https://d3js.org/d3-brush.v2.min.js");
 ;pug_debug_line = 20;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Findex.pug";
-pug_mixins["script"]("/js/rescope.js");
+pug_mixins["script"]("/assets/lib/rescope/dev/rescope.js");
 ;pug_debug_line = 21;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Findex.pug";
 pug_html = pug_html + "\u003Cscript\u003E";
 ;pug_debug_line = 21;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Findex.pug";
