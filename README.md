@@ -14,7 +14,9 @@ For example, assume here are the list of js url we'd like to load, which kept in
 We can load all above js files with rescope, with a resolveed context containing all imported variables:
 
     scope = new rescope!
-    scope.load libs .then (context) -> myfunc!
+    scope.init!
+      .then -> scope.load libs
+      .then (context) -> myfunc!
 
 
 However, we actually don't have to access the returned `context` object. Instead we simply enter desired context:
