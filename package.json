@@ -18,7 +18,7 @@
     "npm": ">=6.4.1"
   },
   "scripts": {
-    "start": "cd web; npx server",
+    "start": "npx server -r web -o true",
     "deploy": "npx deploy web/static"
   },
   "devDependencies": {
@@ -34,6 +34,7 @@
     "ldview": "^0.0.2",
     "livescript": "^1.6.0",
     "template": "github:zbryikt/template#v2.3.11",
+    "@plotdb/pdmap-world": "^0.0.2",
     "yargs": "^16.1.0"
   },
   "frontendDependencies": {
@@ -46,6 +47,7 @@
       "@loadingio/debounce.js",
       "ldview",
       "bootstrap.native",
+      "@plotdb/pdmap-world",
       "ldiconfont"
     ]
   }
