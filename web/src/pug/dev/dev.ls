@@ -1,7 +1,7 @@
 libs = [
   {url: "https://d3js.org/d3.v4.js", async: false}
   {url: "https://d3js.org/topojson.v2.min.js"}
-  {url: "/js/dev.js"}
+  {url: "/js/dev/dev.js"}
   {url: "/assets/lib/@plotdb/pdmap-world/main/index.min.js"}
 ]
 scope = new rescope!
