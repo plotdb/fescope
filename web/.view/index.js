@@ -1,7 +1,11 @@
  (function() { function pug_attr(t,e,n,r){if(!1===e||null==e||!e&&("class"===t||"style"===t))return"";if(!0===e)return" "+(r?t:t+'="'+t+'"');var f=typeof e;return"object"!==f&&"function"!==f||"function"!=typeof e.toJSON||(e=e.toJSON()),"string"==typeof e||(e=JSON.stringify(e),n||-1===e.indexOf('"'))?(n&&(e=pug_escape(e))," "+t+'="'+e+'"'):" "+t+"='"+e.replace(/'/g,"&#39;")+"'"}
 function pug_escape(e){var a=""+e,t=pug_match_html.exec(a);if(!t)return e;var r,c,n,s="";for(r=t.index,c=0;r<a.length;r++){switch(a.charCodeAt(r)){case 34:n="&quot;";break;case 38:n="&amp;";break;case 60:n="&lt;";break;case 62:n="&gt;";break;default:continue}c!==r&&(s+=a.substring(c,r)),c=r+1,s+=n}return c!==r?s+a.substring(c,r):s}
 var pug_match_html=/["&<>]/;
-function pug_rethrow(n,e,r,t){if(!(n instanceof Error))throw n;if(!("undefined"==typeof window&&e||t))throw n.message+=" on line "+r,n;try{t=t||require("fs").readFileSync(e,"utf8")}catch(e){pug_rethrow(n,null,r)}var i=3,a=t.split("\n"),o=Math.max(r-i,0),h=Math.min(a.length,r+i),i=a.slice(o,h).map(function(n,e){var t=e+o+1;return(t==r?"  > ":"    ")+t+"| "+n}).join("\n");throw n.path=e,n.message=(e||"Pug")+":"+r+"\n"+i+"\n\n"+n.message,n}function template(locals) {var pug_html = "", pug_mixins = {}, pug_interp;var pug_debug_filename, pug_debug_line;try {;var locals_for_with = (locals || {});(function (JSON, blockLoader, cssLoader, decache, escape, scriptLoader, version) {;pug_debug_line = 2;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
+function pug_rethrow(e,n,r,t){if(!(e instanceof Error))throw e;if(!("undefined"==typeof window&&n||t))throw e.message+=" on line "+r,e;var o,a,i,s;try{t=t||require("fs").readFileSync(n,{encoding:"utf8"}),o=3,a=t.split("\n"),i=Math.max(r-o,0),s=Math.min(a.length,r+o)}catch(t){return e.message+=" - could not read from "+n+" ("+t.message+")",void pug_rethrow(e,null,r)}o=a.slice(i,s).map(function(e,n){var t=n+i+1;return(t==r?"  > ":"    ")+t+"| "+e}).join("\n"),e.path=n;try{e.message=(n||"Pug")+":"+r+"\n"+o+"\n\n"+e.message}catch(e){}throw e}function template(locals) {var pug_html = "", pug_mixins = {}, pug_interp;var pug_debug_filename, pug_debug_line;try {;
+    var locals_for_with = (locals || {});
+    
+    (function (JSON, b64img, blockLoader, cssLoader, decache, escape, scriptLoader, version) {
+      ;pug_debug_line = 2;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
 pug_html = pug_html + "\u003C!DOCTYPE html\u003E";
 ;pug_debug_line = 3;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
 pug_html = pug_html + "\u003Chtml\u003E";
@@ -189,4 +193,22 @@ pug_mixins["script"]("assets/lib/rescope/dev/rescope.js");
 ;pug_debug_line = 18;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
 ;pug_debug_line = 19;pug_debug_filename = "src\u002Fpug\u002Findex.pug";
 pug_mixins["script"]("js/index.js");
-pug_html = pug_html + "\u003C\u002Fbody\u003E\u003C\u002Fhtml\u003E";}.call(this,"JSON" in locals_for_with?locals_for_with.JSON:typeof JSON!=="undefined"?JSON:undefined,"blockLoader" in locals_for_with?locals_for_with.blockLoader:typeof blockLoader!=="undefined"?blockLoader:undefined,"cssLoader" in locals_for_with?locals_for_with.cssLoader:typeof cssLoader!=="undefined"?cssLoader:undefined,"decache" in locals_for_with?locals_for_with.decache:typeof decache!=="undefined"?decache:undefined,"escape" in locals_for_with?locals_for_with.escape:typeof escape!=="undefined"?escape:undefined,"scriptLoader" in locals_for_with?locals_for_with.scriptLoader:typeof scriptLoader!=="undefined"?scriptLoader:undefined,"version" in locals_for_with?locals_for_with.version:typeof version!=="undefined"?version:undefined));} catch (err) {pug_rethrow(err, pug_debug_filename, pug_debug_line);};return pug_html;}; module.exports = template; })() 
+pug_html = pug_html + "\u003C\u002Fbody\u003E\u003C\u002Fhtml\u003E";
+    }.call(this, "JSON" in locals_for_with ?
+        locals_for_with.JSON :
+        typeof JSON !== 'undefined' ? JSON : undefined, "b64img" in locals_for_with ?
+        locals_for_with.b64img :
+        typeof b64img !== 'undefined' ? b64img : undefined, "blockLoader" in locals_for_with ?
+        locals_for_with.blockLoader :
+        typeof blockLoader !== 'undefined' ? blockLoader : undefined, "cssLoader" in locals_for_with ?
+        locals_for_with.cssLoader :
+        typeof cssLoader !== 'undefined' ? cssLoader : undefined, "decache" in locals_for_with ?
+        locals_for_with.decache :
+        typeof decache !== 'undefined' ? decache : undefined, "escape" in locals_for_with ?
+        locals_for_with.escape :
+        typeof escape !== 'undefined' ? escape : undefined, "scriptLoader" in locals_for_with ?
+        locals_for_with.scriptLoader :
+        typeof scriptLoader !== 'undefined' ? scriptLoader : undefined, "version" in locals_for_with ?
+        locals_for_with.version :
+        typeof version !== 'undefined' ? version : undefined));
+    ;} catch (err) {pug_rethrow(err, pug_debug_filename, pug_debug_line);};return pug_html;}; module.exports = template; })() 
