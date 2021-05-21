@@ -32,7 +32,7 @@
         ref$.pointerEvents = 'none';
         ref$.width = '0px';
         ref$.height = '0px';
-        code = "<html><body><script>\nfunction init() {\n  if(!window._scope) { window._scope = new rescope({inFrame:true,global:window}) }\n}\nfunction load(url,ctx) { return _scope.load(url,ctx); }\nfunction context(url,func) { _scope.context(url,func,true); }\n</script></body></html>";
+        code = "<html><body>\n<script>\nfunction init() {\n  if(!window._scope) { window._scope = new rescope({inFrame:true,global:window}) }\n}\nfunction load(url,ctx) { return _scope.load(url,ctx); }\nfunction context(url,func) { _scope.context(url,func,true); }\n</script></body></html>";
         node.onerror = function(it){
           return rej(it);
         };
@@ -74,7 +74,7 @@
         : Promise.resolve();
       return p.then(function(){
         var k, results$ = [];
-        for (k in context) {
+        for (k in stack) {
           results$.push(this$.global[k] = stack[k]);
         }
         return results$;
@@ -136,43 +136,39 @@
             return this$.iframe.load(url, ctx);
           }
         }).then(function(){
-          return new Promise(function(res, rej){
-            var _;
-            _ = function(list, idx, ctx){
-              var items, i$, to$, i;
-              idx == null && (idx = 0);
-              if (idx >= list.length) {
-                return res(ctx);
+          var _;
+          _ = function(list, idx, ctx){
+            var items, i$, to$, i;
+            idx == null && (idx = 0);
+            if (idx >= list.length) {
+              return Promise.resolve(ctx);
+            }
+            items = [];
+            for (i$ = idx, to$ = list.length; i$ < to$; ++i$) {
+              i = i$;
+              items.push(list[i]);
+              if (list[i].async != null && !list[i].async) {
+                break;
               }
-              items = [];
-              for (i$ = idx, to$ = list.length; i$ < to$; ++i$) {
-                i = i$;
-                items.push(list[i]);
-                if (list[i].async != null && !list[i].async) {
-                  break;
-                }
-              }
-              if (!items.length) {
-                return res(ctx);
-              }
-              return Promise.all(items.map(function(it){
-                var url;
-                url = it.url || it;
-                return this$._load(url, ctx, (this$.frameScope || (this$.frameScope = {}))[url]);
-              })).then(function(){
-                return this$.context(items.map(function(it){
-                  return it.url || it;
-                }), function(c){
-                  import$(ctx[this$.inFrame ? 'frame' : 'local'], c);
-                  return _(list, idx + items.length, ctx);
-                }, true);
-              })['catch'](function(it){
-                return rej(it);
-              });
-            };
-            return _(url, 0, ctx);
-          });
-        });
+            }
+            if (!items.length) {
+              return Promise.resolve(ctx);
+            }
+            return Promise.all(items.map(function(it){
+              var url;
+              url = it.url || it;
+              return this$._load(url, ctx, (this$.frameScope || (this$.frameScope = {}))[url]);
+            })).then(function(){
+              return this$.context(items.map(function(it){
+                return it.url || it;
+              }), function(c){
+                import$(ctx[this$.inFrame ? 'frame' : 'local'], c);
+                return _(list, idx + items.length, ctx);
+              }, true);
+            });
+          };
+          return _(url, 0, ctx);
+        }).then(function(){});
       };
       if (!ctx) {
         return _();
@@ -198,7 +194,7 @@
           var ref$, results$ = [];
           for (k in ref$ = context) {
             v = ref$[k];
-            results$.push("var " + k + " = context." + k + ";");
+            results$.push("var " + k + " = context." + k + ";this." + k + " = context." + k + ";");
           }
           return results$;
         }()).join('\n') + '\n';
@@ -211,7 +207,6 @@
           return results$;
         }()).join('\n') + '\n';
         _forceScope = "var global = this;\nvar globalThis = this;\nvar window = this;\nvar self = this;";
-        _forceScope = "";
         id = "x" + Math.random().toString(36).substring(2);
         _code = "/* URL: " + url + " */\nrescope.func." + id + " = function(context) {\n  return (function() {\n    " + _code + "\n    " + _forceScope + "\n    " + code + "\n    " + _postcode + "\n    return this;\n  }).apply(context);\n}";
         script = this$.global.document.createElement("script");
@@ -271,7 +266,7 @@
       }, {
         type: 'text'
       }).then(function(code){
-        return this$._wrapperAlt(url, code, ctx.local || (ctx.local = {}), prescope);
+        return this$._wrapperAlt(url, code, ctx.local, prescope);
       }).then(function(c){
         return this$.scope[url] = c;
       });

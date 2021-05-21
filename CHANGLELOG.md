@@ -1,3 +1,11 @@
+# 1.1.1
+
+ - correctly handling promise in recursive `load` call.
+ - load variables both into local scope and global scope in wrapper.
+ - force global related variables in wrapper to `this`. may lead to some unwanted issue if libraries access
+ - restore global session by iterating the correct object.
+
+
 # 1.1.0
 
  - add support to loading with custom context. this is useful with multiple stages loading.

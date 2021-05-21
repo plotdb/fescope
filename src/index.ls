@@ -20,7 +20,8 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       node.style <<< opacity: 0, z-index: -1, pointer-events: \none, width: '0px', height: '0px'
       # `load` is exposed via contentWindow and used to load libs in sandbox.
       # it actually execute this object's load function so we keep it's scope in @frame-scope.
-      code = """<html><body><script>
+      code = """<html><body>
+      <script>
       function init() {
         if(!window._scope) { window._scope = new rescope({inFrame:true,global:window}) }
       }
@@ -31,6 +32,10 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       # pass this object to delegate so we can run it there.
       node.onload = ~>
         (@iframe = node.contentWindow) <<< {rescope: rescope, _rescopeDelegate: true}
+        # use rescope from main window makes window related operations work on main window.
+        # while we do restore window member variables, this may be a little disruptive
+        # remove `rescope` and include rescope script with <script> can solve this issue.
+        #(@iframe = node.contentWindow) <<< {_rescopeDelegate: true}
         @iframe.init!
         @frame-scope = @iframe._scope.scope
         res!
@@ -54,7 +59,9 @@ rescope.prototype = Object.create(Object.prototype) <<< do
     # func may be `load` in rescope, and it is batched until a sync script is found.
     # we need to wait until it resolves otherwise its dependenies may fail.
     p = if until-resolved and ret and ret.then => ret else Promise.resolve!
-    p.then ~> for k of context => @global[k] = stack[k]
+    p.then ~>
+      # context may be altered. must iterate stack.
+      for k of stack => @global[k] = stack[k]
 
   # from-url: or, we provide a ( list of ) url, let rescope compose the context for us.
   ctx-from-url: (url, func, until-resolved = false) ->
@@ -88,16 +95,15 @@ rescope.prototype = Object.create(Object.prototype) <<< do
     url = if Array.isArray(url) => url else [url]
     _ = ~>
       Promise.resolve!
+        .then ~> if !@in-frame => @iframe.load(url, ctx)
         .then ~>
-          if !@in-frame => @iframe.load(url, ctx)
-        .then ~> new Promise (res, rej) ~>
           _ = (list, idx = 0, ctx) ~>
-            if idx >= list.length => return res ctx
+            if idx >= list.length => return Promise.resolve ctx
             items = []
             for i from idx til list.length =>
               items.push list[i]
               if list[i].async? and !list[i].async => break
-            if !items.length => return res ctx
+            if !items.length => return Promise.resolve ctx
             Promise.all(
               items.map ~>
                 url = it.url or it
@@ -112,24 +118,29 @@ rescope.prototype = Object.create(Object.prototype) <<< do
                   ),
                   true
                 )
-              .catch -> rej it
           _ url, 0, ctx
+        .then ->
 
     if !ctx => return _!
     (res, rej) <~ new Promise _
-    @context ctx[if @in-frame => \frame else \local], (-> _!then(-> res it)catch(->rej it)), true
+    @context ctx[if @in-frame => \frame else \local], (~>
+      _!then(-> res it)catch(->rej it)
+    ), true
 
   _wrapper-alt: (url, code, context = {}, prescope = {}) -> new Promise (res, rej) ~> 
     _code = ""
-    _code = ["var #k = context.#k;" for k,v of context].join(\\n) + \\n
+    _code = ["var #k = context.#k;this.#k = context.#k;" for k,v of context].join(\\n) + \\n
     _postcode = ["if(typeof(#k) != 'undefined') { this.#k = #k; }" for k,v of prescope].join(\\n) + \\n
+    # some libraries may access window directly.
+    # note this may block access from lib to default window members.
+    # but without this, library will fail when accessing dependencies directly via `window.xxx`.
     _force-scope = """
       var global = this;
       var globalThis = this;
       var window = this;
       var self = this;
     """
-    _force-scope = ""
+    #_force-scope = ""
     id = "x" + Math.random!toString(36)substring(2)
     _code = """
     /* URL: #url */
@@ -180,7 +191,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
   _load: (url, ctx, prescope = {}) ->
     if @in-frame => return @_load-in-frame url
     ld$.fetch url, {method: "GET"}, {type: \text}
-      .then (code) ~> @_wrapper-alt url, code, ctx.{}local, prescope
+      .then (code) ~> @_wrapper-alt url, code, ctx.local, prescope
       .then (c) ~> @scope[url] = c
 
 
