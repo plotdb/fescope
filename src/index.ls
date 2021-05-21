@@ -1,7 +1,7 @@
 rescope = (opt = {}) ->
   # in-frame: internal use. this rescope is used in iframe for collecting list of local variables.
   @opt = {in-frame: false} <<< opt
-  @in-frame = @opt.in-frame
+  @in-frame = !!@opt.in-frame
   @global = opt.global or if global? => global else window
   @scope = {}
   @
@@ -24,7 +24,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       function init() {
         if(!window._scope) { window._scope = new rescope({inFrame:true,global:window}) }
       }
-      function load(url) { return _scope.load(url); }
+      function load(url,ctx) { return _scope.load(url,ctx); }
       function context(url,func) { _scope.context(url,func,true); }
       </script></body></html>"""
       node.onerror = -> rej it
@@ -40,7 +40,24 @@ rescope.prototype = Object.create(Object.prototype) <<< do
   # until-resolved: is this call for loading procedure?
   #   - we should always wait func returned promise to resolve, if it's loading procedure.
   #   - this should be lib only since it may lead strange behavior in concurrent contexts.
-  context: (url, func, until-resolved = false) ->
+  context: (des, func, until-resolved = false) ->
+    if typeof(des) == \string or Array.isArray(des) => @ctx-from-url des, func, until-resolved
+    else @ctx-from-obj des, func, until-resolved
+
+  # from-obj: we can load ctx directly from previous context object.
+  ctx-from-obj: (context = {}, func, until-resolved = false) ->
+    stack = {}
+    for k of context =>
+      stack[k] = @global[k]
+      @global[k] = context[k]
+    ret = func context
+    # func may be `load` in rescope, and it is batched until a sync script is found.
+    # we need to wait until it resolves otherwise its dependenies may fail.
+    p = if until-resolved and ret and ret.then => ret else Promise.resolve!
+    p.then ~> for k of context => @global[k] = stack[k]
+
+  # from-url: or, we provide a ( list of ) url, let rescope compose the context for us.
+  ctx-from-url: (url, func, until-resolved = false) ->
     url = if Array.isArray(url) => url else [url]
     stacks = []
     scopes = []
@@ -64,33 +81,43 @@ rescope.prototype = Object.create(Object.prototype) <<< do
         stack = stacks[i]
         for k of scope => @global[k] = stack[k]
 
-  load: (url) ->
+  load: (url, ctx = {}) ->
     if !url => return Promise.resolve!
+    ctx.{}local
+    ctx.{}frame
     url = if Array.isArray(url) => url else [url]
-    Promise.resolve!
-      .then ~> if !@in-frame => @iframe.load(url)
-      .then ~> new Promise (res, rej) ~>
-        _ = (list, idx = 0, ctx = {}) ~>
-          if idx >= list.length => return res ctx
-          items = []
-          for i from idx til list.length =>
-            items.push list[i]
-            if list[i].async? and !list[i].async => break
-          if !items.length => return res ctx
+    _ = ~>
+      Promise.resolve!
+        .then ~>
+          if !@in-frame => @iframe.load(url, ctx)
+        .then ~> new Promise (res, rej) ~>
+          _ = (list, idx = 0, ctx) ~>
+            if idx >= list.length => return res ctx
+            items = []
+            for i from idx til list.length =>
+              items.push list[i]
+              if list[i].async? and !list[i].async => break
+            if !items.length => return res ctx
+            Promise.all(
+              items.map ~>
+                url = it.url or it
+                @_load(url, ctx, @{}frame-scope[url])
+            )
+              .then ~>
+                @context(
+                  items.map(-> it.url or it),
+                  ((c) ~>
+                    ctx[if @in-frame => \frame else \local] <<< c
+                    _(list, idx + items.length, ctx)
+                  ),
+                  true
+                )
+              .catch -> rej it
+          _ url, 0, ctx
 
-          Promise.all(
-            items.map ~>
-              url = it.url or it
-              @_load(url, ctx, @{}frame-scope[url])
-          )
-            .then ~>
-              @context(
-                items.map(-> it.url or it),
-                ((c) -> _(list, idx + items.length, (ctx <<< c))),
-                true
-              )
-            .catch -> rej it
-        _ url, 0
+    if !ctx => return _!
+    (res, rej) <~ new Promise _
+    @context ctx[if @in-frame => \frame else \local], (-> _!then(-> res it)catch(->rej it)), true
 
   _wrapper-alt: (url, code, context = {}, prescope = {}) -> new Promise (res, rej) ~> 
     _code = ""
@@ -150,10 +177,10 @@ rescope.prototype = Object.create(Object.prototype) <<< do
     ret = eval _code
     return {} <<< ret
 
-  _load: (url, ctx = {}, prescope = {}) ->
+  _load: (url, ctx, prescope = {}) ->
     if @in-frame => return @_load-in-frame url
     ld$.fetch url, {method: "GET"}, {type: \text}
-      .then (code) ~> @_wrapper-alt url, code, ctx, prescope
+      .then (code) ~> @_wrapper-alt url, code, ctx.{}local, prescope
       .then (c) ~> @scope[url] = c
 
 

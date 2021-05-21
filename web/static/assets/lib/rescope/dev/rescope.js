@@ -5,7 +5,7 @@
     this.opt = import$({
       inFrame: false
     }, opt);
-    this.inFrame = this.opt.inFrame;
+    this.inFrame = !!this.opt.inFrame;
     this.global = opt.global || (typeof global != 'undefined' && global !== null ? global : window);
     this.scope = {};
     return this;
@@ -32,7 +32,7 @@
         ref$.pointerEvents = 'none';
         ref$.width = '0px';
         ref$.height = '0px';
-        code = "<html><body><script>\nfunction init() {\n  if(!window._scope) { window._scope = new rescope({inFrame:true,global:window}) }\n}\nfunction load(url) { return _scope.load(url); }\nfunction context(url,func) { _scope.context(url,func,true); }\n</script></body></html>";
+        code = "<html><body><script>\nfunction init() {\n  if(!window._scope) { window._scope = new rescope({inFrame:true,global:window}) }\n}\nfunction load(url,ctx) { return _scope.load(url,ctx); }\nfunction context(url,func) { _scope.context(url,func,true); }\n</script></body></html>";
         node.onerror = function(it){
           return rej(it);
         };
@@ -51,7 +51,36 @@
         return document.body.appendChild(node);
       });
     },
-    context: function(url, func, untilResolved){
+    context: function(des, func, untilResolved){
+      untilResolved == null && (untilResolved = false);
+      if (typeof des === 'string' || Array.isArray(des)) {
+        return this.ctxFromUrl(des, func, untilResolved);
+      } else {
+        return this.ctxFromObj(des, func, untilResolved);
+      }
+    },
+    ctxFromObj: function(context, func, untilResolved){
+      var stack, k, ret, p, this$ = this;
+      context == null && (context = {});
+      untilResolved == null && (untilResolved = false);
+      stack = {};
+      for (k in context) {
+        stack[k] = this.global[k];
+        this.global[k] = context[k];
+      }
+      ret = func(context);
+      p = untilResolved && ret && ret.then
+        ? ret
+        : Promise.resolve();
+      return p.then(function(){
+        var k, results$ = [];
+        for (k in context) {
+          results$.push(this$.global[k] = stack[k]);
+        }
+        return results$;
+      });
+    },
+    ctxFromUrl: function(url, func, untilResolved){
       var stacks, scopes, context, i$, to$, i, ref$, stack, scope, k, ret, p, this$ = this;
       untilResolved == null && (untilResolved = false);
       url = Array.isArray(url)
@@ -90,55 +119,72 @@
         return results$;
       });
     },
-    load: function(url){
-      var this$ = this;
+    load: function(url, ctx){
+      var _, this$ = this;
+      ctx == null && (ctx = {});
       if (!url) {
         return Promise.resolve();
       }
+      ctx.local || (ctx.local = {});
+      ctx.frame || (ctx.frame = {});
       url = Array.isArray(url)
         ? url
         : [url];
-      return Promise.resolve().then(function(){
-        if (!this$.inFrame) {
-          return this$.iframe.load(url);
-        }
-      }).then(function(){
-        return new Promise(function(res, rej){
-          var _;
-          _ = function(list, idx, ctx){
-            var items, i$, to$, i;
-            idx == null && (idx = 0);
-            ctx == null && (ctx = {});
-            if (idx >= list.length) {
-              return res(ctx);
-            }
-            items = [];
-            for (i$ = idx, to$ = list.length; i$ < to$; ++i$) {
-              i = i$;
-              items.push(list[i]);
-              if (list[i].async != null && !list[i].async) {
-                break;
+      _ = function(){
+        return Promise.resolve().then(function(){
+          if (!this$.inFrame) {
+            return this$.iframe.load(url, ctx);
+          }
+        }).then(function(){
+          return new Promise(function(res, rej){
+            var _;
+            _ = function(list, idx, ctx){
+              var items, i$, to$, i;
+              idx == null && (idx = 0);
+              if (idx >= list.length) {
+                return res(ctx);
               }
-            }
-            if (!items.length) {
-              return res(ctx);
-            }
-            return Promise.all(items.map(function(it){
-              var url;
-              url = it.url || it;
-              return this$._load(url, ctx, (this$.frameScope || (this$.frameScope = {}))[url]);
-            })).then(function(){
-              return this$.context(items.map(function(it){
-                return it.url || it;
-              }), function(c){
-                return _(list, idx + items.length, import$(ctx, c));
-              }, true);
-            })['catch'](function(it){
-              return rej(it);
-            });
-          };
-          return _(url, 0);
+              items = [];
+              for (i$ = idx, to$ = list.length; i$ < to$; ++i$) {
+                i = i$;
+                items.push(list[i]);
+                if (list[i].async != null && !list[i].async) {
+                  break;
+                }
+              }
+              if (!items.length) {
+                return res(ctx);
+              }
+              return Promise.all(items.map(function(it){
+                var url;
+                url = it.url || it;
+                return this$._load(url, ctx, (this$.frameScope || (this$.frameScope = {}))[url]);
+              })).then(function(){
+                return this$.context(items.map(function(it){
+                  return it.url || it;
+                }), function(c){
+                  import$(ctx[this$.inFrame ? 'frame' : 'local'], c);
+                  return _(list, idx + items.length, ctx);
+                }, true);
+              })['catch'](function(it){
+                return rej(it);
+              });
+            };
+            return _(url, 0, ctx);
+          });
         });
+      };
+      if (!ctx) {
+        return _();
+      }
+      return new Promise(function(res, rej){
+        return this$.context(ctx[this$.inFrame ? 'frame' : 'local'], function(){
+          return _().then(function(it){
+            return res(it);
+          })['catch'](function(it){
+            return rej(it);
+          });
+        }, true);
       });
     },
     _wrapperAlt: function(url, code, context, prescope){
@@ -216,7 +262,6 @@
     },
     _load: function(url, ctx, prescope){
       var this$ = this;
-      ctx == null && (ctx = {});
       prescope == null && (prescope = {});
       if (this.inFrame) {
         return this._loadInFrame(url);
@@ -226,7 +271,7 @@
       }, {
         type: 'text'
       }).then(function(code){
-        return this$._wrapperAlt(url, code, ctx, prescope);
+        return this$._wrapperAlt(url, code, ctx.local || (ctx.local = {}), prescope);
       }).then(function(c){
         return this$.scope[url] = c;
       });
