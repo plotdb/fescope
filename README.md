@@ -44,6 +44,30 @@ This is useful when you need the same library with different versions:
 Note that for asynchronous functions, context may change if there are concurrent `scope.context` running so window object may be overwritten In this case, always rely on the passed `context` object to access required libraries.
 
 
+## Customized Context
+
+Libraries can be loaded correctly in one single `load` invocation because `rescope` take care of the scope issue in `load` stage for us.
+
+However,
+
+ - if we need to call `load` in separated stages, we may run into trouble of missing dependencies to previous loaded libraries.
+ - Additionally, we may want to load libraries into a specific context stored before.
+
+To keep track of the context loaded , we pass an optional object directly into `load`:
+
+    scope.load libs, (ctx = {}) .then -> ...
+
+once loaded, the empty object `ctx` above will be filled with the loaded objects from libraries in `libs`. This `ctx` can then be used in turn in the following `load` calls:
+
+    ctx = {}
+    scope.load libs1, ctx
+      .then -> scope.load libs2, ctx
+      .then -> scope.load libs3, ctx
+      .then -> ...
+
+in this manner, following libraries `libs2` and `libs3` can be loaded with the context of previous loaded libraries `libs1` without them being written in 1 load call.
+
+
 ## Asynchronous Script Loading
 
 By default all script are loaded asynchronously. You can force them loaded in synchronous manner, by extending URL into object with following options:

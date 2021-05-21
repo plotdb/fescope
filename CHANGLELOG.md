@@ -1,3 +1,8 @@
+# 1.1.0
+
+ - add support to loading with custom context. this is useful with multiple stages loading.
+
+
 # 1.0.0
 
  - upgrade packages and fix vulnerabilities
