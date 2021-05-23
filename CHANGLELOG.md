@@ -1,3 +1,9 @@
+# v1.1.4
+
+ - track window injection and ignore injected members from capturing in context.
+ - keep window properties from iframe at initial time
+
+
 # v1.1.3
 
  - update dist folder

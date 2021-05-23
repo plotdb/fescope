@@ -65,7 +65,6 @@ win-props =
     URL Window Worker XMLDocument
   ]>
 
-win-props.all = Array.from(new Set([k for k of window] ++ win-props.dom ++ win-props.attr))
 
 rescope.prototype = Object.create(Object.prototype) <<< do
   peek-scope: -> console.log "in delegate iframe: #{!!@global._rescopeDelegate}"; return @global._rescopeDelegate
@@ -97,6 +96,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
         #(@iframe = node.contentWindow) <<< {_rescopeDelegate: true}
         @iframe.init!
         @frame-scope = @iframe._scope.scope
+        win-props.all = Array.from(new Set([k for k of @iframe] ++ win-props.dom ++ win-props.attr))
         res!
       node.src = URL.createObjectURL(new Blob([code], {type: \text/html}))
       document.body.appendChild node
@@ -205,11 +205,13 @@ rescope.prototype = Object.create(Object.prototype) <<< do
         k = winProps.all[i];
         /* but functions need window as `this` to be called. we indirectly do this for them. */
         if(typeof(win[k]) == "function") {
+          track.push(k);
           window[k] = (function(k){ return function() { return win[k].apply(win,arguments);} })(k);
         } else {
           /* and some members are from getter/setter. we proxy it via custom getter / setter object. */
           desc = Object.getOwnPropertyDescriptor(win,k);
           if(desc && desc.get) {
+            track.push(k);
             Object.defineProperty(window, k, (function(n,desc) {
               var ret = {
                 configurable: desc.configurable,
@@ -228,6 +230,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
     /* URL: #url */
     rescope.func.#id = function(context, winProps) {
       var win = window;
+      var track = [];
       var ret = (function() {
         #_code
         #_force-scope
@@ -238,9 +241,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       /* returned ret may contain members from window through __proto__.  */
       /* we only need members from libs, so just ignore those from window object. */
       for(k in ret) {
-        if(!win.hasOwnProperty(k) && !win[k] && ret.hasOwnProperty(k)) {
-          context[k] = ret[k];
-        }
+        if((track.indexOf(k) == -1) && ret.hasOwnProperty(k)) { context[k] = ret[k]; }
       }
       return context;
     }
