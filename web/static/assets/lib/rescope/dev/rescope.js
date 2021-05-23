@@ -31,8 +31,6 @@
     }
     return results$;
   }()).concat(winProps.dom, winProps.attr)));
-  console.log(winProps.all.indexOf('self'));
-  console.log(winProps.all.indexOf('top'));
   rescope.prototype = import$(Object.create(Object.prototype), {
     peekScope: function(){
       console.log("in delegate iframe: " + !!this.global._rescopeDelegate);
@@ -229,7 +227,7 @@
         }()).join('\n') + '\n';
         _forceScope = "/* intercept these variables so lib will inject anything into our scope */\nvar global = this;\nvar globalThis = this;\nvar self = this;\nvar window = this;\n/* yet we need window memebers so lib can work properly with builtin features */\nwindow.__proto__ = win;\n/* some props are not enumerable, so we list all of them directly in winProps.all */\nfor(var i = 0; i < winProps.all.length; i++) {\n  k = winProps.all[i];\n  /* but functions need window as `this` to be called. we indirectly do this for them. */\n  if(typeof(win[k]) == \"function\") {\n    window[k] = (function(k){ return function() { return win[k].apply(win,arguments);} })(k);\n  } else {\n    /* and some members are from getter/setter. we proxy it via custom getter / setter object. */\n    desc = Object.getOwnPropertyDescriptor(win,k);\n    if(desc && desc.get) {\n      Object.defineProperty(window, k, (function(n,desc) {\n        var ret = {\n          configurable: desc.configurable,\n          enumerable: desc.enumerable\n        };\n        if(desc.get) { ret.get = function() { return win[n]; } }\n        if(desc.set) { ret.set = function(it) { win[n] = it; } }\n        return ret;\n      }(k,desc)));\n    }\n  }\n}";
         id = "x" + Math.random().toString(36).substring(2);
-        _code = "/* URL: " + url + " */\nrescope.func." + id + " = function(context, winProps) {\n  var win = window;\n  var ret = (function() {\n    " + _code + "\n    " + _forceScope + "\n    " + code + "\n    " + _postcode + "\n    return this;\n  }).apply({});\n  /* returned ret may contain members from window through __proto__.  */\n  /* we only need members from libs, so just ignore those from window object. */\n  for(k in ret) { \n    if(!win.hasOwnProperty(k) && !win[k] && ret.hasOwnProperty(k)) {\n      console.log(k);\n      context[k] = ret[k];\n    }\n  }\n  return context;\n}";
+        _code = "/* URL: " + url + " */\nrescope.func." + id + " = function(context, winProps) {\n  var win = window;\n  var ret = (function() {\n    " + _code + "\n    " + _forceScope + "\n    " + code + "\n    " + _postcode + "\n    return this;\n  }).apply({});\n  /* returned ret may contain members from window through __proto__.  */\n  /* we only need members from libs, so just ignore those from window object. */\n  for(k in ret) {\n    if(!win.hasOwnProperty(k) && !win[k] && ret.hasOwnProperty(k)) {\n      context[k] = ret[k];\n    }\n  }\n  return context;\n}";
         script = this$.global.document.createElement("script");
         hash = {};
         for (k in ref$ = this$.global) {
