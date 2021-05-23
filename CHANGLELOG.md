@@ -1,3 +1,8 @@
+# v1.1.3
+
+ - update dist folder
+
+
 # v1.1.2
 
  - merge local window and global window by prototype chain and `hasOwnPropery` checking, so we can both
