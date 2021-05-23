@@ -1,5 +1,5 @@
 (function(){
-  var rescope;
+  var rescope, winProps, k;
   rescope = function(opt){
     opt == null && (opt = {});
     this.opt = import$({
@@ -11,6 +11,28 @@
     return this;
   };
   rescope.func = [];
+  /*
+  
+  window members. adopted from:
+   - DOM: https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model
+   - Properties: https://developer.mozilla.org/en-US/docs/Web/API/Window
+  
+  used for list all un-enumerable attributes in window object.
+  
+  */
+  winProps = {
+    attr: ['applicationCache', 'caches', 'closed', 'console', 'controllers', 'crossOriginIsolated', 'crypto', 'customElements', 'defaultStatus', 'devicePixelRatio', 'dialogArguments', 'directories', 'document', 'event', 'frameElement', 'frames', 'fullScreen', 'history', 'indexedDB', 'innerHeight', 'innerWidth', 'isSecureContext', 'isSecureContext', 'length', 'localStorage', 'location', 'locationbar', 'menubar', 'mozAnimationStartTime', 'mozInnerScreenX', 'mozInnerScreenY', 'mozPaintCount', 'name', 'navigator', 'onabort', 'onafterprint', 'onanimationcancel', 'onanimationend', 'onanimationiteration', 'onappinstalled', 'onauxclick', 'onbeforeinstallprompt', 'onbeforeprint', 'onbeforeunload', 'onblur', 'oncancel', 'oncanplay', 'oncanplaythrough', 'onchange', 'onclick', 'onclose', 'oncontextmenu', 'oncuechange', 'ondblclick', 'ondevicemotion', 'ondeviceorientation', 'ondeviceorientationabsolute', 'ondragdrop', 'ondurationchange', 'onended', 'onerror', 'onfocus', 'onformdata', 'ongamepadconnected', 'ongamepaddisconnected', 'ongotpointercapture', 'onhashchange', 'oninput', 'oninvalid', 'onkeydown', 'onkeypress', 'onkeyup', 'onlanguagechange', 'onload', 'onloadeddata', 'onloadedmetadata', 'onloadend', 'onloadstart', 'onlostpointercapture', 'onmessage', 'onmessageerror', 'onmousedown', 'onmouseenter', 'onmouseleave', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onmozbeforepaint', 'onpaint', 'onpause', 'onplay', 'onplaying', 'onpointercancel', 'onpointerdown', 'onpointerenter', 'onpointerleave', 'onpointermove', 'onpointerout', 'onpointerover', 'onpointerup', 'onpopstate', 'onrejectionhandled', 'onreset', 'onresize', 'onscroll', 'onselect', 'onselectionchange', 'onselectstart', 'onstorage', 'onsubmit', 'ontouchcancel', 'ontouchstart', 'ontransitioncancel', 'ontransitionend', 'onunhandledrejection', 'onunload', 'onvrdisplayactivate', 'onvrdisplayblur', 'onvrdisplayconnect', 'onvrdisplaydeactivate', 'onvrdisplaydisconnect', 'onvrdisplayfocus', 'onvrdisplaypointerrestricted', 'onvrdisplaypointerunrestricted', 'onvrdisplaypresentchange', 'onwheel', 'opener', 'origin', 'outerHeight', 'outerWidth', 'pageXOffset', 'pageYOffset', 'parent', 'performance', 'personalbar', 'pkcs11', 'screen', 'screenLeft', 'screenTop', 'screenX', 'screenY', 'scrollbars', 'scrollMaxX', 'scrollMaxY', 'scrollX', 'scrollY', 'self', 'sessionStorage', 'sidebar', 'speechSynthesis', 'status', 'statusbar', 'toolbar', 'top', 'visualViewport', 'window', 'Methods', 'alert', 'atob', 'back', 'blur', 'btoa', 'cancelAnimationFrame', 'cancelIdleCallback', 'captureEvents', 'clearImmediate', 'clearInterval', 'clearTimeout', 'close', 'confirm', 'convertPointFromNodeToPage', 'convertPointFromPageToNode', 'createImageBitmap', 'dump', 'fetch', 'find', 'focus', 'forward', 'getComputedStyle', 'getDefaultComputedStyle', 'getSelection', 'home', 'matchMedia', 'minimize', 'moveBy', 'moveTo', 'open', 'openDialog', 'postMessage', 'print', 'prompt', 'queueMicrotask', 'releaseEvents', 'requestAnimationFrame', 'requestFileSystem', 'requestIdleCallback', 'resizeBy', 'resizeTo', 'routeEvent', 'scroll', 'scrollBy', 'scrollByLines', 'scrollByPages', 'scrollTo', 'setCursor', 'setImmediate', 'setInterval', 'setTimeout', 'showDirectoryPicker', 'showModalDialog', 'showOpenFilePicker', 'showSaveFilePicker', 'sizeToContent', 'stop', 'updateCommands', 'Events', 'event', 'afterprint', 'animationcancel', 'animationend', 'animationiteration', 'beforeprint', 'beforeunload', 'blur', 'copy', 'cut', 'DOMContentLoaded', 'error', 'focus', 'hashchange', 'languagechange', 'load', 'message', 'messageerror', 'offline', 'online', 'orientationchange', 'pagehide', 'pageshow', 'paste', 'popstate', 'rejectionhandled', 'storage', 'transitioncancel', 'unhandledrejection', 'unload', 'vrdisplayconnect', 'vrdisplaydisconnect', 'vrdisplaypresentchange'],
+    dom: ['Attr', 'CDATASection', 'CharacterData', 'ChildNode', 'Comment', 'CustomEvent', 'Document', 'DocumentFragment', 'DocumentType', 'DOMError', 'DOMException', 'DOMImplementation', 'DOMString', 'DOMTimeStamp', 'DOMStringList', 'DOMTokenList', 'Element', 'Event', 'EventTarget', 'HTMLCollection', 'MutationObserver', 'MutationRecord', 'NamedNodeMap', 'Node', 'NodeFilter', 'NodeIterator', 'NodeList', 'ProcessingInstruction', 'Selection', 'Range', 'Text', 'TextDecoder', 'TextEncoder', 'TimeRanges', 'TreeWalker', 'URL', 'Window', 'Worker', 'XMLDocument']
+  };
+  winProps.all = Array.from(new Set((function(){
+    var results$ = [];
+    for (k in window) {
+      results$.push(k);
+    }
+    return results$;
+  }()).concat(winProps.dom, winProps.attr)));
+  console.log(winProps.all.indexOf('self'));
+  console.log(winProps.all.indexOf('top'));
   rescope.prototype = import$(Object.create(Object.prototype), {
     peekScope: function(){
       console.log("in delegate iframe: " + !!this.global._rescopeDelegate);
@@ -189,7 +211,6 @@
       prescope == null && (prescope = {});
       return new Promise(function(res, rej){
         var _code, k, v, _postcode, _forceScope, id, script, hash, ref$;
-        _code = "";
         _code = (function(){
           var ref$, results$ = [];
           for (k in ref$ = context) {
@@ -206,9 +227,9 @@
           }
           return results$;
         }()).join('\n') + '\n';
-        _forceScope = "var global = this;\nvar globalThis = this;\nvar window = this;\nvar self = this;";
+        _forceScope = "/* intercept these variables so lib will inject anything into our scope */\nvar global = this;\nvar globalThis = this;\nvar self = this;\nvar window = this;\n/* yet we need window memebers so lib can work properly with builtin features */\nwindow.__proto__ = win;\n/* some props are not enumerable, so we list all of them directly in winProps.all */\nfor(var i = 0; i < winProps.all.length; i++) {\n  k = winProps.all[i];\n  /* but functions need window as `this` to be called. we indirectly do this for them. */\n  if(typeof(win[k]) == \"function\") {\n    window[k] = (function(k){ return function() { return win[k].apply(win,arguments);} })(k);\n  } else {\n    /* and some members are from getter/setter. we proxy it via custom getter / setter object. */\n    desc = Object.getOwnPropertyDescriptor(win,k);\n    if(desc && desc.get) {\n      Object.defineProperty(window, k, (function(n,desc) {\n        var ret = {\n          configurable: desc.configurable,\n          enumerable: desc.enumerable\n        };\n        if(desc.get) { ret.get = function() { return win[n]; } }\n        if(desc.set) { ret.set = function(it) { win[n] = it; } }\n        return ret;\n      }(k,desc)));\n    }\n  }\n}";
         id = "x" + Math.random().toString(36).substring(2);
-        _code = "/* URL: " + url + " */\nrescope.func." + id + " = function(context) {\n  return (function() {\n    " + _code + "\n    " + _forceScope + "\n    " + code + "\n    " + _postcode + "\n    return this;\n  }).apply(context);\n}";
+        _code = "/* URL: " + url + " */\nrescope.func." + id + " = function(context, winProps) {\n  var win = window;\n  var ret = (function() {\n    " + _code + "\n    " + _forceScope + "\n    " + code + "\n    " + _postcode + "\n    return this;\n  }).apply({});\n  /* returned ret may contain members from window through __proto__.  */\n  /* we only need members from libs, so just ignore those from window object. */\n  for(k in ret) { \n    if(!win.hasOwnProperty(k) && !win[k] && ret.hasOwnProperty(k)) {\n      console.log(k);\n      context[k] = ret[k];\n    }\n  }\n  return context;\n}";
         script = this$.global.document.createElement("script");
         hash = {};
         for (k in ref$ = this$.global) {
@@ -220,7 +241,7 @@
         };
         script.onload = function(){
           (this$.func || (this$.func = {}))[url] = rescope.func[id];
-          return res(import$({}, (this$.func || (this$.func = {}))[url](context)));
+          return res(import$({}, (this$.func || (this$.func = {}))[url](context, winProps)));
         };
         script.setAttribute('src', URL.createObjectURL(new Blob([_code], {
           type: 'text/javascript'

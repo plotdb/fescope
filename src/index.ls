@@ -8,6 +8,65 @@ rescope = (opt = {}) ->
 
 rescope.func = []
 
+/*
+
+window members. adopted from:
+ - DOM: https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model
+ - Properties: https://developer.mozilla.org/en-US/docs/Web/API/Window
+
+used for list all un-enumerable attributes in window object.
+
+*/
+
+win-props =
+  attr: <[
+    applicationCache caches closed console controllers crossOriginIsolated crypto customElements
+    defaultStatus devicePixelRatio dialogArguments directories document event frameElement frames
+    fullScreen history indexedDB innerHeight innerWidth isSecureContext isSecureContext length
+    localStorage location locationbar menubar mozAnimationStartTime mozInnerScreenX mozInnerScreenY
+    mozPaintCount name navigator onabort onafterprint onanimationcancel onanimationend onanimationiteration
+    onappinstalled onauxclick onbeforeinstallprompt onbeforeprint onbeforeunload onblur oncancel
+    oncanplay oncanplaythrough onchange onclick onclose oncontextmenu oncuechange ondblclick
+    ondevicemotion ondeviceorientation ondeviceorientationabsolute ondragdrop ondurationchange onended
+    onerror onfocus onformdata ongamepadconnected ongamepaddisconnected ongotpointercapture onhashchange
+    oninput oninvalid onkeydown onkeypress onkeyup onlanguagechange onload onloadeddata onloadedmetadata
+    onloadend onloadstart onlostpointercapture onmessage onmessageerror onmousedown onmouseenter
+    onmouseleave onmousemove onmouseout onmouseover onmouseup onmozbeforepaint onpaint onpause
+    onplay onplaying onpointercancel onpointerdown onpointerenter onpointerleave onpointermove onpointerout
+    onpointerover onpointerup onpopstate onrejectionhandled onreset onresize onscroll onselect
+    onselectionchange onselectstart onstorage onsubmit ontouchcancel ontouchstart ontransitioncancel
+    ontransitionend onunhandledrejection onunload onvrdisplayactivate onvrdisplayblur onvrdisplayconnect
+    onvrdisplaydeactivate onvrdisplaydisconnect onvrdisplayfocus onvrdisplaypointerrestricted
+    onvrdisplaypointerunrestricted onvrdisplaypresentchange onwheel opener origin outerHeight
+    outerWidth pageXOffset pageYOffset parent performance personalbar pkcs11 screen screenLeft
+    screenTop screenX screenY scrollbars scrollMaxX scrollMaxY scrollX scrollY self sessionStorage
+    sidebar speechSynthesis status statusbar toolbar top visualViewport window Methods alert
+    atob back blur btoa cancelAnimationFrame cancelIdleCallback captureEvents clearImmediate
+    clearInterval clearTimeout close confirm convertPointFromNodeToPage convertPointFromPageToNode
+    createImageBitmap dump fetch find focus forward getComputedStyle getDefaultComputedStyle
+    getSelection home matchMedia minimize moveBy moveTo open openDialog postMessage
+    print prompt queueMicrotask releaseEvents requestAnimationFrame requestFileSystem requestIdleCallback
+    resizeBy resizeTo routeEvent scroll scrollBy scrollByLines scrollByPages
+    scrollTo setCursor setImmediate setInterval setTimeout showDirectoryPicker showModalDialog
+    showOpenFilePicker showSaveFilePicker sizeToContent stop updateCommands Events event
+    afterprint animationcancel animationend animationiteration beforeprint beforeunload blur
+    copy cut DOMContentLoaded error focus hashchange languagechange
+    load message messageerror offline online orientationchange pagehide
+    pageshow paste popstate rejectionhandled storage transitioncancel unhandledrejection
+    unload vrdisplayconnect vrdisplaydisconnect vrdisplaypresentchange
+  ]>
+
+  dom: <[
+    Attr CDATASection CharacterData ChildNode Comment CustomEvent Document
+    DocumentFragment DocumentType DOMError DOMException DOMImplementation DOMString DOMTimeStamp
+    DOMStringList DOMTokenList Element Event EventTarget HTMLCollection MutationObserver
+    MutationRecord NamedNodeMap Node NodeFilter NodeIterator NodeList ProcessingInstruction
+    Selection Range Text TextDecoder TextEncoder TimeRanges TreeWalker
+    URL Window Worker XMLDocument
+  ]>
+
+win-props.all = Array.from(new Set([k for k of window] ++ win-props.dom ++ win-props.attr))
+
 rescope.prototype = Object.create(Object.prototype) <<< do
   peek-scope: -> console.log "in delegate iframe: #{!!@global._rescopeDelegate}"; return @global._rescopeDelegate
   init: ->
@@ -127,31 +186,63 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       _!then(-> res it)catch(->rej it)
     ), true
 
-  _wrapper-alt: (url, code, context = {}, prescope = {}) -> new Promise (res, rej) ~> 
-    _code = ""
+  _wrapper-alt: (url, code, context = {}, prescope = {}) -> new Promise (res, rej) ~>
     _code = ["var #k = context.#k;this.#k = context.#k;" for k,v of context].join(\\n) + \\n
     _postcode = ["if(typeof(#k) != 'undefined') { this.#k = #k; }" for k,v of prescope].join(\\n) + \\n
     # some libraries may access window directly.
     # note this may block access from lib to default window members.
     # but without this, library will fail when accessing dependencies directly via `window.xxx`.
     _force-scope = """
+      /* intercept these variables so lib will inject anything into our scope */
       var global = this;
       var globalThis = this;
-      var window = this;
       var self = this;
+      var window = this;
+      /* yet we need window memebers so lib can work properly with builtin features */
+      window.__proto__ = win;
+      /* some props are not enumerable, so we list all of them directly in winProps.all */
+      for(var i = 0; i < winProps.all.length; i++) {
+        k = winProps.all[i];
+        /* but functions need window as `this` to be called. we indirectly do this for them. */
+        if(typeof(win[k]) == "function") {
+          window[k] = (function(k){ return function() { return win[k].apply(win,arguments);} })(k);
+        } else {
+          /* and some members are from getter/setter. we proxy it via custom getter / setter object. */
+          desc = Object.getOwnPropertyDescriptor(win,k);
+          if(desc && desc.get) {
+            Object.defineProperty(window, k, (function(n,desc) {
+              var ret = {
+                configurable: desc.configurable,
+                enumerable: desc.enumerable
+              };
+              if(desc.get) { ret.get = function() { return win[n]; } }
+              if(desc.set) { ret.set = function(it) { win[n] = it; } }
+              return ret;
+            }(k,desc)));
+          }
+        }
+      }
     """
-    #_force-scope = ""
     id = "x" + Math.random!toString(36)substring(2)
     _code = """
     /* URL: #url */
-    rescope.func.#id = function(context) {
-      return (function() {
+    rescope.func.#id = function(context, winProps) {
+      var win = window;
+      var ret = (function() {
         #_code
         #_force-scope
         #code
         #_postcode
         return this;
-      }).apply(context);
+      }).apply({});
+      /* returned ret may contain members from window through __proto__.  */
+      /* we only need members from libs, so just ignore those from window object. */
+      for(k in ret) {
+        if(!win.hasOwnProperty(k) && !win[k] && ret.hasOwnProperty(k)) {
+          context[k] = ret[k];
+        }
+      }
+      return context;
     }
     """
 
@@ -161,7 +252,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
     script.onerror = ~> rej it
     script.onload = ~>
       @{}func[url] = rescope.func[id]
-      res ({} <<< @{}func[url](context))
+      res ({} <<< @{}func[url](context, win-props))
     script.setAttribute \src, URL.createObjectURL(new Blob([_code], {type: \text/javascript}))
     @global.document.body.appendChild script
 
@@ -195,7 +286,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       .then (c) ~> @scope[url] = c
 
 
-  _load-in-frame: (url) -> new Promise (res, rej) ~> 
+  _load-in-frame: (url) -> new Promise (res, rej) ~>
     script = @global.document.createElement("script")
     hash = {}
     for k,v of @global => hash[k] = v
