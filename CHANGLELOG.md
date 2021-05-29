@@ -1,3 +1,8 @@
+# v1.1.6
+
+ - make position of delegator iframe to top left 0 to prevent from visual impact of the host document.
+
+
 # v1.1.5
 
  - make position of delegator iframe absolute to prevent from visual impact of the host document.

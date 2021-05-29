@@ -35,17 +35,20 @@
         return Promise.resolve();
       }
       return new Promise(function(res, rej){
-        var node, ref$, code;
+        var node, code;
         node = document.createElement('iframe');
         node.setAttribute('name', "delegator-" + Math.random().toString(36).substring(2));
         node.setAttribute('sandbox', 'allow-same-origin allow-scripts');
-        ref$ = node.style;
-        ref$.opacity = 0;
-        ref$.zIndex = -1;
-        ref$.pointerEvents = 'none';
-        ref$.width = '0px';
-        ref$.height = '0px';
-        ref$.position = 'absolute';
+        import$(node.style, {
+          opacity: 0,
+          zIndex: -1,
+          pointerEvents: 'none',
+          top: "0px",
+          left: "0px",
+          width: '0px',
+          height: '0px',
+          position: 'absolute'
+        });
         code = "<html><body>\n<script>\nfunction init() {\n  if(!window._scope) { window._scope = new rescope({inFrame:true,global:window}) }\n}\nfunction load(url,ctx) { return _scope.load(url,ctx); }\nfunction context(url,func) { _scope.context(url,func,true); }\n</script></body></html>";
         node.onerror = function(it){
           return rej(it);
