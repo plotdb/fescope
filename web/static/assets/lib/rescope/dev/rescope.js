@@ -45,6 +45,7 @@
         ref$.pointerEvents = 'none';
         ref$.width = '0px';
         ref$.height = '0px';
+        ref$.position = 'absolute';
         code = "<html><body>\n<script>\nfunction init() {\n  if(!window._scope) { window._scope = new rescope({inFrame:true,global:window}) }\n}\nfunction load(url,ctx) { return _scope.load(url,ctx); }\nfunction context(url,func) { _scope.context(url,func,true); }\n</script></body></html>";
         node.onerror = function(it){
           return rej(it);

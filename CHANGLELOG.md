@@ -1,3 +1,8 @@
+# v1.1.5
+
+ - make position of delegator iframe absolute to prevent from visual impact of the host document.
+
+
 # v1.1.4
 
  - track window injection and ignore injected members from capturing in context.

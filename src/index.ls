@@ -75,7 +75,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       node = document.createElement \iframe
       node.setAttribute \name, "delegator-#{Math.random!toString(36)substring(2)}"
       node.setAttribute \sandbox, ('allow-same-origin allow-scripts')
-      node.style <<< opacity: 0, z-index: -1, pointer-events: \none, width: '0px', height: '0px'
+      node.style <<< opacity: 0, z-index: -1, pointer-events: \none, width: '0px', height: '0px', position: \absolute
       # `load` is exposed via contentWindow and used to load libs in sandbox.
       # it actually execute this object's load function so we keep it's scope in @frame-scope.
       code = """<html><body>
