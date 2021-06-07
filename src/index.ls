@@ -18,6 +18,17 @@ used for list all un-enumerable attributes in window object.
 
 */
 
+rescope._cache = {}
+rescope.cache = (url, obj = {code: "", vars: []}) -> rescope._cache[url] = obj
+rescope.cache-dump = ->
+  console.log ret = """
+  (function(){
+    var _libs = #{JSON.stringify(rescope._cache)};
+    for(k in _libs) { rescope.cache(k,_libs[k]); }
+  })();
+  """
+  return ret
+
 win-props =
   attr: <[
     applicationCache caches closed console controllers crossOriginIsolated crypto customElements
@@ -284,12 +295,21 @@ rescope.prototype = Object.create(Object.prototype) <<< do
 
   _load: (url, ctx, prescope = {}) ->
     if @in-frame => return @_load-in-frame url
-    ld$.fetch url, {method: "GET"}, {type: \text}
-      .then (code) ~> @_wrapper-alt url, code, ctx.local, prescope
+    p = if rescope._cache[url] => Promise.resolve(rescope._cache[url].code)
+    else ld$.fetch url, {method: "GET"}, {type: \text}
+    p
+      .then (code) ~>
+        rescope._cache[url] = {code, vars: [k for k of prescope]}
+        @_wrapper-alt url, code, ctx.local, prescope
       .then (c) ~> @scope[url] = c
 
 
   _load-in-frame: (url) -> new Promise (res, rej) ~>
+    if rescope._cache[url] =>
+      ret = {}
+      that.[]vars.map -> ret[k] = true
+      return res ret
+
     script = @global.document.createElement("script")
     hash = {}
     for k,v of @global => hash[k] = v

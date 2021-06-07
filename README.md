@@ -95,6 +95,24 @@ Even with `useDelegateLib` set to true, you can still enter host context by sett
     res = new rescope({useDelegateLib: true});
     res.context("some-lib", false, function() { ... });
 
+## Caching
+
+Instead of downloading libraries everytime, you can also precache libraries into a single js file.
+
+After downloading all necessary libraries, get js for caching by:
+
+    ret = rescope.cacheDump();
+
+the return value `ret` is the runnable JS string which insert cached libraries into `rescope` class. Or, manually inject cache by calling:
+
+    rescope.cache(
+      "some-url",
+      {
+        code: "code",
+        vars: [list of string for available variable names in dependency]
+      }
+    )
+
 
 ## TODO
 

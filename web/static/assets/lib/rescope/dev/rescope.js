@@ -20,6 +20,19 @@
   used for list all un-enumerable attributes in window object.
   
   */
+  rescope._cache = {};
+  rescope.cache = function(url, obj){
+    obj == null && (obj = {
+      code: "",
+      vars: []
+    });
+    return rescope._cache[url] = obj;
+  };
+  rescope.cacheDump = function(){
+    var ret;
+    console.log(ret = "(function(){\n  var _libs = " + JSON.stringify(rescope._cache) + ";\n  for(k in _libs) { rescope.cache(k,_libs[k]); }\n})();");
+    return ret;
+  };
   winProps = {
     attr: ['applicationCache', 'caches', 'closed', 'console', 'controllers', 'crossOriginIsolated', 'crypto', 'customElements', 'defaultStatus', 'devicePixelRatio', 'dialogArguments', 'directories', 'document', 'event', 'frameElement', 'frames', 'fullScreen', 'history', 'indexedDB', 'innerHeight', 'innerWidth', 'isSecureContext', 'isSecureContext', 'length', 'localStorage', 'location', 'locationbar', 'menubar', 'mozAnimationStartTime', 'mozInnerScreenX', 'mozInnerScreenY', 'mozPaintCount', 'name', 'navigator', 'onabort', 'onafterprint', 'onanimationcancel', 'onanimationend', 'onanimationiteration', 'onappinstalled', 'onauxclick', 'onbeforeinstallprompt', 'onbeforeprint', 'onbeforeunload', 'onblur', 'oncancel', 'oncanplay', 'oncanplaythrough', 'onchange', 'onclick', 'onclose', 'oncontextmenu', 'oncuechange', 'ondblclick', 'ondevicemotion', 'ondeviceorientation', 'ondeviceorientationabsolute', 'ondragdrop', 'ondurationchange', 'onended', 'onerror', 'onfocus', 'onformdata', 'ongamepadconnected', 'ongamepaddisconnected', 'ongotpointercapture', 'onhashchange', 'oninput', 'oninvalid', 'onkeydown', 'onkeypress', 'onkeyup', 'onlanguagechange', 'onload', 'onloadeddata', 'onloadedmetadata', 'onloadend', 'onloadstart', 'onlostpointercapture', 'onmessage', 'onmessageerror', 'onmousedown', 'onmouseenter', 'onmouseleave', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onmozbeforepaint', 'onpaint', 'onpause', 'onplay', 'onplaying', 'onpointercancel', 'onpointerdown', 'onpointerenter', 'onpointerleave', 'onpointermove', 'onpointerout', 'onpointerover', 'onpointerup', 'onpopstate', 'onrejectionhandled', 'onreset', 'onresize', 'onscroll', 'onselect', 'onselectionchange', 'onselectstart', 'onstorage', 'onsubmit', 'ontouchcancel', 'ontouchstart', 'ontransitioncancel', 'ontransitionend', 'onunhandledrejection', 'onunload', 'onvrdisplayactivate', 'onvrdisplayblur', 'onvrdisplayconnect', 'onvrdisplaydeactivate', 'onvrdisplaydisconnect', 'onvrdisplayfocus', 'onvrdisplaypointerrestricted', 'onvrdisplaypointerunrestricted', 'onvrdisplaypresentchange', 'onwheel', 'opener', 'origin', 'outerHeight', 'outerWidth', 'pageXOffset', 'pageYOffset', 'parent', 'performance', 'personalbar', 'pkcs11', 'screen', 'screenLeft', 'screenTop', 'screenX', 'screenY', 'scrollbars', 'scrollMaxX', 'scrollMaxY', 'scrollX', 'scrollY', 'self', 'sessionStorage', 'sidebar', 'speechSynthesis', 'status', 'statusbar', 'toolbar', 'top', 'visualViewport', 'window', 'Methods', 'alert', 'atob', 'back', 'blur', 'btoa', 'cancelAnimationFrame', 'cancelIdleCallback', 'captureEvents', 'clearImmediate', 'clearInterval', 'clearTimeout', 'close', 'confirm', 'convertPointFromNodeToPage', 'convertPointFromPageToNode', 'createImageBitmap', 'dump', 'fetch', 'find', 'focus', 'forward', 'getComputedStyle', 'getDefaultComputedStyle', 'getSelection', 'home', 'matchMedia', 'minimize', 'moveBy', 'moveTo', 'open', 'openDialog', 'postMessage', 'print', 'prompt', 'queueMicrotask', 'releaseEvents', 'requestAnimationFrame', 'requestFileSystem', 'requestIdleCallback', 'resizeBy', 'resizeTo', 'routeEvent', 'scroll', 'scrollBy', 'scrollByLines', 'scrollByPages', 'scrollTo', 'setCursor', 'setImmediate', 'setInterval', 'setTimeout', 'showDirectoryPicker', 'showModalDialog', 'showOpenFilePicker', 'showSaveFilePicker', 'sizeToContent', 'stop', 'updateCommands', 'Events', 'event', 'afterprint', 'animationcancel', 'animationend', 'animationiteration', 'beforeprint', 'beforeunload', 'blur', 'copy', 'cut', 'DOMContentLoaded', 'error', 'focus', 'hashchange', 'languagechange', 'load', 'message', 'messageerror', 'offline', 'online', 'orientationchange', 'pagehide', 'pageshow', 'paste', 'popstate', 'rejectionhandled', 'storage', 'transitioncancel', 'unhandledrejection', 'unload', 'vrdisplayconnect', 'vrdisplaydisconnect', 'vrdisplaypresentchange'],
     dom: ['Attr', 'CDATASection', 'CharacterData', 'ChildNode', 'Comment', 'CustomEvent', 'Document', 'DocumentFragment', 'DocumentType', 'DOMError', 'DOMException', 'DOMImplementation', 'DOMString', 'DOMTimeStamp', 'DOMStringList', 'DOMTokenList', 'Element', 'Event', 'EventTarget', 'HTMLCollection', 'MutationObserver', 'MutationRecord', 'NamedNodeMap', 'Node', 'NodeFilter', 'NodeIterator', 'NodeList', 'ProcessingInstruction', 'Selection', 'Range', 'Text', 'TextDecoder', 'TextEncoder', 'TimeRanges', 'TreeWalker', 'URL', 'Window', 'Worker', 'XMLDocument']
@@ -279,16 +292,30 @@
       return import$({}, ret);
     },
     _load: function(url, ctx, prescope){
-      var this$ = this;
+      var p, this$ = this;
       prescope == null && (prescope = {});
       if (this.inFrame) {
         return this._loadInFrame(url);
       }
-      return ld$.fetch(url, {
-        method: "GET"
-      }, {
-        type: 'text'
-      }).then(function(code){
+      p = rescope._cache[url]
+        ? Promise.resolve(rescope._cache[url].code)
+        : ld$.fetch(url, {
+          method: "GET"
+        }, {
+          type: 'text'
+        });
+      return p.then(function(code){
+        var k;
+        rescope._cache[url] = {
+          code: code,
+          vars: (function(){
+            var results$ = [];
+            for (k in prescope) {
+              results$.push(k);
+            }
+            return results$;
+          }())
+        };
         return this$._wrapperAlt(url, code, ctx.local, prescope);
       }).then(function(c){
         return this$.scope[url] = c;
@@ -297,7 +324,14 @@
     _loadInFrame: function(url){
       var this$ = this;
       return new Promise(function(res, rej){
-        var script, hash, k, ref$, v, fullUrl;
+        var that, ret, script, hash, k, ref$, v, fullUrl;
+        if (that = rescope._cache[url]) {
+          ret = {};
+          (that.vars || (that.vars = [])).map(function(){
+            return ret[k] = true;
+          });
+          return res(ret);
+        }
         script = this$.global.document.createElement("script");
         hash = {};
         for (k in ref$ = this$.global) {
