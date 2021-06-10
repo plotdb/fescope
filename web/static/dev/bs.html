@@ -1,0 +1,30 @@
+<!DOCTYPE html><html><head><link rel="stylesheet" type="text/css" href="/assets/lib/bootstrap/main/css/bootstrap.min.css"><link rel="stylesheet" type="text/css" href="/assets/lib/bootstrap.ldui/main/bootstrap.ldui.min.css"></head><body><div class="w-1024 rwd mx-auto my-4"><h3>BSN Loading Test</h3><p>Bootstrap native is preloaded while we also use block to load. Both use different version so only the block loaded one will work.</p><div class="dropdown"><div class="btn btn-light dropdown-toggle" data-toggle="dropdown">Dropdown</div><div class="dropdown-menu"><div class="dropdown-item">Item 1</div><div class="dropdown-item">Item 2</div><div class="dropdown-item">Item 3</div><div class="dropdown-item">Item 4</div></div></div></div><script type="text/javascript" src="/assets/lib/bootstrap.native/main/bootstrap-native.min.js"></script><script type="text/javascript" src="/assets/lib/@loadingio/ldquery/main/ldq.min.js"></script><script type="text/javascript" src="/assets/lib/rescope/dev/rescope.min.js"></script><script type="text/javascript" src="/assets/lib/@plotdb/csscope/dev/csscope.min.js"></script><script type="text/javascript" src="/assets/lib/proxise/main/proxise.min.js"></script><script type="text/javascript" src="/assets/lib/@plotdb/block/dev/block.min.js"></script><script>var cls;
+BSN.Version = "3.0.16";
+console.log(BSN);
+cls = new block['class']({
+  code: {
+    script: function(){
+      return {
+        pkg: {
+          name: "sample",
+          version: "1.0.0",
+          dependencies: [{
+            url: "/assets/lib/bootstrap.native/main/bootstrap-native-v4.min.js"
+          }]
+        },
+        init: function(arg$){
+          var context;
+          context = arg$.context;
+          console.log("in block: ", context.BSN);
+          return new context.BSN.Dropdown(ld$.find('.dropdown', 0));
+        }
+      };
+    }
+  }
+});
+cls.create().then(function(it){
+  console.log('attach block instance ... ');
+  return it.attach();
+}).then(function(){
+  return console.log('done.');
+});</script></body></html>

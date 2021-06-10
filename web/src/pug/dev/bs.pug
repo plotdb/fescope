@@ -1,0 +1,45 @@
+doctype html
+html
+  include @/bootstrap.ldui/dist/index.pug
+  head
+    +css("/assets/lib/bootstrap/main/css/bootstrap.min.css")
+    +css("/assets/lib/bootstrap.ldui/main/bootstrap.ldui.min.css")
+  body
+    .w-1024.rwd.mx-auto.my-4
+      h3 BSN Loading Test
+      p Bootstrap native is preloaded while we also use block to load. Both use different version so only the block loaded one will work.
+      .dropdown
+        .btn.btn-light.dropdown-toggle(data-toggle="dropdown") Dropdown
+        .dropdown-menu
+          .dropdown-item Item 1
+          .dropdown-item Item 2
+          .dropdown-item Item 3
+          .dropdown-item Item 4
+
+    +script("/assets/lib/bootstrap.native/main/bootstrap-native.min.js")
+    +script("/assets/lib/@loadingio/ldquery/main/ldq.min.js")
+    +script("/assets/lib/rescope/dev/rescope.min.js")
+    +script("/assets/lib/@plotdb/csscope/dev/csscope.min.js")
+    +script("/assets/lib/proxise/main/proxise.min.js")
+    +script("/assets/lib/@plotdb/block/dev/block.min.js")
+    script: :lsc
+      BSN.Version = "3.0.16"
+      console.log BSN
+      cls = new block.class {
+        code:
+          script: ->
+            pkg:
+              name: "sample", version: "1.0.0"
+              dependencies: [
+                {url: "/assets/lib/bootstrap.native/main/bootstrap-native-v4.min.js"}
+              ]
+            init: ({context}) ->
+              console.log "in block: ", context.BSN
+              new context.BSN.Dropdown(ld$.find('.dropdown', 0))
+
+      }
+      cls.create!
+        .then ->
+          console.log 'attach block instance ... '
+          it.attach!
+        .then -> console.log 'done.'
