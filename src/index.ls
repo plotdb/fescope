@@ -199,7 +199,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       _!then(-> res it)catch(->rej it)
     ), true
 
-  _wrapper-alt: (url, code, context = {}, prescope = {}) -> new Promise (res, rej) ~>
+  _wrapper: (url, code, context = {}, prescope = {}) -> new Promise (res, rej) ~>
     _code = ["var #k = context.#k;this.#k = context.#k;" for k,v of context].join(\\n) + \\n
     _postcode = ["if(typeof(#k) != 'undefined') { this.#k = #k; }" for k,v of prescope].join(\\n) + \\n
     # some libraries may access window directly.
@@ -270,29 +270,6 @@ rescope.prototype = Object.create(Object.prototype) <<< do
     script.setAttribute \src, URL.createObjectURL(new Blob([_code], {type: \text/javascript}))
     @global.document.body.appendChild script
 
-  _wrapper: (url, code, context = {}, prescope = {}) ->
-    _code = ""
-    _code = ["var #k = context.#k;" for k,v of context].join(\\n) + \\n
-    _postcode = ["if(typeof(#k) != 'undefined') { this.#k = #k; }" for k,v of prescope].join(\\n) + \\n
-    _force-scope = """
-      var global = this;
-      var globalThis = this;
-      var window = this;
-      var self = this;
-    """
-    _force-scope = ""
-    _code = """
-    (function() {
-      #_code
-      #_force-scope
-      #code
-      #_postcode
-      return this;
-    }).apply(context);
-    """
-    ret = eval _code
-    return {} <<< ret
-
   _load: (url, ctx, prescope = {}) ->
     if @in-frame => return @_load-in-frame url
     p = if rescope._cache[url] => Promise.resolve(rescope._cache[url].code)
@@ -300,9 +277,8 @@ rescope.prototype = Object.create(Object.prototype) <<< do
     p
       .then (code) ~>
         rescope._cache[url] = {code, vars: [k for k of prescope]}
-        @_wrapper-alt url, code, ctx.local, prescope
+        @_wrapper url, code, ctx.local, prescope
       .then (c) ~> @scope[url] = c
-
 
   _load-in-frame: (url) -> new Promise (res, rej) ~>
     if rescope._cache[url] =>

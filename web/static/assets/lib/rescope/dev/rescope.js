@@ -220,7 +220,7 @@
         }, true);
       });
     },
-    _wrapperAlt: function(url, code, context, prescope){
+    _wrapper: function(url, code, context, prescope){
       var this$ = this;
       context == null && (context = {});
       prescope == null && (prescope = {});
@@ -264,33 +264,6 @@
         return this$.global.document.body.appendChild(script);
       });
     },
-    _wrapper: function(url, code, context, prescope){
-      var _code, k, v, _postcode, _forceScope, ret;
-      context == null && (context = {});
-      prescope == null && (prescope = {});
-      _code = "";
-      _code = (function(){
-        var ref$, results$ = [];
-        for (k in ref$ = context) {
-          v = ref$[k];
-          results$.push("var " + k + " = context." + k + ";");
-        }
-        return results$;
-      }()).join('\n') + '\n';
-      _postcode = (function(){
-        var ref$, results$ = [];
-        for (k in ref$ = prescope) {
-          v = ref$[k];
-          results$.push("if(typeof(" + k + ") != 'undefined') { this." + k + " = " + k + "; }");
-        }
-        return results$;
-      }()).join('\n') + '\n';
-      _forceScope = "var global = this;\nvar globalThis = this;\nvar window = this;\nvar self = this;";
-      _forceScope = "";
-      _code = "(function() {\n  " + _code + "\n  " + _forceScope + "\n  " + code + "\n  " + _postcode + "\n  return this;\n}).apply(context);";
-      ret = eval(_code);
-      return import$({}, ret);
-    },
     _load: function(url, ctx, prescope){
       var p, this$ = this;
       prescope == null && (prescope = {});
@@ -316,7 +289,7 @@
             return results$;
           }())
         };
-        return this$._wrapperAlt(url, code, ctx.local, prescope);
+        return this$._wrapper(url, code, ctx.local, prescope);
       }).then(function(c){
         return this$.scope[url] = c;
       });
