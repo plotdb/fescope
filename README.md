@@ -127,6 +127,7 @@ the return value `ret` is the runnable JS string which insert cached libraries i
  - This is not meant to be used for sandboxing or for security reason. Rescope never prevent any scripts from accessing document, and all scripts are still run in the main thread.
  - some libraries such as `d3` may check and use object with the name they are going to use if exists. Thus we always have to restore context in case of disrupt their initialization process.
  - objects are only available `synchronously` - `scope.context` always restore window object after function executed to prevent conflict of libs between calls. Thus, this won't work if there are asynchronous invocation between dependencies. 
+ - rescope mimics `window` object but there are still limitations. If a library declares a variable by `window.somevar` but accessing it with `somevar`, it will fail.
 
 
 ## Resources
