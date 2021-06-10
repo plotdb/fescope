@@ -3,7 +3,7 @@
   "name": "@plotdb/rescope",
   "license": "MIT",
   "description": "rescope your code with any JS libraries",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "homepage": "https://github.com/plotdb/rescope",
   "files": [
     "dist/**/*"
@@ -24,6 +24,7 @@
   "devDependencies": {
     "@loadingio/debounce.js": "^0.0.1",
     "@loadingio/ldquery": "^2.0.0",
+    "@plotdb/pdmap-world": "^0.0.2",
     "bootstrap": "^4.5.3",
     "bootstrap.ldui": "github:loadingio/bootstrap.ldui",
     "bootstrap.native": "^3.0.13",
@@ -33,8 +34,8 @@
     "ldiconfont": "^0.1.5",
     "ldview": "^0.0.2",
     "livescript": "^1.6.0",
+    "proxise": "^0.1.2",
     "template": "github:zbryikt/template#v2.3.11",
-    "@plotdb/pdmap-world": "^0.0.2",
     "yargs": "^16.1.0"
   },
   "frontendDependencies": {
@@ -48,6 +49,7 @@
       "ldview",
       "bootstrap.native",
       "@plotdb/pdmap-world",
+      "proxise",
       "ldiconfont"
     ]
   }

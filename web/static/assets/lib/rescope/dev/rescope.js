@@ -225,7 +225,7 @@
       context == null && (context = {});
       prescope == null && (prescope = {});
       return new Promise(function(res, rej){
-        var _code, k, v, _postcode, _forceScope, id, script, hash, ref$;
+        var _code, k, v, _postcode, tmpvar, ref$, _forceScope, id, script, hash;
         _code = (function(){
           var ref$, results$ = [];
           for (k in ref$ = context) {
@@ -242,6 +242,15 @@
           }
           return results$;
         }()).join('\n') + '\n';
+        tmpvar = "_tmp" + Math.random().toString(36).substring(2);
+        _code += "var " + tmpvar + " = {};";
+        for (k in ref$ = prescope) {
+          v = ref$[k];
+          if (!context[k] && prescope[k]) {
+            _code += tmpvar + "." + k + " = win." + k + "; win." + k + " = undefined;\n";
+            _postcode += "win." + k + " = " + tmpvar + "." + k + ";\n";
+          }
+        }
         _forceScope = "/* intercept these variables so lib will inject anything into our scope */\nvar global = this;\nvar globalThis = this;\nvar self = this;\nvar window = this;\n/* yet we need window memebers so lib can work properly with builtin features */\nwindow.__proto__ = win;\n/* some props are not enumerable, so we list all of them directly in winProps.all */\nfor(var i = 0; i < winProps.all.length; i++) {\n  k = winProps.all[i];\n  /* but functions need window as `this` to be called. we indirectly do this for them. */\n  if(typeof(win[k]) == \"function\") {\n    track.push(k);\n    window[k] = (function(k){ return function() { return win[k].apply(win,arguments);} })(k);\n  } else {\n    /* and some members are from getter/setter. we proxy it via custom getter / setter object. */\n    desc = Object.getOwnPropertyDescriptor(win,k);\n    if(desc && desc.get) {\n      track.push(k);\n      Object.defineProperty(window, k, (function(n,desc) {\n        var ret = {\n          configurable: desc.configurable,\n          enumerable: desc.enumerable\n        };\n        if(desc.get) { ret.get = function() { return win[n]; } }\n        if(desc.set) { ret.set = function(it) { win[n] = it; } }\n        return ret;\n      }(k,desc)));\n    }\n  }\n}";
         id = "x" + Math.random().toString(36).substring(2);
         _code = "/* URL: " + url + " */\nrescope.func." + id + " = function(context, winProps) {\n  var win = window;\n  var track = [];\n  var ret = (function() {\n    " + _code + "\n    " + _forceScope + "\n    " + code + "\n    " + _postcode + "\n    return this;\n  }).apply({});\n  /* returned ret may contain members from window through __proto__.  */\n  /* we only need members from libs, so just ignore those from window object. */\n  for(k in ret) {\n    if((track.indexOf(k) == -1) && ret.hasOwnProperty(k)) { context[k] = ret[k]; }\n  }\n  return context;\n}";

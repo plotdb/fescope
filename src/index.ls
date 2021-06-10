@@ -202,6 +202,17 @@ rescope.prototype = Object.create(Object.prototype) <<< do
   _wrapper: (url, code, context = {}, prescope = {}) -> new Promise (res, rej) ~>
     _code = ["var #k = context.#k;this.#k = context.#k;" for k,v of context].join(\\n) + \\n
     _postcode = ["if(typeof(#k) != 'undefined') { this.#k = #k; }" for k,v of prescope].join(\\n) + \\n
+
+    # if some keys found in prescope but not in context, it means we are going to load them now.
+    # yet some libs may detect existency of themselves and we may have them in our global environment
+    # so we have to exclude them temporarily.
+    tmpvar = "_tmp#{Math.random!toString(36).substring(2)}"
+    _code += "var #tmpvar = {};"
+    for k,v of prescope =>
+      if (!context[k] and prescope[k]) =>
+        _code += "#tmpvar.#k = win.#k; win.#k = undefined;\n"
+        _postcode += "win.#k = #tmpvar.#k;\n"
+
     # some libraries may access window directly.
     # note this may block access from lib to default window members.
     # but without this, library will fail when accessing dependencies directly via `window.xxx`.

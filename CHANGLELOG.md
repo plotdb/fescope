@@ -1,3 +1,9 @@
+# v1.1.8
+
+ - remove unused function `_wrapper` and rename `_wrapper-alt` to `_wrapper`.
+ - hide global libraries temporarily if we are going to load them in rescope.
+
+
 # v1.1.7
 
  - add caching feature
