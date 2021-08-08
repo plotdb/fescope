@@ -1,9 +1,9 @@
 # Change Logs
 
-## v2.0.0 (upcoming)
+## v2.0.0
 
  - dont pollute global scope with context call since we can't store global scope when context calls overlap.
-
+ - remove dependency to `@loadingio/ldquery`
 
 
 ## v1.1.8

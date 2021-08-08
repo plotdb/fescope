@@ -1,3 +1,22 @@
+_fetch = (url, config) ->
+  fetch url, config
+    .then (ret) ->
+      return if !ret => Promise.resolve {s: 404, t: 'unknown'}
+      else if !ret.ok =>
+        ret.clone!text!then (t) ->
+          e = null
+          try
+            json = JSON.parse(t)
+            if json and json.name == \lderror => e = json
+          catch err
+        {s: ret.status, t, e}
+      else ret.text!
+    .then (v) ->
+      if typeof(v) == \string => return v
+      err = new Error("#{v.s} #{v.t}") <<< {name: 'lderror', id: v.s, message: t}
+      if v.e => err <<< {v.e} <<< {json: v.e}
+      return Promise.reject err
+
 rescope = (opt = {}) ->
   # in-frame: internal use. this rescope is used in iframe for collecting list of local variables.
   @opt = {in-frame: false} <<< opt
@@ -288,7 +307,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
   _load: (url, ctx, prescope = {}) ->
     if @in-frame => return @_load-in-frame url
     p = if rescope._cache[url] => Promise.resolve(rescope._cache[url].code)
-    else ld$.fetch url, {method: "GET"}, {type: \text}
+    else _fetch url, {method: "GET"}
     p
       .then (code) ~>
         rescope._cache[url] = {code, vars: [k for k of prescope]}

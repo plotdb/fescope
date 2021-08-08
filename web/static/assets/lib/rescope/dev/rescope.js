@@ -1,5 +1,42 @@
 (function(){
-  var rescope, winProps;
+  var _fetch, rescope, winProps;
+  _fetch = function(url, config){
+    return fetch(url, config).then(function(ret){
+      return !ret
+        ? Promise.resolve({
+          s: 404,
+          t: 'unknown'
+        })
+        : !ret.ok
+          ? (ret.clone().text().then(function(t){
+            var e, json, err;
+            e = null;
+            try {
+              json = JSON.parse(t);
+              if (json && json.name === 'lderror') {
+                return e = json;
+              }
+            } catch (e$) {
+              return err = e$;
+            }
+          }), {
+            s: ret.status,
+            t: t,
+            e: e
+          })
+          : ret.text();
+    }).then(function(v){
+      var err, ref$;
+      if (typeof v === 'string') {
+        return v;
+      }
+      err = (ref$ = new Error(v.s + " " + v.t), ref$.name = 'lderror', ref$.id = v.s, ref$.message = t, ref$);
+      if (v.e) {
+        (err.e = v.e, err).json = v.e;
+      }
+      return Promise.reject(err);
+    });
+  };
   rescope = function(opt){
     opt == null && (opt = {});
     this.opt = import$({
@@ -274,10 +311,8 @@
       }
       p = rescope._cache[url]
         ? Promise.resolve(rescope._cache[url].code)
-        : ld$.fetch(url, {
+        : _fetch(url, {
           method: "GET"
-        }, {
-          type: 'text'
         });
       return p.then(function(code){
         var k;
