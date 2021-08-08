@@ -124,16 +124,20 @@ rescope.prototype = Object.create(Object.prototype) <<< do
   # from-obj: we can load ctx directly from previous context object.
   ctx-from-obj: (context = {}, func, until-resolved = false) ->
     stack = {}
-    for k of context =>
+    # two overlapped context may corrupt our stack.
+    # and we already got context and `load` is done via _wrapper.
+    # for now we just don't pollute global scope, unless we have better way to do this
+    /*for k of context =>
       stack[k] = @global[k]
-      @global[k] = context[k]
+      @global[k] = context[k]*/
     ret = func context
     # func may be `load` in rescope, and it is batched until a sync script is found.
     # we need to wait until it resolves otherwise its dependenies may fail.
     p = if until-resolved and ret and ret.then => ret else Promise.resolve!
     p.then ~>
-      # context may be altered. must iterate stack.
-      for k of stack => @global[k] = stack[k]
+      # see above
+      /* # context may be altered. must iterate stack.
+      for k of stack => @global[k] = stack[k]*/
 
   # from-url: or, we provide a ( list of ) url, let rescope compose the context for us.
   ctx-from-url: (url, func, until-resolved = false) ->

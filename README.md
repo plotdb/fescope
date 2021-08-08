@@ -23,11 +23,12 @@ However, we actually don't have to access the returned `context` object. Instead
 
     myfunc = ->
       scope.context libs, (context) ->
-        # now ldCover and ld$ are available ...
-        ldcv = new ldCover do
+        {ldcover, ld$} = context
+        # now ldcover and ld$ are available ...
+        ldcv = new ldcover do
           root: ld$.find('.ldcv', 0)
       # ... but unavailable outside context.
-      assert (ldCover? or ld$?), false
+      assert (ldcover? or ld$?), false
 
 This is useful when you need the same library with different versions:
 

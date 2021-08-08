@@ -135,8 +135,10 @@ pug_html = pug_html + "\u003Csvg class=\"w-100\"\u003E\u003C\u002Fsvg\u003E\u003
 ;pug_debug_line = 16;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
 pug_mixins["script"]("/assets/lib/@loadingio/debounce.js/main/debounce.min.js");
 ;pug_debug_line = 17;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
-pug_mixins["script"]("/assets/lib/rescope/dev/rescope.js");
+pug_mixins["script"]("/assets/lib/@loadingio/ldquery/main/ldq.min.js");
 ;pug_debug_line = 18;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
+pug_mixins["script"]("/assets/lib/rescope/dev/rescope.js");
+;pug_debug_line = 19;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
 ;pug_debug_line = 7;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Ftest.pug";
 pug_mixins["script"]("https://d3js.org/d3.v4.js");
 ;pug_debug_line = 8;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Ftest.pug";
