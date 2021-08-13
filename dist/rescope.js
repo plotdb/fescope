@@ -48,6 +48,16 @@
     return this;
   };
   rescope.func = [];
+  rescope.lock = {
+    frame: {
+      queue: [],
+      busy: false
+    },
+    local: {
+      queue: [],
+      busy: false
+    }
+  };
   /*
   
   window members. adopted from:
@@ -187,13 +197,14 @@
       });
     },
     load: function(url, ctx){
-      var _, this$ = this;
+      var location, _, lock, this$ = this;
       ctx == null && (ctx = {});
       if (!url) {
         return Promise.resolve();
       }
       ctx.local || (ctx.local = {});
       ctx.frame || (ctx.frame = {});
+      location = this.inFrame ? 'frame' : 'local';
       url = Array.isArray(url)
         ? url
         : [url];
@@ -229,7 +240,7 @@
               return this$.context(items.map(function(it){
                 return it.url || it;
               }), function(c){
-                import$(ctx[this$.inFrame ? 'frame' : 'local'], c);
+                import$(ctx[location], c);
                 return _(list, idx + items.length, ctx);
               }, true);
             });
@@ -240,14 +251,35 @@
       if (!ctx) {
         return _();
       }
-      return new Promise(function(res, rej){
-        return this$.context(ctx[this$.inFrame ? 'frame' : 'local'], function(){
-          return _().then(function(it){
-            return res(it);
-          })['catch'](function(it){
-            return rej(it);
+      lock = rescope.lock[location];
+      return Promise.resolve().then(function(){
+        if (!lock.busy) {
+          return;
+        }
+        return new Promise(function(res, rej){
+          return lock.queue.push({
+            res: res,
+            rej: rej
           });
-        }, true);
+        });
+      }).then(function(){
+        lock.busy = true;
+        return new Promise(function(res, rej){
+          return this$.context(ctx[location], function(){
+            return _().then(function(it){
+              return res(it);
+            })['catch'](function(it){
+              return rej(it);
+            });
+          }, true);
+        });
+      })['finally'](function(){
+        var ret;
+        lock.busy = false;
+        if (!(ret = lock.queue.splice(0, 1)[0])) {
+          return;
+        }
+        return ret.res();
       });
     },
     _wrapper: function(url, code, context, prescope){

@@ -26,6 +26,8 @@ rescope = (opt = {}) ->
   @
 
 rescope.func = []
+# mutex mechanism to ensure only one load sequence run at a time
+rescope.lock = {frame: {queue: [], busy: false}, local: {queue: [], busy: false}}
 
 /*
 
@@ -187,6 +189,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
     if !url => return Promise.resolve!
     ctx.{}local
     ctx.{}frame
+    location = if @in-frame => \frame else \local
     url = if Array.isArray(url) => url else [url]
     _ = ~>
       Promise.resolve!
@@ -208,7 +211,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
                 @context(
                   items.map(-> it.url or it),
                   ((c) ~>
-                    ctx[if @in-frame => \frame else \local] <<< c
+                    ctx[location] <<< c
                     _(list, idx + items.length, ctx)
                   ),
                   true
@@ -217,10 +220,26 @@ rescope.prototype = Object.create(Object.prototype) <<< do
         .then ->
 
     if !ctx => return _!
-    (res, rej) <~ new Promise _
-    @context ctx[if @in-frame => \frame else \local], (~>
-      _!then(-> res it)catch(->rej it)
-    ), true
+    # it's normal to have multiple rescope.load called simultaneously.
+    # however, we scan window object to determine injected variables.
+    # with interlaced script it may mess up variables between differen libraries.
+    # so, we have to ensure only one load sequence run at a time.
+    lock = rescope.lock[location]
+    Promise.resolve!
+      .then ~>
+        if !lock.busy => return
+        new Promise (res, rej) -> lock.queue.push {res, rej}
+      .then ~>
+        lock.busy = true
+        (res, rej) <~ new Promise _
+        @context ctx[location], (~>
+          _!then(-> res it)catch(->rej it)
+        ), true
+      .finally ~>
+        lock.busy = false
+        if !(ret = lock.queue.splice(0, 1).0) => return
+        ret.res!
+
 
   _wrapper: (url, code, context = {}, prescope = {}) -> new Promise (res, rej) ~>
     _code = ["var #k = context.#k;this.#k = context.#k;" for k,v of context].join(\\n) + \\n

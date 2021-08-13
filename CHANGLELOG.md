@@ -1,5 +1,10 @@
 # Change Logs
 
+## v2.0.1
+
+ - mutex to prevent re-entrance of `load` function between simultaneously multiple calls.
+
+
 ## v2.0.0
 
  - dont pollute global scope with context call since we can't store global scope when context calls overlap.
