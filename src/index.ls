@@ -22,6 +22,7 @@ rescope = (opt = {}) ->
   @opt = {in-frame: false} <<< opt
   @in-frame = !!@opt.in-frame
   @global = opt.global or if global? => global else window
+  if opt.registry => @set-registry opt.registry
   @scope = {}
   @
 
@@ -99,6 +100,13 @@ win-props =
 
 
 rescope.prototype = Object.create(Object.prototype) <<< do
+  _registry: ({name, version, path}) -> "/lib/#name/#{version or 'latest'}/#{path or ''}"
+  set-registry: -> @_registry = it
+  get-url: ->
+    return if it.url? => it.url
+    else if it.name? => @_registry it{name, version, path}
+    else it
+
   peek-scope: -> console.log "in delegate iframe: #{!!@global._rescopeDelegate}"; return @global._rescopeDelegate
   init: ->
     if @in-frame => return Promise.resolve!
@@ -115,7 +123,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       code = """<html><body>
       <script>
       function init() {
-        if(!window._scope) { window._scope = new rescope({inFrame:true,global:window}) }
+        if(!window._scope) { window._scope = new rescope({inFrame:true,global:window,registry:window.registry}) }
       }
       function load(url,ctx) { return _scope.load(url,ctx); }
       function context(url,func) { _scope.context(url,func,true); }
@@ -123,7 +131,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       node.onerror = -> rej it
       # pass this object to delegate so we can run it there.
       node.onload = ~>
-        (@iframe = node.contentWindow) <<< {rescope: rescope, _rescopeDelegate: true}
+        (@iframe = node.contentWindow) <<< {rescope: rescope, _rescopeDelegate: true, registry: @_registry}
         # use rescope from main window makes window related operations work on main window.
         # while we do restore window member variables, this may be a little disruptive
         # remove `rescope` and include rescope script with <script> can solve this issue.
@@ -204,12 +212,12 @@ rescope.prototype = Object.create(Object.prototype) <<< do
             if !items.length => return Promise.resolve ctx
             Promise.all(
               items.map ~>
-                url = it.url or it
+                url = @get-url(it)
                 @_load(url, ctx, @{}frame-scope[url])
             )
               .then ~>
                 @context(
-                  items.map(-> it.url or it),
+                  items.map(~> @get-url(it)),
                   ((c) ~>
                     ctx[location] <<< c
                     _(list, idx + items.length, ctx)

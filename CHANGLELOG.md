@@ -1,5 +1,11 @@
 # Change Logs
 
+## v2.1.0
+
+ - support module style( `{name,version,path}` ) style url
+ - support customizing `registry` for module style url
+
+
 ## v2.0.1
 
  - mutex to prevent re-entrance of `load` function between simultaneously multiple calls.

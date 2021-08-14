@@ -1,4 +1,4 @@
-# rescope
+# @plotdb/rescope
 
 experimental project. Load and scope any external JavaScript and reload scope on demand. 
 
@@ -16,10 +16,10 @@ We can load all above js files with rescope, with a resolveed context containing
     scope = new rescope!
     scope.init!
       .then -> scope.load libs
-      .then (context) -> myfunc!
+      .then (context) -> myfunc(context)
 
 
-However, we actually don't have to access the returned `context` object. Instead we simply enter desired context:
+Once loaded, we can access context for those libraries:
 
     myfunc = ->
       scope.context libs, (context) ->
@@ -27,8 +27,6 @@ However, we actually don't have to access the returned `context` object. Instead
         # now ldcover and ld$ are available ...
         ldcv = new ldcover do
           root: ld$.find('.ldcv', 0)
-      # ... but unavailable outside context.
-      assert (ldcover? or ld$?), false
 
 This is useful when you need the same library with different versions:
 
@@ -39,10 +37,35 @@ This is useful when you need the same library with different versions:
     scope = new rescope!
     scope.load d3.v6
       .then -> scope.load d3.v3
-      .then -> scope.context d3.v6, -> /* run v6 code ... */
-      .then -> scope.context d3.v3, -> /* run v3 code ... */
+      .then -> scope.context d3.v6, ({d3}) -> /* run v6 code with local d3 variable ... */
+      .then -> scope.context d3.v3, ({d3}) -> /* run v3 code with local d3 variable ... */
 
-Note that for asynchronous functions, context may change if there are concurrent `scope.context` running so window object may be overwritten In this case, always rely on the passed `context` object to access required libraries.
+While it's possible to load context into window object, we may run into trouble with concurrent overlapped context calls, so the context is always available as local variables. Always rely on the passed `context` object to access required libraries.
+
+
+## Semantic URL / Module Loading
+
+Instead of plain URLs, you can also request a library with its name, version and relative path. For example, 
+
+    {url: "assets/lib/@loadingio/ldquery/main/ldq.min.js"}
+
+can be represented as:
+
+    {name: "@loadingio/ldquery", version: "main", path: "ldq.min.js"}
+
+This abstracts the location of libraries and thus can be customized if needed with `registry` option:
+
+    new rescope({registry: function(opt) {  return opt.name + opt.version + opt.path; });
+
+
+where registry, if provided, should be a function:
+
+ - accepting an object with following members:
+   - `name`: module name
+   - `version`: module version
+   - `path`: relative path to the requested file
+ - and return corresponding url based on those members, for example:
+   - `return ["https://jsdelivr.net/npm", opt.name, opt.version, opt.path].join('/');`
 
 
 ## Customized Context
@@ -51,7 +74,7 @@ Libraries can be loaded correctly in one single `load` invocation because `resco
 
 However,
 
- - if we need to call `load` in separated stages, we may run into trouble of missing dependencies to previous loaded libraries.
+ - if we need `load` in separated stages, we may run into trouble of missing dependencies to libraries loaded earlier.
  - Additionally, we may want to load libraries into a specific context stored before.
 
 To keep track of the context loaded , we pass an optional object directly into `load`:
@@ -81,7 +104,7 @@ By default all script are loaded asynchronously. You can force them loaded in sy
 
 By default `rescope` uses iframe window to preload libraries and peek variables they defined. The iframe is called delegate window. Apparently behavior for the host and the delegate is not the same.
 
-We specify an option `delegate` and set it to false to tell `Rescope` that this instance doesn't use delegate ( itself is a delegate ):
+We specify an option `delegate` and set it to false to tell `@plotdb/rescope` that this instance doesn't use delegate ( itself is a delegate ):
 
     new rescope({delegate: false});
 
@@ -125,9 +148,8 @@ the return value `ret` is the runnable JS string which insert cached libraries i
 
 ## Note
 
- - This is not meant to be used for sandboxing or for security reason. Rescope never prevent any scripts from accessing document, and all scripts are still run in the main thread.
+ - This is not meant to be used for sandboxing or for security reason. `@plotdb/rescope` never prevent any scripts from accessing document, and all scripts are still run in the main thread.
  - some libraries such as `d3` may check and use object with the name they are going to use if exists. Thus we always have to restore context in case of disrupt their initialization process.
- - objects are only available `synchronously` - `scope.context` always restore window object after function executed to prevent conflict of libs between calls. Thus, this won't work if there are asynchronous invocation between dependencies. 
  - rescope mimics `window` object but there are still limitations. If a library declares a variable by `window.somevar` but accessing it with `somevar`, it will fail.
 
 
