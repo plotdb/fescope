@@ -165,18 +165,29 @@
       }
     },
     ctxFromObj: function(context, func, untilResolved){
-      var stack, ret, p;
+      var stack, k, ret, p, this$ = this;
       context == null && (context = {});
       untilResolved == null && (untilResolved = false);
       stack = {};
-      /*for k of context =>
-        stack[k] = @global[k]
-        @global[k] = context[k]*/
+      if (this.inFrame) {
+        for (k in context) {
+          stack[k] = this.global[k];
+          this.global[k] = context[k];
+        }
+      }
       ret = func(context);
       p = untilResolved && ret && ret.then
         ? ret
         : Promise.resolve();
-      return p.then(function(){});
+      return p.then(function(){
+        var k, results$ = [];
+        if (this$.inFrame) {
+          for (k in stack) {
+            results$.push(this$.global[k] = stack[k]);
+          }
+          return results$;
+        }
+      });
     },
     ctxFromUrl: function(url, func, untilResolved){
       var stacks, scopes, context, i$, to$, i, ref$, stack, scope, k, ret, p, this$ = this;

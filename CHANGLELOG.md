@@ -1,5 +1,10 @@
 # Change Logs
 
+## v2.1.1
+
+ - re-enable polluting global scope with context call, but only for in-frame context.
+
+
 ## v2.1.0
 
  - support module style( `{name,version,path}` ) style url
