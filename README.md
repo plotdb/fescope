@@ -138,6 +138,13 @@ the return value `ret` is the runnable JS string which insert cached libraries i
     )
 
 
+## Polyfills
+
+use `prejs` when constructing for inserting pre-required JS into both host and delegate environment:
+
+    new rescope({prejs: ["https://...", ...]});
+
+
 ## TODO
 
  - Browser compatibility check

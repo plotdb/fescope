@@ -21,6 +21,7 @@ rescope = (opt = {}) ->
   # in-frame: internal use. this rescope is used in iframe for collecting list of local variables.
   @opt = {in-frame: false} <<< opt
   @in-frame = !!@opt.in-frame
+  @prejs = opt.prejs or []
   @global = opt.global or if global? => global else window
   if opt.registry => @set-registry opt.registry
   @scope = {}
@@ -110,6 +111,11 @@ rescope.prototype = Object.create(Object.prototype) <<< do
   peek-scope: -> console.log "in delegate iframe: #{!!@global._rescopeDelegate}"; return @global._rescopeDelegate
   init: ->
     if @in-frame => return Promise.resolve!
+    @prejs.map ->
+      s = document.createElement("script")
+      s.setAttribute \type, \text/javascript
+      s.setAttribute \src, it
+      document.body.appendChild s
     # if we are in the host window, we need iframe to collect local variables
     new Promise (res, rej) ~>
       node = document.createElement \iframe
@@ -118,9 +124,11 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       node.style <<< do
         opacity: 0, z-index: -1, pointer-events: \none, top: "0px", left: "0px"
         width: '0px', height: '0px', position: \absolute
+      prejs = @prejs.map(-> """<script type="text/javascript" src="#it"></script>""").join('')
       # `load` is exposed via contentWindow and used to load libs in sandbox.
       # it actually execute this object's load function so we keep it's scope in @frame-scope.
-      code = """<html><body>
+      code = """<html><head><meta http-equiv="Content-type" content="text/html;charset=UTF-8"></head><body>
+      #prejs
       <script>
       function init() {
         if(!window._scope) { window._scope = new rescope({inFrame:true,global:window,registry:window.registry}) }

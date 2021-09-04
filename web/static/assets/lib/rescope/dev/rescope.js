@@ -43,6 +43,7 @@
       inFrame: false
     }, opt);
     this.inFrame = !!this.opt.inFrame;
+    this.prejs = opt.prejs || [];
     this.global = opt.global || (typeof global != 'undefined' && global !== null ? global : window);
     if (opt.registry) {
       this.setRegistry(opt.registry);
@@ -114,8 +115,15 @@
       if (this.inFrame) {
         return Promise.resolve();
       }
+      this.prejs.map(function(it){
+        var s;
+        s = document.createElement("script");
+        s.setAttribute('type', 'text/javascript');
+        s.setAttribute('src', it);
+        return document.body.appendChild(s);
+      });
       return new Promise(function(res, rej){
-        var node, code;
+        var node, prejs, code;
         node = document.createElement('iframe');
         node.setAttribute('name', "delegator-" + Math.random().toString(36).substring(2));
         node.setAttribute('sandbox', 'allow-same-origin allow-scripts');
@@ -129,7 +137,10 @@
           height: '0px',
           position: 'absolute'
         });
-        code = "<html><body>\n<script>\nfunction init() {\n  if(!window._scope) { window._scope = new rescope({inFrame:true,global:window,registry:window.registry}) }\n}\nfunction load(url,ctx) { return _scope.load(url,ctx); }\nfunction context(url,func) { _scope.context(url,func,true); }\n</script></body></html>";
+        prejs = this$.prejs.map(function(it){
+          return "<script type=\"text/javascript\" src=\"" + it + "\"></script>";
+        }).join('');
+        code = "<html><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\"></head><body>\n" + prejs + "\n<script>\nfunction init() {\n  if(!window._scope) { window._scope = new rescope({inFrame:true,global:window,registry:window.registry}) }\n}\nfunction load(url,ctx) { return _scope.load(url,ctx); }\nfunction context(url,func) { _scope.context(url,func,true); }\n</script></body></html>";
         node.onerror = function(it){
           return rej(it);
         };
