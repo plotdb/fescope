@@ -23,7 +23,7 @@ rescope = (opt = {}) ->
   @in-frame = !!@opt.in-frame
   @prejs = opt.prejs or []
   @global = opt.global or if global? => global else window
-  if opt.registry => @set-registry opt.registry
+  if opt.registry => @registry opt.registry
   @scope = {}
   @
 
@@ -101,11 +101,21 @@ win-props =
 
 
 rescope.prototype = Object.create(Object.prototype) <<< do
-  _registry: ({name, version, path}) -> "/lib/#name/#{version or 'latest'}/#{path or ''}"
-  set-registry: -> @_registry = it
+  _reg: ({name, version, path}) -> "/assets/lib/#name/#{version or 'latest'}/#{path or ''}"
+  registry: ->
+    @_reg = it or ''
+    if typeof(@_reg) == \string => if @_reg and @_reg[* - 1] != \/ => @_reg += \/
+    if @in-frame => return
+    if @iframe =>
+      (@iframe) <<< {registry: @_reg}
+      if @iframe._scope => @iframe._scope.registry @_reg
+
+
   get-url: ->
     return if it.url? => it.url
-    else if it.name? => @_registry it{name, version, path}
+    else if it.name? =>
+      if typeof(@_reg) == \function => @_reg it{name, version, path}
+      else "#{@_reg}/#name/#{version or 'latest'}/#{path or ''}"
     else it
 
   peek-scope: -> console.log "in delegate iframe: #{!!@global._rescopeDelegate}"; return @global._rescopeDelegate
@@ -131,7 +141,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       #prejs
       <script>
       function init() {
-        if(!window._scope) { window._scope = new rescope({inFrame:true,global:window,registry:window.registry}) }
+        if(!window._scope) { window._scope = new rescope({inFrame:true,global:window,registry:window._reg}) }
       }
       function load(url,ctx) { return _scope.load(url,ctx); }
       function context(url,func) { _scope.context(url,func,true); }
@@ -139,7 +149,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
       node.onerror = -> rej it
       # pass this object to delegate so we can run it there.
       node.onload = ~>
-        (@iframe = node.contentWindow) <<< {rescope: rescope, _rescopeDelegate: true, registry: @_registry}
+        (@iframe = node.contentWindow) <<< {rescope: rescope, _rescopeDelegate: true, _reg: @_reg}
         # use rescope from main window makes window related operations work on main window.
         # while we do restore window member variables, this may be a little disruptive
         # remove `rescope` and include rescope script with <script> can solve this issue.

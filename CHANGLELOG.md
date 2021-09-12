@@ -1,5 +1,14 @@
 # Change Logs
 
+
+## v3.0.0
+
+ - rename `set-registry` to `registry`.
+ - update in-frame scope when calling `registry`.
+ - align registry logic with `@plotdb/csscope` and `@plotdb/block`.
+ - change from `lib` to `assets/lib` for default registry root
+
+
 ## v2.1.2
 
  - add meta charset information in iframe HTML code to prevent some browser warning;

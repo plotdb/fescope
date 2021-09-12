@@ -46,7 +46,7 @@
     this.prejs = opt.prejs || [];
     this.global = opt.global || (typeof global != 'undefined' && global !== null ? global : window);
     if (opt.registry) {
-      this.setRegistry(opt.registry);
+      this.registry(opt.registry);
     }
     this.scope = {};
     return this;
@@ -89,22 +89,39 @@
     dom: ['Attr', 'CDATASection', 'CharacterData', 'ChildNode', 'Comment', 'CustomEvent', 'Document', 'DocumentFragment', 'DocumentType', 'DOMError', 'DOMException', 'DOMImplementation', 'DOMString', 'DOMTimeStamp', 'DOMStringList', 'DOMTokenList', 'Element', 'Event', 'EventTarget', 'HTMLCollection', 'MutationObserver', 'MutationRecord', 'NamedNodeMap', 'Node', 'NodeFilter', 'NodeIterator', 'NodeList', 'ProcessingInstruction', 'Selection', 'Range', 'Text', 'TextDecoder', 'TextEncoder', 'TimeRanges', 'TreeWalker', 'URL', 'Window', 'Worker', 'XMLDocument']
   };
   rescope.prototype = import$(Object.create(Object.prototype), {
-    _registry: function(arg$){
+    _reg: function(arg$){
       var name, version, path;
       name = arg$.name, version = arg$.version, path = arg$.path;
-      return "/lib/" + name + "/" + (version || 'latest') + "/" + (path || '');
+      return "/assets/lib/" + name + "/" + (version || 'latest') + "/" + (path || '');
     },
-    setRegistry: function(it){
-      return this._registry = it;
+    registry: function(it){
+      var ref$;
+      this._reg = it || '';
+      if (typeof this._reg === 'string') {
+        if (this._reg && (ref$ = this._reg)[ref$.length - 1] !== '/') {
+          this._reg += '/';
+        }
+      }
+      if (this.inFrame) {
+        return;
+      }
+      if (this.iframe) {
+        this.iframe.registry = this._reg;
+        if (this.iframe._scope) {
+          return this.iframe._scope.registry(this._reg);
+        }
+      }
     },
     getUrl: function(it){
       return it.url != null
         ? it.url
-        : it.name != null ? this._registry({
-          name: it.name,
-          version: it.version,
-          path: it.path
-        }) : it;
+        : it.name != null ? typeof this._reg === 'function'
+          ? this._reg({
+            name: it.name,
+            version: it.version,
+            path: it.path
+          })
+          : this._reg + "/" + name + "/" + (version || 'latest') + "/" + (path || '') : it;
     },
     peekScope: function(){
       console.log("in delegate iframe: " + !!this.global._rescopeDelegate);
@@ -140,7 +157,7 @@
         prejs = this$.prejs.map(function(it){
           return "<script type=\"text/javascript\" src=\"" + it + "\"></script>";
         }).join('');
-        code = "<html><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\"></head><body>\n" + prejs + "\n<script>\nfunction init() {\n  if(!window._scope) { window._scope = new rescope({inFrame:true,global:window,registry:window.registry}) }\n}\nfunction load(url,ctx) { return _scope.load(url,ctx); }\nfunction context(url,func) { _scope.context(url,func,true); }\n</script></body></html>";
+        code = "<html><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\"></head><body>\n" + prejs + "\n<script>\nfunction init() {\n  if(!window._scope) { window._scope = new rescope({inFrame:true,global:window,registry:window._reg}) }\n}\nfunction load(url,ctx) { return _scope.load(url,ctx); }\nfunction context(url,func) { _scope.context(url,func,true); }\n</script></body></html>";
         node.onerror = function(it){
           return rej(it);
         };
@@ -149,7 +166,7 @@
           ref$ = this$.iframe = node.contentWindow;
           ref$.rescope = rescope;
           ref$._rescopeDelegate = true;
-          ref$.registry = this$._registry;
+          ref$._reg = this$._reg;
           this$.iframe.init();
           this$.frameScope = this$.iframe._scope.scope;
           winProps.all = Array.from(new Set((function(){
