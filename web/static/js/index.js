@@ -27,6 +27,12 @@ scope.init().then(function(){
       }, "https://d3js.org/d3-scale-chromatic.v1.min.js", "https://d3js.org/d3-dispatch.v2.min.js", "https://d3js.org/d3-quadtree.v2.min.js", "https://d3js.org/d3-timer.v2.min.js", "https://d3js.org/d3-force.v2.min.js"
     ]
   };
+  /*
+  scope =
+    peekScope: -> Promise.resolve!
+    load: -> Promise.resolve!
+    context: (lib, cb) -> Promise.resolve cb(window)
+  */
   scope.peekScope();
   return scope.load(pkg.lib).then(function(){
     return scope.context(pkg.lib, function(it){
@@ -46,19 +52,14 @@ scope.init().then(function(){
           y: Math.random(),
           r: Math.random()
         };
-      })).enter().append('circle').attr({
-        cx: function(it){
-          return it.x * box.width;
-        },
-        cy: function(it){
-          return it.y * box.height;
-        },
-        r: function(it){
-          return it.r * 20;
-        },
-        fill: function(){
-          return '#000';
-        }
+      })).enter().append('circle').attr('cx', function(it){
+        return it.x * box.width;
+      }).attr('cy', function(it){
+        return it.y * box.height;
+      }).attr('r', function(it){
+        return it.r * 20;
+      }).attr('fill', function(){
+        return '#000';
       });
     });
     return debounce(1);

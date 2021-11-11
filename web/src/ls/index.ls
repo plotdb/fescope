@@ -30,6 +30,15 @@ scope.init!
         "https://d3js.org/d3-force.v2.min.js"
       ]
 
+    # following is the sample code for fake rescope
+    # it's possible to totally ignore the whole scope thing and use window as scope
+    # this merge all scopes into one so things may not work as expected.
+    /*
+    scope =
+      peekScope: -> Promise.resolve!
+      load: -> Promise.resolve!
+      context: (lib, cb) -> Promise.resolve cb(window)
+    */
     scope.peekScope!
 
     scope.load pkg.lib
@@ -40,16 +49,23 @@ scope.init!
       .then ->
         scope.context d3pkg.v3, -> 
           box = document.getElementById \d3v3 .getBoundingClientRect!
-
           d3.select \svg#d3v3 .selectAll \circle
             .data [0 to 100].map -> {x: Math.random!, y: Math.random!, r: Math.random!}
             .enter!append \circle
+              # new syntax
+              .attr \cx, -> it.x * box.width
+              .attr \cy, -> it.y * box.height
+              .attr \r, -> it.r * 20
+              .attr \fill, -> \#000
+              # old syntax
+              /*
               .attr do
-                cx: ->
-                  it.x * box.width
+                cx: -> it.x * box.width
                 cy: -> it.y * box.height
                 r: -> it.r * 20
                 fill: -> \#000
+              */
+
         debounce 1
       .then ->
         scope.context d3pkg.v4, -> 
