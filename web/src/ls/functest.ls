@@ -1,4 +1,4 @@
 function functest(a,b,c)
-  ldcv = new ldCover { root: \.ldcv }
+  ldcv = new ldcover { root: \.ldcv }
   ldcv.toggle!
 

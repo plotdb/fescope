@@ -1,5 +1,10 @@
 # Change Logs
 
+## v3.0.1 (upcoming)
+
+ - minimize js further
+ - upgrade modules for test code
+
 
 ## v3.0.0
 

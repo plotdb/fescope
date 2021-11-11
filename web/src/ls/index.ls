@@ -9,8 +9,8 @@ scope.init!
         \assets/lib/bootstrap.native/main/bootstrap-native.min.js
         \assets/lib/bootstrap.ldui/main/bootstrap.ldui.min.js
         {url: \assets/lib/@loadingio/ldquery/main/ldq.min.js, async: false}
-        \assets/lib/ldcover/main/ldcv.min.js
-        \assets/lib/ldview/main/ldview.min.js
+        \assets/lib/ldcover/main/index.min.js
+        \assets/lib/ldview/main/index.min.js
         \js/functest.js
       ]
 
