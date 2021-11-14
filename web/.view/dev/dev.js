@@ -255,7 +255,7 @@ pug_mixins["script"]("/assets/lib/@loadingio/debounce.js/main/debounce.min.js");
 ;pug_debug_line = 16;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Fdev.pug";
 pug_mixins["script"]("/assets/lib/@loadingio/ldquery/main/ldq.min.js");
 ;pug_debug_line = 17;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Fdev.pug";
-pug_mixins["script"]("/assets/lib/@plotdb/rescope/dev/rescope.js");
+pug_mixins["script"]("/assets/lib/@plotdb/rescope/dev/index.js");
 ;pug_debug_line = 18;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Fdev.pug";
 pug_html = pug_html + "\u003Cscript\u003E";
 ;pug_debug_line = 18;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Fdev.pug";

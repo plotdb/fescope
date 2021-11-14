@@ -1,9 +1,9 @@
 doctype html
 html
-  include @/bootstrap.ldui/dist/index.pug
+  include @/@loadingio/bootstrap.ext/dist/index.pug
   head
     +css("/assets/lib/bootstrap/main/css/bootstrap.min.css")
-    +css("/assets/lib/bootstrap.ldui/main/bootstrap.ldui.min.css")
+    +css("/assets/lib/@loadingio/bootstrap.ext/main/index.min.css")
   body
     .w-1024.rwd.mx-auto.my-4
       h3 BSN Loading Test
@@ -18,7 +18,7 @@ html
 
     +script("/assets/lib/bootstrap.native/main/bootstrap-native.min.js")
     +script("/assets/lib/@loadingio/ldquery/main/ldq.min.js")
-    +script("/assets/lib/@plotdb/rescope/dev/rescope.min.js")
+    +script("/assets/lib/@plotdb/rescope/dev/index.min.js")
     +script("/assets/lib/@plotdb/csscope/dev/csscope.min.js")
     +script("/assets/lib/proxise/main/proxise.min.js")
     +script("/assets/lib/@plotdb/block/dev/block.min.js")
