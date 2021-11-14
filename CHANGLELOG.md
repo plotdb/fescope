@@ -3,6 +3,7 @@
 ## v3.0.2 (upcoming)
 
  - prevent from accessing deprecated attributes.
+ - upgrade @zbryikt/template and fix test code building
 
 
 ## v3.0.1

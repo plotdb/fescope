@@ -35,7 +35,7 @@
     "ldview": "^0.2.7",
     "livescript": "^1.6.0",
     "proxise": "^0.1.4",
-    "@zbryikt/template": "^2.3.27",
+    "@zbryikt/template": "^2.3.29",
     "yargs": "^16.1.0"
   },
   "frontendDependencies": {
