@@ -1,5 +1,10 @@
 # Change Logs
 
+## v3.0.2 (upcoming)
+
+ - prevent from accessing deprecated attributes.
+
+
 ## v3.0.1
 
  - minimize js further

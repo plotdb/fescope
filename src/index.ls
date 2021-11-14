@@ -53,6 +53,7 @@ rescope.cache-dump = ->
   return ret
 
 win-props =
+  deprecated: <[webkitStorageInfo]>
   attr: <[
     applicationCache caches closed console controllers crossOriginIsolated crypto customElements
     defaultStatus devicePixelRatio dialogArguments directories document event frameElement frames
@@ -158,6 +159,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
         @iframe.init!
         @frame-scope = @iframe._scope.scope
         win-props.all = Array.from(new Set([k for k of @iframe] ++ win-props.dom ++ win-props.attr))
+          .filter -> !(it in win-props.deprecated)
         res!
       node.src = URL.createObjectURL(new Blob([code], {type: \text/html}))
       document.body.appendChild node
@@ -345,8 +347,6 @@ rescope.prototype = Object.create(Object.prototype) <<< do
     """
 
     script = @global.document.createElement("script")
-    hash = {}
-    for k,v of @global => hash[k] = v
     script.onerror = ~> rej it
     script.onload = ~>
       @{}func[url] = rescope.func[id]
@@ -372,7 +372,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
 
     script = @global.document.createElement("script")
     hash = {}
-    for k,v of @global => hash[k] = v
+    for k of @global => if !(k in win-props.deprecated) => hash[k] = @global[k]
     script.onerror = ~> rej it
     script.onload = ~>
       # if we have @scope - it either is load twice, or is from delegate.
@@ -384,7 +384,8 @@ rescope.prototype = Object.create(Object.prototype) <<< do
           @global[k] = hash[k]
       else
         @scope[url] = scope = {}
-        for k,v of @global =>
+        for k of @global =>
+          if k in win-props.deprecated => continue
           # treat `k` as imported var if:
           # A. `k` changed.
           # if (hash[k]? and hash[k] == @global[k]) or !(@global[k]?) => continue

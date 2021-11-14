@@ -85,6 +85,7 @@
     return ret;
   };
   winProps = {
+    deprecated: ['webkitStorageInfo'],
     attr: ['applicationCache', 'caches', 'closed', 'console', 'controllers', 'crossOriginIsolated', 'crypto', 'customElements', 'defaultStatus', 'devicePixelRatio', 'dialogArguments', 'directories', 'document', 'event', 'frameElement', 'frames', 'fullScreen', 'history', 'indexedDB', 'innerHeight', 'innerWidth', 'isSecureContext', 'isSecureContext', 'length', 'localStorage', 'location', 'locationbar', 'menubar', 'mozAnimationStartTime', 'mozInnerScreenX', 'mozInnerScreenY', 'mozPaintCount', 'name', 'navigator', 'onabort', 'onafterprint', 'onanimationcancel', 'onanimationend', 'onanimationiteration', 'onappinstalled', 'onauxclick', 'onbeforeinstallprompt', 'onbeforeprint', 'onbeforeunload', 'onblur', 'oncancel', 'oncanplay', 'oncanplaythrough', 'onchange', 'onclick', 'onclose', 'oncontextmenu', 'oncuechange', 'ondblclick', 'ondevicemotion', 'ondeviceorientation', 'ondeviceorientationabsolute', 'ondragdrop', 'ondurationchange', 'onended', 'onerror', 'onfocus', 'onformdata', 'ongamepadconnected', 'ongamepaddisconnected', 'ongotpointercapture', 'onhashchange', 'oninput', 'oninvalid', 'onkeydown', 'onkeypress', 'onkeyup', 'onlanguagechange', 'onload', 'onloadeddata', 'onloadedmetadata', 'onloadend', 'onloadstart', 'onlostpointercapture', 'onmessage', 'onmessageerror', 'onmousedown', 'onmouseenter', 'onmouseleave', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onmozbeforepaint', 'onpaint', 'onpause', 'onplay', 'onplaying', 'onpointercancel', 'onpointerdown', 'onpointerenter', 'onpointerleave', 'onpointermove', 'onpointerout', 'onpointerover', 'onpointerup', 'onpopstate', 'onrejectionhandled', 'onreset', 'onresize', 'onscroll', 'onselect', 'onselectionchange', 'onselectstart', 'onstorage', 'onsubmit', 'ontouchcancel', 'ontouchstart', 'ontransitioncancel', 'ontransitionend', 'onunhandledrejection', 'onunload', 'onvrdisplayactivate', 'onvrdisplayblur', 'onvrdisplayconnect', 'onvrdisplaydeactivate', 'onvrdisplaydisconnect', 'onvrdisplayfocus', 'onvrdisplaypointerrestricted', 'onvrdisplaypointerunrestricted', 'onvrdisplaypresentchange', 'onwheel', 'opener', 'origin', 'outerHeight', 'outerWidth', 'pageXOffset', 'pageYOffset', 'parent', 'performance', 'personalbar', 'pkcs11', 'screen', 'screenLeft', 'screenTop', 'screenX', 'screenY', 'scrollbars', 'scrollMaxX', 'scrollMaxY', 'scrollX', 'scrollY', 'self', 'sessionStorage', 'sidebar', 'speechSynthesis', 'status', 'statusbar', 'toolbar', 'top', 'visualViewport', 'window', 'Methods', 'alert', 'atob', 'back', 'blur', 'btoa', 'cancelAnimationFrame', 'cancelIdleCallback', 'captureEvents', 'clearImmediate', 'clearInterval', 'clearTimeout', 'close', 'confirm', 'convertPointFromNodeToPage', 'convertPointFromPageToNode', 'createImageBitmap', 'dump', 'fetch', 'find', 'focus', 'forward', 'getComputedStyle', 'getDefaultComputedStyle', 'getSelection', 'home', 'matchMedia', 'minimize', 'moveBy', 'moveTo', 'open', 'openDialog', 'postMessage', 'print', 'prompt', 'queueMicrotask', 'releaseEvents', 'requestAnimationFrame', 'requestFileSystem', 'requestIdleCallback', 'resizeBy', 'resizeTo', 'routeEvent', 'scroll', 'scrollBy', 'scrollByLines', 'scrollByPages', 'scrollTo', 'setCursor', 'setImmediate', 'setInterval', 'setTimeout', 'showDirectoryPicker', 'showModalDialog', 'showOpenFilePicker', 'showSaveFilePicker', 'sizeToContent', 'stop', 'updateCommands', 'Events', 'event', 'afterprint', 'animationcancel', 'animationend', 'animationiteration', 'beforeprint', 'beforeunload', 'blur', 'copy', 'cut', 'DOMContentLoaded', 'error', 'focus', 'hashchange', 'languagechange', 'load', 'message', 'messageerror', 'offline', 'online', 'orientationchange', 'pagehide', 'pageshow', 'paste', 'popstate', 'rejectionhandled', 'storage', 'transitioncancel', 'unhandledrejection', 'unload', 'vrdisplayconnect', 'vrdisplaydisconnect', 'vrdisplaypresentchange'],
     dom: ['Attr', 'CDATASection', 'CharacterData', 'ChildNode', 'Comment', 'CustomEvent', 'Document', 'DocumentFragment', 'DocumentType', 'DOMError', 'DOMException', 'DOMImplementation', 'DOMString', 'DOMTimeStamp', 'DOMStringList', 'DOMTokenList', 'Element', 'Event', 'EventTarget', 'HTMLCollection', 'MutationObserver', 'MutationRecord', 'NamedNodeMap', 'Node', 'NodeFilter', 'NodeIterator', 'NodeList', 'ProcessingInstruction', 'Selection', 'Range', 'Text', 'TextDecoder', 'TextEncoder', 'TimeRanges', 'TreeWalker', 'URL', 'Window', 'Worker', 'XMLDocument']
   };
@@ -176,7 +177,9 @@
               results$.push(k);
             }
             return results$;
-          }.call(this$)).concat(winProps.dom, winProps.attr)));
+          }.call(this$)).concat(winProps.dom, winProps.attr))).filter(function(it){
+            return !in$(it, winProps.deprecated);
+          });
           return res();
         };
         node.src = URL.createObjectURL(new Blob([code], {
@@ -348,7 +351,7 @@
       context == null && (context = {});
       prescope == null && (prescope = {});
       return new Promise(function(res, rej){
-        var _code, k, v, _postcode, tmpvar, ref$, _forceScope, id, script, hash;
+        var _code, k, v, _postcode, tmpvar, ref$, _forceScope, id, script;
         _code = (function(){
           var ref$, results$ = [];
           for (k in ref$ = context) {
@@ -378,11 +381,6 @@
         id = "x" + Math.random().toString(36).substring(2);
         _code = "/* URL: " + url + " */\nrescope.func." + id + " = function(context, winProps) {\n  var win = window;\n  var track = [];\n  var ret = (function() {\n    " + _code + "\n    " + _forceScope + "\n    " + code + "\n    " + _postcode + "\n    return this;\n  }).apply({});\n  /* returned ret may contain members from window through __proto__.  */\n  /* we only need members from libs, so just ignore those from window object. */\n  for(k in ret) {\n    if((track.indexOf(k) == -1) && ret.hasOwnProperty(k)) { context[k] = ret[k]; }\n  }\n  return context;\n}";
         script = this$.global.document.createElement("script");
-        hash = {};
-        for (k in ref$ = this$.global) {
-          v = ref$[k];
-          hash[k] = v;
-        }
         script.onerror = function(it){
           return rej(it);
         };
@@ -427,7 +425,7 @@
     _loadInFrame: function(url){
       var this$ = this;
       return new Promise(function(res, rej){
-        var that, ret, script, hash, k, ref$, v, fullUrl;
+        var that, ret, script, hash, k, fullUrl;
         if (that = rescope._cache[url]) {
           ret = {};
           (that.vars || (that.vars = [])).map(function(){
@@ -437,15 +435,16 @@
         }
         script = this$.global.document.createElement("script");
         hash = {};
-        for (k in ref$ = this$.global) {
-          v = ref$[k];
-          hash[k] = v;
+        for (k in this$.global) {
+          if (!in$(k, winProps.deprecated)) {
+            hash[k] = this$.global[k];
+          }
         }
         script.onerror = function(it){
           return rej(it);
         };
         script.onload = function(){
-          var scope, k, v, ref$;
+          var scope, k, v;
           if (this$.scope[url]) {
             scope = this$.scope[url];
             for (k in scope) {
@@ -455,8 +454,10 @@
             }
           } else {
             this$.scope[url] = scope = {};
-            for (k in ref$ = this$.global) {
-              v = ref$[k];
+            for (k in this$.global) {
+              if (in$(k, winProps.deprecated)) {
+                continue;
+              }
               if (hash[k] != null || !(this$.global[k] != null)) {
                 continue;
               }
@@ -484,5 +485,10 @@
     var own = {}.hasOwnProperty;
     for (var key in src) if (own.call(src, key)) obj[key] = src[key];
     return obj;
+  }
+  function in$(x, xs){
+    var i = -1, l = xs.length >>> 0;
+    while (++i < l) if (x === xs[i]) return true;
+    return false;
   }
 }).call(this);
