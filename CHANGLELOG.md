@@ -1,9 +1,15 @@
 # Change Logs
 
+## v4.0.0 (upcoming)
+
+ - rename `rescope.js` to `index.js` - remove `rescope.js` and `rescope.min.js`
+
+
 ## v3.0.2 (upcoming)
 
  - prevent from accessing deprecated attributes.
  - upgrade @zbryikt/template and fix test code building
+ - add `index.js` and `index.min.js` to deprecated `rescope.js` and `rescope.min.js`
 
 
 ## v3.0.1
