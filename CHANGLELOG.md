@@ -4,6 +4,7 @@
 
  - minimize js further
  - upgrade modules for test code
+ - add `title` in iframe for accessibility
 
 
 ## v3.0.0

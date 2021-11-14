@@ -142,6 +142,7 @@
       return new Promise(function(res, rej){
         var node, prejs, code;
         node = document.createElement('iframe');
+        node.setAttribute('title', "rescope script loader");
         node.setAttribute('name', "delegator-" + Math.random().toString(36).substring(2));
         node.setAttribute('sandbox', 'allow-same-origin allow-scripts');
         import$(node.style, {

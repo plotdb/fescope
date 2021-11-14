@@ -129,6 +129,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
     # if we are in the host window, we need iframe to collect local variables
     new Promise (res, rej) ~>
       node = document.createElement \iframe
+      node.setAttribute \title, "rescope script loader"
       node.setAttribute \name, "delegator-#{Math.random!toString(36)substring(2)}"
       node.setAttribute \sandbox, ('allow-same-origin allow-scripts')
       node.style <<< do
