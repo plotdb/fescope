@@ -2,6 +2,23 @@ var scope;
 scope = new rescope({
   global: window
 });
+if ((typeof useFakescope != 'undefined' && useFakescope !== null) && useFakescope) {
+  console.log(" - use fakescope: true ");
+  scope = {
+    init: function(){
+      return Promise.resolve();
+    },
+    peekScope: function(){
+      return Promise.resolve();
+    },
+    load: function(){
+      return Promise.resolve();
+    },
+    context: function(lib, cb){
+      return Promise.resolve(cb(window));
+    }
+  };
+}
 scope.init().then(function(){
   var pkg, d3pkg;
   pkg = {
@@ -27,24 +44,20 @@ scope.init().then(function(){
       }, "https://d3js.org/d3-scale-chromatic.v1.min.js", "https://d3js.org/d3-dispatch.v2.min.js", "https://d3js.org/d3-quadtree.v2.min.js", "https://d3js.org/d3-timer.v2.min.js", "https://d3js.org/d3-force.v2.min.js"
     ]
   };
-  /*
-  scope =
-    peekScope: -> Promise.resolve!
-    load: -> Promise.resolve!
-    context: (lib, cb) -> Promise.resolve cb(window)
-  */
   scope.peekScope();
   return scope.load(pkg.lib).then(function(){
-    return scope.context(pkg.lib, function(it){
-      return it.functest();
+    return scope.context(pkg.lib, function(obj){
+      return functest();
     });
   }).then(function(){
     return scope.load(d3pkg.v3);
   }).then(function(){
     return scope.load(d3pkg.v4);
   }).then(function(){
-    scope.context(d3pkg.v3, function(){
-      var box;
+    scope.context(d3pkg.v3, function(arg$){
+      var d3, box;
+      d3 = arg$.d3;
+      console.log("[d3 v3]", d3);
       box = document.getElementById('d3v3').getBoundingClientRect();
       return d3.select('svg#d3v3').selectAll('circle').data([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100].map(function(){
         return {
@@ -64,8 +77,10 @@ scope.init().then(function(){
     });
     return debounce(1);
   }).then(function(){
-    return scope.context(d3pkg.v4, function(){
-      var box;
+    return scope.context(d3pkg.v4, function(arg$){
+      var d3, box;
+      d3 = arg$.d3;
+      console.log("[d3 v4]", d3);
       box = document.getElementById('d3v4').getBoundingClientRect();
       return d3.select('svg#d3v4').selectAll('circle').data([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100].map(function(){
         return {

@@ -2,6 +2,18 @@
 # window.d3 = 'hi'
 
 scope = new rescope {global: window}
+
+# following is the sample code for fake rescope
+# it's possible to totally ignore the whole scope thing and use window as scope
+# this merge all scopes into one so things may not work as expected.
+if use-fakescope? and use-fakescope =>
+  console.log " - use fakescope: true "
+  scope =
+    init: -> Promise.resolve!
+    peekScope: -> Promise.resolve!
+    load: -> Promise.resolve!
+    context: (lib, cb) -> Promise.resolve cb(window)
+
 scope.init!
   .then ->
     pkg = do
@@ -30,24 +42,15 @@ scope.init!
         "https://d3js.org/d3-force.v2.min.js"
       ]
 
-    # following is the sample code for fake rescope
-    # it's possible to totally ignore the whole scope thing and use window as scope
-    # this merge all scopes into one so things may not work as expected.
-    /*
-    scope =
-      peekScope: -> Promise.resolve!
-      load: -> Promise.resolve!
-      context: (lib, cb) -> Promise.resolve cb(window)
-    */
     scope.peekScope!
 
     scope.load pkg.lib
-      .then -> scope.context pkg.lib, -> it.functest!
+      .then -> scope.context pkg.lib, (obj) -> functest!
       .then -> scope.load d3pkg.v3
-
       .then -> scope.load d3pkg.v4
       .then ->
-        scope.context d3pkg.v3, -> 
+        scope.context d3pkg.v3, ({d3}) ->
+          console.log "[d3 v3]", d3
           box = document.getElementById \d3v3 .getBoundingClientRect!
           d3.select \svg#d3v3 .selectAll \circle
             .data [0 to 100].map -> {x: Math.random!, y: Math.random!, r: Math.random!}
@@ -68,7 +71,8 @@ scope.init!
 
         debounce 1
       .then ->
-        scope.context d3pkg.v4, -> 
+        scope.context d3pkg.v4, ({d3}) ->
+          console.log "[d3 v4]", d3
           box = document.getElementById \d3v4 .getBoundingClientRect!
           d3.select \svg#d3v4 .selectAll \circle
             .data [0 to 100].map -> {x: Math.random!, y: Math.random!, r: Math.random!}
