@@ -367,7 +367,7 @@ rescope.prototype = Object.create(Object.prototype) <<< do
   _load-in-frame: (url) -> new Promise (res, rej) ~>
     if rescope._cache[url] =>
       ret = {}
-      that.[]vars.map -> ret[k] = true
+      that.[]vars.map (k) -> ret[k] = true
       return res ret
 
     script = @global.document.createElement("script")

@@ -59,7 +59,6 @@ rsp = (o = {}) ->
   @iframe = ifr = document.createElement \iframe
   @_cache = {}
   @proxy = new proxin!
-  if o.registry => @registry o.registry
   @registry(o.registry or "/assets/lib/")
   ifr.style <<< position: \absolute, top: 0, left: 0, width: 0, height: 0, pointerEvents: \none, opacity: 0
   ifr.setAttribute \title, "rescope script loader"

@@ -428,7 +428,7 @@
         var that, ret, script, hash, k, fullUrl;
         if (that = rescope._cache[url]) {
           ret = {};
-          (that.vars || (that.vars = [])).map(function(){
+          (that.vars || (that.vars = [])).map(function(k){
             return ret[k] = true;
           });
           return res(ret);

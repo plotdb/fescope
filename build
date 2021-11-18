@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 rm -rf dist
 mkdir -p dist
+
 echo "build src/index.ls -> dist/index.js ..."
 ./node_modules/.bin/lsc --no-header -cp src/index.ls > dist/index.js
 echo "minifying index.js ..."
 ./node_modules/.bin/uglifyjs dist/index.js -m -c > dist/index.min.js
+
+echo "build src/v4.ls -> dist/v4.js ..."
+./node_modules/.bin/lsc --no-header -cp src/v4.ls > dist/v4.js
+echo "minifying v4.js ..."
+./node_modules/.bin/uglifyjs dist/v4.js -m -c > dist/v4.min.js
 
 echo "still add deprecated rescope.js and rescope.min.js ..."
 cp dist/index.js dist/rescope.js

@@ -10,7 +10,7 @@
  - prevent from accessing deprecated attributes.
  - upgrade @zbryikt/template and fix test code building
  - add `index.js` and `index.min.js` to deprecated `rescope.js` and `rescope.min.js`
-
+ - fix bug: missing var decalration in `load-in-frame`
 
 ## v3.0.1
 
