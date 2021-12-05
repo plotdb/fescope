@@ -10,6 +10,8 @@ declarative version ( used in dependency declaration )
   url, name, version, path, ..?
 */
 
+var win, doc
+
 _fetch = (url, cfg) ->
   (ret) <- fetch url, cfg .then _
   if ret and ret.ok => return ret.text!
@@ -27,15 +29,15 @@ proxin = (o = {})->
   @id = Math.random!toString(36)substring(2)
   if o.iframe => @iframe = o.iframe
   else
-    @iframe = ifr = document.createElement \iframe
+    @iframe = ifr = doc.createElement \iframe
     ifr.style <<< position: \absolute, top: 0, left: 0, width: 0, height: 0, pointerEvents: \none, opacity: 0
     ifr.setAttribute \title, "rescope script loader"
     ifr.setAttribute \name, "pdb-proxin-#{@id}"
     ifr.setAttribute \sandbox, ('allow-same-origin allow-scripts')
-    document.body.appendChild ifr
+    doc.body.appendChild ifr
   attr = Object.fromEntries(Reflect.ownKeys(@iframe.contentWindow).map -> [it, true])
   func = {}
-  @_proxy = new Proxy (o.target or window), do
+  @_proxy = new Proxy (o.target or win), do
     get: (t, k, o) ~>
       if @lc[k]? => return @lc[k]
       if func[k]? => return func[k]
@@ -56,7 +58,7 @@ proxin.prototype = Object.create(Object.prototype) <<<
 
 rsp = (o = {}) ->
   @id = Math.random!toString(36)substring(2)
-  @iframe = ifr = document.createElement \iframe
+  @iframe = ifr = doc.createElement \iframe
   @_cache = {}
   @proxy = new proxin!
   @registry(o.registry or "/assets/lib/")
@@ -64,11 +66,12 @@ rsp = (o = {}) ->
   ifr.setAttribute \title, "rescope script loader"
   ifr.setAttribute \name, "pdb-rescope-#{@id}"
   ifr.setAttribute \sandbox, ('allow-same-origin allow-scripts')
-  document.body.appendChild ifr
+  doc.body.appendChild ifr
   ifr.contentWindow.document.body.innerHTML = (o.preloads or [])
     .map(-> """<script type="text/javascript" src="#it"></script>""").join('')
   @
 
+rsp.env = -> [win, doc] := [it, it.document]
 rsp.prop = legacy: {webkitStorageInfo: true}
 rsp.id = (o) -> o.id or o.url or "#{o.name}@#{o.version}/#{o.path}"
 rsp._cache = {}
@@ -84,6 +87,8 @@ rsp.bundle = (o = {}) ->
   if !o.id => o.id = rsp.id o
 
 rsp.prototype = Object.create(Object.prototype) <<<
+  peek-scope: -> false # deprecated
+  init: -> Promise.resolve! # deprecated
   _url: (o) ->
     return if typeof(o) == \string => o
     else if o.url => that
@@ -142,20 +147,31 @@ rsp.prototype = Object.create(Object.prototype) <<<
     # so if we are using global scope, we will have to exclude them.
     # however, since we scope everthing in a isolated global, there is no need for this.
     code = """
-    var window, global, globalThis, self, __ret = {};
+    var window, global, globalThis, self, __ret = {}; __win = {};
     window = global = globalThis = window = scope;
     """
-    for k of prop => code += "var #k;"
+    # some libs may still access window directly ( perhaps via (function() { var window = this; })();
+    # so we store original win[k] in __win, and restore them later.
+    for k of prop => code += "var #k; __win['#k'] = win['#k']; win['#k'] = undefined;"
     for k of ctx => code += "var #k = window['#k'] = ctx['#k'];"
     code += "#{o.code};"
-    for k of prop => code += "__ret['#k'] = #k || window['#k'];"
+    for k of prop =>
+      # either local variable, fake window obj, real window obj
+      # or possibly `this` variable if some libs use `this` as window object. ( yes, bad practice )
+      code += """
+      __ret['#k'] = #k || window['#k'] || win['#k'] || this['#k'];
+      win['#k'] = __win['#k'];
+      """
     code += "return __ret;"
-    return new Function("scope", "ctx", code)
+    return new Function("scope", "ctx", "win", code)
 
-  load: (libs, proxy) ->
+  load: (libs, px) ->
     libs = (if Array.isArray(libs) => libs else [libs]).map (lib) ~> @cache lib
-    ctx = (proxy or @proxy).ctx!
-    proxy = (proxy or @proxy).proxy!
+    # store px in libs and create on load, otherwise different libs will intervene each other
+    # TODO should we wrap libs in some kind of object so we can keep their state?
+    px = if libs.px => libs.px else libs.px = (px or new proxin!)
+    ctx = px.ctx!
+    proxy = px.proxy!
     ps = libs.map (lib) ~>
       if lib.code => return Promise.resolve!
       ld$.fetch @_url(lib), {method: \GET}, {type: \text}
@@ -166,13 +182,16 @@ rsp.prototype = Object.create(Object.prototype) <<<
         libs.map (lib) ~>
           if lib.prop-initing =>
             lib.gen = @_wrap lib, ctx
-            lib.prop = lib.gen proxy, ctx
+            lib.prop = lib.gen proxy, ctx, window
             lib.prop-initing = false
           ctx <<< lib.prop
       .then ~> ctx
 
   context: (libs, func, proxy) ->
+    if typeof(func) != \function => [func, proxy] = [proxy, func]
     @load libs, proxy .then (ctx) -> func ctx
 
+rsp.env if self? => self else globalThis
+rsp.proxin = proxin
 if module? => module.exports = rsp
 else if window => window.rescope = rsp

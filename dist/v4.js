@@ -9,7 +9,7 @@ declarative version ( used in dependency declaration )
   url, name, version, path, ..?
 */
 (function(){
-  var _fetch, proxin, ref$, rsp;
+  var win, doc, _fetch, proxin, ref$, rsp;
   _fetch = function(url, cfg){
     return fetch(url, cfg).then(function(ret){
       var ref$;
@@ -42,7 +42,7 @@ declarative version ( used in dependency declaration )
     if (o.iframe) {
       this.iframe = o.iframe;
     } else {
-      this.iframe = ifr = document.createElement('iframe');
+      this.iframe = ifr = doc.createElement('iframe');
       ref$ = ifr.style;
       ref$.position = 'absolute';
       ref$.top = 0;
@@ -54,13 +54,13 @@ declarative version ( used in dependency declaration )
       ifr.setAttribute('title', "rescope script loader");
       ifr.setAttribute('name', "pdb-proxin-" + this.id);
       ifr.setAttribute('sandbox', 'allow-same-origin allow-scripts');
-      document.body.appendChild(ifr);
+      doc.body.appendChild(ifr);
     }
     attr = Object.fromEntries(Reflect.ownKeys(this.iframe.contentWindow).map(function(it){
       return [it, true];
     }));
     func = {};
-    this._proxy = new Proxy(o.target || window, {
+    this._proxy = new Proxy(o.target || win, {
       get: function(t, k, o){
         if (this$.lc[k] != null) {
           return this$.lc[k];
@@ -96,7 +96,7 @@ declarative version ( used in dependency declaration )
     var ifr, ref$;
     o == null && (o = {});
     this.id = Math.random().toString(36).substring(2);
-    this.iframe = ifr = document.createElement('iframe');
+    this.iframe = ifr = doc.createElement('iframe');
     this._cache = {};
     this.proxy = new proxin();
     this.registry(o.registry || "/assets/lib/");
@@ -111,11 +111,15 @@ declarative version ( used in dependency declaration )
     ifr.setAttribute('title', "rescope script loader");
     ifr.setAttribute('name', "pdb-rescope-" + this.id);
     ifr.setAttribute('sandbox', 'allow-same-origin allow-scripts');
-    document.body.appendChild(ifr);
+    doc.body.appendChild(ifr);
     ifr.contentWindow.document.body.innerHTML = (o.preloads || []).map(function(it){
       return "<script type=\"text/javascript\" src=\"" + it + "\"></script>";
     }).join('');
     return this;
+  };
+  rsp.env = function(it){
+    var ref$;
+    return ref$ = [it, it.document], win = ref$[0], doc = ref$[1], ref$;
   };
   rsp.prop = {
     legacy: {
@@ -148,7 +152,11 @@ declarative version ( used in dependency declaration )
       return o.id = rsp.id(o);
     }
   };
-  rsp.prototype = (ref$ = Object.create(Object.prototype), ref$._url = function(o){
+  rsp.prototype = (ref$ = Object.create(Object.prototype), ref$.peekScope = function(){
+    return false;
+  }, ref$.init = function(){
+    return Promise.resolve();
+  }, ref$._url = function(o){
     var that;
     return typeof o === 'string'
       ? o
@@ -258,28 +266,31 @@ declarative version ( used in dependency declaration )
       return results$;
     }()).join(',');
     prop = o.prop || {};
-    code = "var window, global, globalThis, self, __ret = {};\nwindow = global = globalThis = window = scope;";
+    code = "var window, global, globalThis, self, __ret = {}; __win = {};\nwindow = global = globalThis = window = scope;";
     for (k in prop) {
-      code += "var " + k + ";";
+      code += "var " + k + "; __win['" + k + "'] = win['" + k + "']; win['" + k + "'] = undefined;";
     }
     for (k in ctx) {
       code += "var " + k + " = window['" + k + "'] = ctx['" + k + "'];";
     }
     code += o.code + ";";
     for (k in prop) {
-      code += "__ret['" + k + "'] = " + k + " || window['" + k + "'];";
+      code += "__ret['" + k + "'] = " + k + " || window['" + k + "'] || win['" + k + "'] || this['" + k + "'];\nwin['" + k + "'] = __win['" + k + "'];";
     }
     code += "return __ret;";
-    return new Function("scope", "ctx", code);
-  }, ref$.load = function(libs, proxy){
-    var ctx, ps, this$ = this;
+    return new Function("scope", "ctx", "win", code);
+  }, ref$.load = function(libs, px){
+    var ctx, proxy, ps, this$ = this;
     libs = (Array.isArray(libs)
       ? libs
       : [libs]).map(function(lib){
       return this$.cache(lib);
     });
-    ctx = (proxy || this.proxy).ctx();
-    proxy = (proxy || this.proxy).proxy();
+    px = libs.px
+      ? libs.px
+      : libs.px = px || new proxin();
+    ctx = px.ctx();
+    proxy = px.proxy();
     ps = libs.map(function(lib){
       if (lib.code) {
         return Promise.resolve();
@@ -299,7 +310,7 @@ declarative version ( used in dependency declaration )
       return libs.map(function(lib){
         if (lib.propIniting) {
           lib.gen = this$._wrap(lib, ctx);
-          lib.prop = lib.gen(proxy, ctx);
+          lib.prop = lib.gen(proxy, ctx, window);
           lib.propIniting = false;
         }
         return import$(ctx, lib.prop);
@@ -308,10 +319,16 @@ declarative version ( used in dependency declaration )
       return ctx;
     });
   }, ref$.context = function(libs, func, proxy){
+    var ref$;
+    if (typeof func !== 'function') {
+      ref$ = [proxy, func], func = ref$[0], proxy = ref$[1];
+    }
     return this.load(libs, proxy).then(function(ctx){
       return func(ctx);
     });
   }, ref$);
+  rsp.env(typeof self != 'undefined' && self !== null ? self : globalThis);
+  rsp.proxin = proxin;
   if (typeof module != 'undefined' && module !== null) {
     module.exports = rsp;
   } else if (window) {
