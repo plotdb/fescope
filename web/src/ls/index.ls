@@ -27,9 +27,9 @@ scope.init!
       ]
 
     d3pkg = do
-      v3: \https://d3js.org/d3.v3.min.js
+      v3: \/assets/dev/d3.v3.js
       v4: [
-        {url: "https://d3js.org/d3.v4.js", async: false},
+        {url: "/assets/dev/d3.v4.js", async: false},
         "https://d3js.org/d3-format.v2.min.js",
         "https://d3js.org/d3-array.v2.min.js",
         "https://d3js.org/topojson.v2.min.js",
@@ -41,16 +41,15 @@ scope.init!
         "https://d3js.org/d3-timer.v2.min.js",
         "https://d3js.org/d3-force.v2.min.js"
       ]
-
     scope.peekScope!
 
     scope.load pkg.lib
-      .then -> scope.context pkg.lib, (obj) -> functest!
+      .then -> scope.context pkg.lib, ({functest}) -> functest!
       .then -> scope.load d3pkg.v3
       .then -> scope.load d3pkg.v4
       .then ->
         scope.context d3pkg.v3, ({d3}) ->
-          console.log "[d3 v3]", d3
+          console.log "[d3 v3]", d3.version
           box = document.getElementById \d3v3 .getBoundingClientRect!
           d3.select \svg#d3v3 .selectAll \circle
             .data [0 to 100].map -> {x: Math.random!, y: Math.random!, r: Math.random!}
@@ -72,7 +71,7 @@ scope.init!
         debounce 1
       .then ->
         scope.context d3pkg.v4, ({d3}) ->
-          console.log "[d3 v4]", d3
+          console.log "[d3 v4]", d3.version
           box = document.getElementById \d3v4 .getBoundingClientRect!
           d3.select \svg#d3v4 .selectAll \circle
             .data [0 to 100].map -> {x: Math.random!, y: Math.random!, r: Math.random!}
