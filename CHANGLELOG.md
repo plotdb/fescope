@@ -3,6 +3,7 @@
 ## v4.0.0 (upcoming)
 
  - rename `rescope.js` to `index.js` - remove `rescope.js` and `rescope.min.js`
+ - `context` no longer pollute `window` object - a proxy for `window` is used instead.
 
 
 ## v3.0.2 (upcoming)
