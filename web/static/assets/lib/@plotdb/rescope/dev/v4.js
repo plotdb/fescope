@@ -323,10 +323,8 @@ declarative version ( used in dependency declaration )
       if (lib.code || lib.gen) {
         return Promise.resolve();
       }
-      return ld$.fetch(this$._url(lib), {
+      return _fetch(this$._url(lib), {
         method: 'GET'
-      }, {
-        type: 'text'
       }).then(function(it){
         return lib.code = it;
       });

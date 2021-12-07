@@ -191,7 +191,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
     proxy = px.proxy!
     ps = libs.map (lib) ~>
       if lib.code or lib.gen => return Promise.resolve!
-      ld$.fetch @_url(lib), {method: \GET}, {type: \text} .then -> lib.code = it
+      _fetch @_url(lib), {method: \GET} .then -> lib.code = it
     Promise.all ps
       .then ~>
         @exports {libs}
