@@ -203,9 +203,9 @@ rsp.prototype = Object.create(Object.prototype) <<<
           ctx <<< lib.prop
       .then ~> ctx
 
-  context: (libs, func, proxy) ->
-    if typeof(func) != \function => [func, proxy] = [proxy, func]
-    @load libs, proxy .then (ctx) -> if func => func ctx else return ctx
+  context: (libs, func, px) ->
+    if typeof(func) != \function => [func, px] = [px, func]
+    @load libs, px .then (ctx) -> if func => func ctx else return ctx
 
 rsp.env if self? => self else globalThis
 rsp.proxin = proxin

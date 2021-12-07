@@ -348,12 +348,12 @@ declarative version ( used in dependency declaration )
     }).then(function(){
       return ctx;
     });
-  }, ref$.context = function(libs, func, proxy){
+  }, ref$.context = function(libs, func, px){
     var ref$;
     if (typeof func !== 'function') {
-      ref$ = [proxy, func], func = ref$[0], proxy = ref$[1];
+      ref$ = [px, func], func = ref$[0], px = ref$[1];
     }
-    return this.load(libs, proxy).then(function(ctx){
+    return this.load(libs, px).then(function(ctx){
       if (func) {
         return func(ctx);
       } else {
