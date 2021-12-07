@@ -14,9 +14,12 @@ declarative version ( used in dependency declaration )
   id, url, name, version, path, gen
 */
 (function(){
-  var win, doc, _fetch, proxin, ref$, rsp;
-  _fetch = function(url, cfg){
-    return fetch(url, cfg).then(function(ret){
+  var fetch, win, doc, _fetch, proxin, ref$, rsp;
+  fetch = typeof window != 'undefined' && window !== null
+    ? window.fetch
+    : (typeof module != 'undefined' && module !== null) && (typeof require != 'undefined' && require !== null) ? require("node-fetch") : null;
+  _fetch = function(u, c){
+    return fetch(u, c).then(function(ret){
       var ref$;
       if (ret && ret.ok) {
         return ret.text();
@@ -25,7 +28,7 @@ declarative version ( used in dependency declaration )
         return Promise.reject((ref$ = new Error("404"), ref$.name = 'lderror', ref$.id = 404, ref$));
       }
       return ret.clone().text().then(function(t){
-        var i, e, ref$, j, er;
+        var i, e, ref$, j, err;
         i = ret.status || 404;
         e = (ref$ = new Error(i + " " + t), ref$.name = 'lderror', ref$.id = i, ref$.message = t, ref$);
         try {
@@ -33,7 +36,7 @@ declarative version ( used in dependency declaration )
             import$(e, j).json = j;
           }
         } catch (e$) {
-          er = e$;
+          err = e$;
         }
         return Promise.reject(e);
       });

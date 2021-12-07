@@ -13,6 +13,7 @@
  - add `index.js` and `index.min.js` to deprecated `rescope.js` and `rescope.min.js`
  - fix bug: missing var decalration in `load-in-frame`
  - use `index.js` as `main` file in package.json
+ - support fetch in nodejs context
 
 ## v3.0.1
 

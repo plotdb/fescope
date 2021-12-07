@@ -15,10 +15,12 @@ declarative version ( used in dependency declaration )
   id, url, name, version, path, gen
 */
 
+fetch = if window? => window.fetch else if module? and require? => require "node-fetch" else null
+
 var win, doc
 
-_fetch = (url, cfg) ->
-  (ret) <- fetch url, cfg .then _
+_fetch = (u, c) ->
+  (ret) <- fetch u, c .then _
   if ret and ret.ok => return ret.text!
   if !ret => return Promise.reject(new Error("404") <<< {name: \lderror, id: 404})
   ret.clone!text!then (t) ->
@@ -26,7 +28,7 @@ _fetch = (url, cfg) ->
     e = new Error("#i #t") <<< {name: \lderror, id: i, message: t}
     try 
       if (j = JSON.parse(t)) and j.name == \lderror => e <<< j <<< {json: j}
-    catch er
+    catch err
     return Promise.reject e
 
 proxin = (o = {})->
