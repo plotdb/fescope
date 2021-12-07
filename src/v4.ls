@@ -1,13 +1,18 @@
 # rescope v4
 /*
 lib spec
-  id: from `rescope.id`
-  url, name, version, path
-  prop
-  code: source code for this library.
+ - `id`: from `rescope.id` based on url or name / version / path
+ - `url`: lib url. optional, `name` / `version` / `path` must be set if omitted
+ - `name`, `version`, `path`: lib information
+ - `gen(proxy, ctx, window)`: function to retrieve lib exports.
+ - `prop`: object with members exported from this lib.
+ - `fprop`: hash with members named as values exported from this lib.
+   - derived in iframe context, should not be used in host window.
+   - should not be used outside `_exports`.
+ - `code`: source code for this library.
 
 declarative version ( used in dependency declaration )
-  url, name, version, path, ..?
+  id, url, name, version, path, gen
 */
 
 var win, doc
@@ -81,11 +86,6 @@ rsp.cache = (o) ->
   if r = rsp._cache[o.id] => return r
   return rsp._cache[o.id] = {} <<< o
 
-# TODO prebundle mechanism
-rsp.bundle = (o = {}) ->
-  o = {} <<< o
-  if !o.id => o.id = rsp.id o
-
 rsp.prototype = Object.create(Object.prototype) <<<
   peek-scope: -> false # deprecated
   init: -> Promise.resolve! # deprecated
@@ -107,7 +107,18 @@ rsp.prototype = Object.create(Object.prototype) <<<
     if rsp._cache[o.id] => return @_cache[o.id] = that
     return @_cache[o.id] = {} <<< o
 
+  bundle: (libs = []) ->
+    libs = (if Array.isArray(libs) => libs else [libs]).map (lib) ~> @cache lib
+    @load libs .then ~>
+      codes = libs
+        .filter -> it.code
+        .map (o) ~>
+          code = @_wrap o, {}, code-only: true
+          "{id:'#{o.id}',gen:#code}"
+      Promise.resolve "[#{codes.join(',')}].forEach(function(o){rescope.cache(o);})"
+
   exports: (o = {}) ->
+    # TODO we should skip this step if all libs are loaded from bundle
     ctx = o.ctx or {}
     libs = if typeof(o.libs) == \string => [o.libs] else (o.libs or [])
     [hash, iw] = [{}, @iframe.contentWindow]
@@ -121,27 +132,32 @@ rsp.prototype = Object.create(Object.prototype) <<<
     [hash, fprop, iw] = [{}, lib.fprop, @iframe.contentWindow]
     if !fprop =>
       lib <<< {fprop: fprop = {}, prop: {}}
-      att1 = Object.fromEntries(Reflect.ownKeys(iw).filter(->!rsp.prop.legacy[it]).map -> [it, true])
-      for k of att1 => hash[k] = iw[k]
-      # TODO use this to guarantee a global scope??
-      # iw.run = function(code) { (new Function(code))(); }; iw.run(code);
-      iw.eval lib.code
-      att2 = Object.fromEntries(Reflect.ownKeys(iw).filter(->!rsp.prop.legacy[it]).map -> [it, true])
-      for k of att2 =>
-        if iw[k] == hash[k] or (k in <[NaN]>) => continue
-        fprop[k] = iw[k]
-        # TODO how to determine if it's export only or loaded successfully?
-        # may need additional flag
-        lib.prop[k] = null
+      if lib.gen =>
+        fprop <<< lib.gen iw, iw, iw
+        lib.prop = Object.fromEntries [[k,null] for k of fprop]
         lib.prop-initing = true
+      else
+        att1 = Object.fromEntries(Reflect.ownKeys(iw).filter(->!rsp.prop.legacy[it]).map -> [it, true])
+        for k of att1 => hash[k] = iw[k]
+        # TODO use this to guarantee a global scope??
+        # iw.run = function(code) { (new Function(code))(); }; iw.run(code);
+        iw.eval lib.code
+        att2 = Object.fromEntries(Reflect.ownKeys(iw).filter(->!rsp.prop.legacy[it]).map -> [it, true])
+        for k of att2 =>
+          if iw[k] == hash[k] or (k in <[NaN]>) => continue
+          fprop[k] = iw[k]
+          # TODO how to determine if it's export only or loaded successfully?
+          # may need additional flag
+          lib.prop[k] = null
+          lib.prop-initing = true
+
     else
       for k of fprop => hash[k] = iw[k]; iw[k] = fprop[k]
     @_exports libs, idx + 1
     for k of fprop => iw[k] = hash[k]
     # NOTE we can only retrieve synchronously assigned props.
 
-  _wrap: (o = {}, ctx = {}) ->
-    ctx-id = [k for k of ctx].join(',')
+  _wrap: (o = {}, ctx = {}, opt = {}) ->
     prop = o.prop or {}
     # NOTE: some libs may detect existency of themselves.
     # so if we are using global scope, we will have to exclude them.
@@ -163,6 +179,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
       win['#k'] = __win['#k'];
       """
     code += "return __ret;"
+    if opt.code-only => return " function(scope, ctx, win) { #code } "
     return new Function("scope", "ctx", "win", code)
 
   load: (libs, px) ->
@@ -173,15 +190,14 @@ rsp.prototype = Object.create(Object.prototype) <<<
     ctx = px.ctx!
     proxy = px.proxy!
     ps = libs.map (lib) ~>
-      if lib.code => return Promise.resolve!
-      ld$.fetch @_url(lib), {method: \GET}, {type: \text}
-        .then (code) -> lib.code = code # TODO: also accept parsed function such as `gen`
+      if lib.code or lib.gen => return Promise.resolve!
+      ld$.fetch @_url(lib), {method: \GET}, {type: \text} .then -> lib.code = it
     Promise.all ps
       .then ~>
         @exports {libs}
         libs.map (lib) ~>
           if lib.prop-initing =>
-            lib.gen = @_wrap lib, ctx
+            if !lib.gen => lib.gen = @_wrap lib, ctx
             lib.prop = lib.gen proxy, ctx, window
             lib.prop-initing = false
           ctx <<< lib.prop
@@ -189,7 +205,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
 
   context: (libs, func, proxy) ->
     if typeof(func) != \function => [func, proxy] = [proxy, func]
-    @load libs, proxy .then (ctx) -> func ctx
+    @load libs, proxy .then (ctx) -> if func => func ctx else return ctx
 
 rsp.env if self? => self else globalThis
 rsp.proxin = proxin

@@ -22,20 +22,21 @@
     "deploy": "npx deploy web/static"
   },
   "devDependencies": {
+    "@loadingio/bootstrap.ext": "^0.0.1",
     "@loadingio/debounce.js": "^0.0.1",
     "@loadingio/ldquery": "^2.2.1",
     "@plotdb/pdmap-world": "^0.0.2",
+    "@zbryikt/template": "^2.3.29",
     "bootstrap": "^4.5.3",
     "bootstrap.native": "^3.0.13",
-    "@loadingio/bootstrap.ext": "^0.0.1",
     "deploy": "github:zbryikt/deploy",
     "fedep": "^0.0.17",
     "ldcover": "^2.1.0",
+    "ldfile": "^1.0.1",
     "ldiconfont": "^0.1.8",
     "ldview": "^0.2.7",
     "livescript": "^1.6.0",
     "proxise": "^0.1.4",
-    "@zbryikt/template": "^2.3.29",
     "yargs": "^16.1.0"
   },
   "frontendDependencies": {
@@ -48,6 +49,7 @@
       "@loadingio/bootstrap.ext",
       "@plotdb/pdmap-world",
       "ldcover",
+      "ldfile",
       "ldview",
       "proxise",
       "ldiconfont"

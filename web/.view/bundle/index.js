@@ -228,6 +228,8 @@ var loremtext = {
 ;pug_debug_line = 6;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
 pug_html = pug_html + "\u003Chead\u003E";
 ;pug_debug_line = 7;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
+;pug_debug_line = 3;pug_debug_filename = "src\u002Fpug\u002Fbundle\u002Findex.pug";
+pug_html = pug_html + "\u003Cbase href=\"\u002F\"\u003E";
 ;pug_debug_line = 8;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
 pug_mixins["css"]("/assets/lib/bootstrap/main/css/bootstrap.min.css");
 ;pug_debug_line = 9;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
@@ -243,12 +245,6 @@ pug_html = pug_html + "\u003C\u002Fhead\u003E";
 ;pug_debug_line = 14;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
 pug_html = pug_html + "\u003Cbody\u003E";
 ;pug_debug_line = 15;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
-;pug_debug_line = 4;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Ftest.pug";
-pug_html = pug_html + "\u003Cdiv class=\"w-1024 rwd mx-auto\"\u003E";
-;pug_debug_line = 5;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Ftest.pug";
-pug_html = pug_html + "\u003Cdiv id=\"root\"\u003E";
-;pug_debug_line = 5;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Ftest.pug";
-pug_html = pug_html + "\u003Csvg class=\"w-100\"\u003E\u003C\u002Fsvg\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E";
 ;pug_debug_line = 16;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
 pug_mixins["script"]("/assets/lib/@loadingio/debounce.js/main/debounce.min.js");
 ;pug_debug_line = 17;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
@@ -256,13 +252,14 @@ pug_mixins["script"]("/assets/lib/@loadingio/ldquery/main/ldq.min.js");
 ;pug_debug_line = 18;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
 pug_mixins["script"]("/assets/lib/@plotdb/rescope/dev/v4.js");
 ;pug_debug_line = 19;pug_debug_filename = "\u002FUsers\u002Ftkirby\u002Fworkspace\u002Fzbryikt\u002Fplotdb\u002Fprojects\u002Frescope\u002Fweb\u002Fsrc\u002Fpug\u002Fbase.pug";
-;pug_debug_line = 7;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Ftest.pug";
-pug_mixins["script"]("https://d3js.org/d3.v4.js");
-;pug_debug_line = 8;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Ftest.pug";
-pug_mixins["script"]("/assets/dev/d3-array.v2.js");
-;pug_debug_line = 9;pug_debug_filename = "src\u002Fpug\u002Fdev\u002Ftest.pug";
-pug_mixins["script"]("https://d3js.org/d3-transition.v2.min.js");
-pug_html = pug_html + "\u003C\u002Fbody\u003E\u003C\u002Fhtml\u003E";
+;pug_debug_line = 7;pug_debug_filename = "src\u002Fpug\u002Fbundle\u002Findex.pug";
+pug_mixins["script"]("/assets/lib/ldfile/main/index.js");
+;pug_debug_line = 8;pug_debug_filename = "src\u002Fpug\u002Fbundle\u002Findex.pug";
+pug_mixins["script"]("/assets/tmp/bundle.js");
+;pug_debug_line = 9;pug_debug_filename = "src\u002Fpug\u002Fbundle\u002Findex.pug";
+pug_html = pug_html + "\u003Cscript\u003E";
+;pug_debug_line = 9;pug_debug_filename = "src\u002Fpug\u002Fbundle\u002Findex.pug";
+pug_html = pug_html + "var rsp,url,bundle,loader;rsp=new rescope;url=\"\u002Fassets\u002Fdev\u002Fd3.v4.js\";bundle=function(){return rsp.bundle([url]).then(function(n){return ldfile.download({data:n,name:\"bundle.js\"})})};loader=function(){return rsp.load(url).then(function(){return rsp.context(url)}).then(function(n){var e,r;console.log(\"1\",n);e=rsp.cache(url);console.log(\"2\",e);r=n.d3;return r.selectAll(\"body\").style(\"background\",\"#f00\")})};\u003C\u002Fscript\u003E\u003C\u002Fbody\u003E\u003C\u002Fhtml\u003E";
     }.call(this, "Array" in locals_for_with ?
         locals_for_with.Array :
         typeof Array !== 'undefined' ? Array : undefined, "JSON" in locals_for_with ?

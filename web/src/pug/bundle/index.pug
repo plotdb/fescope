@@ -1,0 +1,9 @@
+extends /base.pug
+block prehead
+  base(href="/")
+block head
+block body
+block script
+  +script("/assets/lib/ldfile/main/index.js")
+  +script("/assets/tmp/bundle.js")
+  script: include:lsc index.ls
