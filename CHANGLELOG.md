@@ -1,6 +1,6 @@
 # Change Logs
 
-## v4.0.0 (upcoming)
+## v4.0.0
 
  - rename `rescope.js` to `index.js` - remove `rescope.js` and `rescope.min.js`
  - `context` no longer pollute `window` object - a proxy for `window` is used instead.
@@ -9,7 +9,7 @@
  - support nodejs context
 
 
-## v3.0.2 (upcoming)
+## v3.0.2
 
  - prevent from accessing deprecated attributes.
  - upgrade @zbryikt/template and fix test code building
