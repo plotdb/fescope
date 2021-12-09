@@ -212,4 +212,4 @@ rsp.prototype = Object.create(Object.prototype) <<<
 rsp.env if self? => self else globalThis
 rsp.proxin = proxin
 if module? => module.exports = rsp
-else if window => window.rescope = rsp
+else if window? => window.rescope = rsp

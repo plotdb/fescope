@@ -14,6 +14,7 @@
  - fix bug: missing var decalration in `load-in-frame`
  - use `index.js` as `main` file in package.json
  - support fetch in nodejs context
+ - prepare module by checking window against existence instead of value
 
 ## v3.0.1
 

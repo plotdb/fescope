@@ -366,7 +366,7 @@ declarative version ( used in dependency declaration )
   rsp.proxin = proxin;
   if (typeof module != 'undefined' && module !== null) {
     module.exports = rsp;
-  } else if (window) {
+  } else if (typeof window != 'undefined' && window !== null) {
     window.rescope = rsp;
   }
   function import$(obj, src){
