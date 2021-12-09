@@ -243,6 +243,7 @@ declarative version ( used in dependency declaration )
     if (!fprop) {
       lib.fprop = fprop = {};
       lib.prop = {};
+      lib.propIniting = true;
       if (lib.gen) {
         import$(fprop, lib.gen.apply(iw, [iw, iw, iw]));
         lib.prop = Object.fromEntries((function(){
@@ -252,7 +253,6 @@ declarative version ( used in dependency declaration )
           }
           return results$;
         }()));
-        lib.propIniting = true;
       } else {
         att1 = Object.fromEntries(Reflect.ownKeys(iw).filter(function(it){
           return !rsp.prop.legacy[it];
@@ -274,7 +274,6 @@ declarative version ( used in dependency declaration )
           }
           fprop[k] = iw[k];
           lib.prop[k] = null;
-          lib.propIniting = true;
         }
       }
     } else {

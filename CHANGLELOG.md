@@ -1,5 +1,10 @@
 # Change Logs
 
+## v4.0.1
+
+ - fix bug: `prop-initing` should be true once we are going to init the lib
+
+
 ## v4.0.0
 
  - rename `rescope.js` to `index.js` - remove `rescope.js` and `rescope.min.js`

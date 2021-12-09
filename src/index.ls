@@ -134,11 +134,10 @@ rsp.prototype = Object.create(Object.prototype) <<<
     lib = @cache lib
     [hash, fprop, iw] = [{}, lib.fprop, @iframe.contentWindow]
     if !fprop =>
-      lib <<< {fprop: fprop = {}, prop: {}}
+      lib <<< {fprop: fprop = {}, prop: {}, prop-initing: true}
       if lib.gen =>
         fprop <<< lib.gen.apply iw, [iw, iw, iw]
         lib.prop = Object.fromEntries [[k,null] for k of fprop]
-        lib.prop-initing = true
       else
         att1 = Object.fromEntries(Reflect.ownKeys(iw).filter(->!rsp.prop.legacy[it]).map -> [it, true])
         for k of att1 => hash[k] = iw[k]
@@ -152,7 +151,6 @@ rsp.prototype = Object.create(Object.prototype) <<<
           # TODO how to determine if it's export only or loaded successfully?
           # may need additional flag
           lib.prop[k] = null
-          lib.prop-initing = true
 
     else
       for k of fprop => hash[k] = iw[k]; iw[k] = fprop[k]
