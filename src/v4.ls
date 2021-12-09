@@ -110,7 +110,6 @@ rsp.prototype = Object.create(Object.prototype) <<<
     return @_cache[o.id] = {} <<< o
 
   bundle: (libs = []) ->
-    libs = (if Array.isArray(libs) => libs else [libs]).map (lib) ~> @cache lib
     @load libs .then ~>
       codes = libs
         .filter -> it.code
@@ -185,7 +184,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
     return new Function("scope", "ctx", "win", code)
 
   load: (libs, px) ->
-    libs = (if Array.isArray(libs) => libs else [libs]).map (lib) ~> @cache lib
+    libs = (if Array.isArray(libs) => libs else [libs]).map (o) ~> @cache o
     # store px in libs and create on load, otherwise different libs will intervene each other
     # TODO should we wrap libs in some kind of object so we can keep their state?
     px = if libs.px => libs.px else libs.px = (px or new proxin!)

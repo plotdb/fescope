@@ -197,11 +197,6 @@ declarative version ( used in dependency declaration )
   }, ref$.bundle = function(libs){
     var this$ = this;
     libs == null && (libs = []);
-    libs = (Array.isArray(libs)
-      ? libs
-      : [libs]).map(function(lib){
-      return this$.cache(lib);
-    });
     return this.load(libs).then(function(){
       var codes;
       codes = libs.filter(function(it){
@@ -314,8 +309,8 @@ declarative version ( used in dependency declaration )
     var ctx, proxy, ps, this$ = this;
     libs = (Array.isArray(libs)
       ? libs
-      : [libs]).map(function(lib){
-      return this$.cache(lib);
+      : [libs]).map(function(o){
+      return this$.cache(o);
     });
     px = libs.px
       ? libs.px
