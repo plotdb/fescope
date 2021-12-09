@@ -110,6 +110,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
     return @_cache[o.id] = {} <<< o
 
   bundle: (libs = []) ->
+    # while `@load` does this, we still need this line to convert libs to cached object in `bundle`
     libs = (if Array.isArray(libs) => libs else [libs]).map (o) ~> @cache o
     @load(libs, null, true).then ~>
       codes = libs

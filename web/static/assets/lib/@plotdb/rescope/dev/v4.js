@@ -204,7 +204,6 @@ declarative version ( used in dependency declaration )
     });
     return this.load(libs, null, true).then(function(){
       var codes;
-      console.log(libs);
       codes = libs.filter(function(it){
         return it.code;
       }).map(function(o){
