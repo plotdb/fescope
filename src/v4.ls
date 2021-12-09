@@ -136,7 +136,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
     if !fprop =>
       lib <<< {fprop: fprop = {}, prop: {}}
       if lib.gen =>
-        fprop <<< lib.gen iw, iw, iw
+        fprop <<< lib.gen.apply iw, [iw, iw, iw]
         lib.prop = Object.fromEntries [[k,null] for k of fprop]
         lib.prop-initing = true
       else
@@ -182,7 +182,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
       win['#k'] = __win['#k'];
       """
     code += "return __ret;"
-    if opt.code-only => return " function(scope, ctx, win) { #code } "
+    if opt.code-only => return "function(scope, ctx, win){#code}"
     return new Function("scope", "ctx", "win", code)
 
   load: (libs, px, force-fetch = false) ->
@@ -201,7 +201,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
         libs.map (lib) ~>
           if lib.prop-initing =>
             if !lib.gen => lib.gen = @_wrap lib, ctx
-            lib.prop = lib.gen proxy, ctx, window
+            lib.prop = lib.gen.apply proxy, [proxy, ctx, window]
             lib.prop-initing = false
           ctx <<< lib.prop
       .then ~> ctx

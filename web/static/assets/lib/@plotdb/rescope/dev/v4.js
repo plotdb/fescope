@@ -244,7 +244,7 @@ declarative version ( used in dependency declaration )
       lib.fprop = fprop = {};
       lib.prop = {};
       if (lib.gen) {
-        import$(fprop, lib.gen(iw, iw, iw));
+        import$(fprop, lib.gen.apply(iw, [iw, iw, iw]));
         lib.prop = Object.fromEntries((function(){
           var results$ = [];
           for (k in fprop) {
@@ -307,7 +307,7 @@ declarative version ( used in dependency declaration )
     }
     code += "return __ret;";
     if (opt.codeOnly) {
-      return " function(scope, ctx, win) { " + code + " } ";
+      return "function(scope, ctx, win){" + code + "}";
     }
     return new Function("scope", "ctx", "win", code);
   }, ref$.load = function(libs, px, forceFetch){
@@ -342,7 +342,7 @@ declarative version ( used in dependency declaration )
           if (!lib.gen) {
             lib.gen = this$._wrap(lib, ctx);
           }
-          lib.prop = lib.gen(proxy, ctx, window);
+          lib.prop = lib.gen.apply(proxy, [proxy, ctx, window]);
           lib.propIniting = false;
         }
         return import$(ctx, lib.prop);
