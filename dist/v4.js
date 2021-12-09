@@ -197,8 +197,14 @@ declarative version ( used in dependency declaration )
   }, ref$.bundle = function(libs){
     var this$ = this;
     libs == null && (libs = []);
-    return this.load(libs).then(function(){
+    libs = (Array.isArray(libs)
+      ? libs
+      : [libs]).map(function(o){
+      return this$.cache(o);
+    });
+    return this.load(libs, null, true).then(function(){
       var codes;
+      console.log(libs);
       codes = libs.filter(function(it){
         return it.code;
       }).map(function(o){
@@ -206,7 +212,7 @@ declarative version ( used in dependency declaration )
         code = this$._wrap(o, {}, {
           codeOnly: true
         });
-        return "{id:'" + o.id + "',gen:" + code + "}";
+        return "{" + (o.url ? "url: '" + o.url + "'," : '') + "id: '" + o.id + "',gen: " + code + "}";
       });
       return Promise.resolve("[" + codes.join(',') + "].forEach(function(o){rescope.cache(o);})");
     });
@@ -305,8 +311,9 @@ declarative version ( used in dependency declaration )
       return " function(scope, ctx, win) { " + code + " } ";
     }
     return new Function("scope", "ctx", "win", code);
-  }, ref$.load = function(libs, px){
+  }, ref$.load = function(libs, px, forceFetch){
     var ctx, proxy, ps, this$ = this;
+    forceFetch == null && (forceFetch = false);
     libs = (Array.isArray(libs)
       ? libs
       : [libs]).map(function(o){
@@ -318,7 +325,7 @@ declarative version ( used in dependency declaration )
     ctx = px.ctx();
     proxy = px.proxy();
     ps = libs.map(function(lib){
-      if (lib.code || lib.gen) {
+      if ((lib.code || lib.gen) && !forceFetch) {
         return Promise.resolve();
       }
       return _fetch(this$._url(lib), {

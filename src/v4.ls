@@ -110,12 +110,13 @@ rsp.prototype = Object.create(Object.prototype) <<<
     return @_cache[o.id] = {} <<< o
 
   bundle: (libs = []) ->
-    @load libs .then ~>
+    libs = (if Array.isArray(libs) => libs else [libs]).map (o) ~> @cache o
+    @load(libs, null, true).then ~>
       codes = libs
         .filter -> it.code
         .map (o) ~>
           code = @_wrap o, {}, code-only: true
-          "{id:'#{o.id}',gen:#code}"
+          """{#{if o.url => "url: '#{o.url}'," else ''}id: '#{o.id}',gen: #code}"""
       Promise.resolve "[#{codes.join(',')}].forEach(function(o){rescope.cache(o);})"
 
   exports: (o = {}) ->
@@ -183,7 +184,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
     if opt.code-only => return " function(scope, ctx, win) { #code } "
     return new Function("scope", "ctx", "win", code)
 
-  load: (libs, px) ->
+  load: (libs, px, force-fetch = false) ->
     libs = (if Array.isArray(libs) => libs else [libs]).map (o) ~> @cache o
     # store px in libs and create on load, otherwise different libs will intervene each other
     # TODO should we wrap libs in some kind of object so we can keep their state?
@@ -191,7 +192,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
     ctx = px.ctx!
     proxy = px.proxy!
     ps = libs.map (lib) ~>
-      if lib.code or lib.gen => return Promise.resolve!
+      if (lib.code or lib.gen) and !force-fetch => return Promise.resolve!
       _fetch @_url(lib), {method: \GET} .then -> lib.code = it
     Promise.all ps
       .then ~>
