@@ -126,10 +126,10 @@ rsp.prototype = Object.create(Object.prototype) <<<
     libs = if typeof(o.libs) == \string => [o.libs] else (o.libs or [])
     [hash, iw] = [{}, @iframe.contentWindow]
     for k of ctx => hash[k] = iw[k]; iw[k] = ctx[k]
-    @_exports libs, 0
-    for k of ctx => iw[k] = hash[k]
+    @_exports libs, 0, ctx
+    for k of hash => iw[k] = hash[k]
 
-  _exports: (libs, idx = 0) ->
+  _exports: (libs, idx = 0, ctx = {}) ->
     if !(lib = libs[idx]) => return
     lib = @cache lib
     [hash, fprop, iw] = [{}, lib.fprop, @iframe.contentWindow]
@@ -151,9 +151,9 @@ rsp.prototype = Object.create(Object.prototype) <<<
           # TODO how to determine if it's export only or loaded successfully?
           # may need additional flag
           lib.prop[k] = null
-
     else
       for k of fprop => hash[k] = iw[k]; iw[k] = fprop[k]
+    for k of fprop => ctx[k] = fprop[k]
     @_exports libs, idx + 1
     for k of fprop => iw[k] = hash[k]
     # NOTE we can only retrieve synchronously assigned props.
@@ -183,11 +183,11 @@ rsp.prototype = Object.create(Object.prototype) <<<
     if opt.code-only => return "function(scope, ctx, win){#code}"
     return new Function("scope", "ctx", "win", code)
 
-  load: (libs, px, force-fetch = false) ->
+  load: (libs, dctx = {}, force-fetch = false) ->
     libs = (if Array.isArray(libs) => libs else [libs]).map (o) ~> @cache o
     # store px in libs and create on load, otherwise different libs will intervene each other
     # TODO should we wrap libs in some kind of object so we can keep their state?
-    px = if libs.px => libs.px else libs.px = (px or new proxin!)
+    px = if libs.px => libs.px else libs.px = (if dctx and dctx.p => dctx.p else new proxin!)
     ctx = px.ctx!
     proxy = px.proxy!
     ps = libs.map (lib) ~>
@@ -195,7 +195,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
       _fetch @_url(lib), {method: \GET} .then -> lib.code = it
     Promise.all ps
       .then ~>
-        @exports {libs}
+        @exports {libs, ctx: dctx.f}
         libs.map (lib) ~>
           if lib.prop-initing =>
             if !lib.gen => lib.gen = @_wrap lib, ctx
@@ -210,5 +210,11 @@ rsp.prototype = Object.create(Object.prototype) <<<
 
 rsp.env if self? => self else globalThis
 rsp.proxin = proxin
+
+# for creating empty context of both main window and iframe, so we call it `dual-context`.
+#  - `p`: proxy ( for main window )
+#  - `f`: context object for iframe
+#  - `ctx()`: get context from main window
+rsp.dual-context = -> {p: new proxin!, f: {}, ctx: -> @p.ctx!}
 if module? => module.exports = rsp
 else if window? => window.rescope = rsp

@@ -227,14 +227,15 @@ declarative version ( used in dependency declaration )
       hash[k] = iw[k];
       iw[k] = ctx[k];
     }
-    this._exports(libs, 0);
-    for (k in ctx) {
+    this._exports(libs, 0, ctx);
+    for (k in hash) {
       results$.push(iw[k] = hash[k]);
     }
     return results$;
-  }, ref$._exports = function(libs, idx){
+  }, ref$._exports = function(libs, idx, ctx){
     var lib, ref$, hash, fprop, iw, k, att1, att2, results$ = [];
     idx == null && (idx = 0);
+    ctx == null && (ctx = {});
     if (!(lib = libs[idx])) {
       return;
     }
@@ -282,6 +283,9 @@ declarative version ( used in dependency declaration )
         iw[k] = fprop[k];
       }
     }
+    for (k in fprop) {
+      ctx[k] = fprop[k];
+    }
     this._exports(libs, idx + 1);
     for (k in fprop) {
       results$.push(iw[k] = hash[k]);
@@ -309,8 +313,9 @@ declarative version ( used in dependency declaration )
       return "function(scope, ctx, win){" + code + "}";
     }
     return new Function("scope", "ctx", "win", code);
-  }, ref$.load = function(libs, px, forceFetch){
-    var ctx, proxy, ps, this$ = this;
+  }, ref$.load = function(libs, dctx, forceFetch){
+    var px, ctx, proxy, ps, this$ = this;
+    dctx == null && (dctx = {});
     forceFetch == null && (forceFetch = false);
     libs = (Array.isArray(libs)
       ? libs
@@ -319,7 +324,9 @@ declarative version ( used in dependency declaration )
     });
     px = libs.px
       ? libs.px
-      : libs.px = px || new proxin();
+      : libs.px = dctx && dctx.p
+        ? dctx.p
+        : new proxin();
     ctx = px.ctx();
     proxy = px.proxy();
     ps = libs.map(function(lib){
@@ -334,7 +341,8 @@ declarative version ( used in dependency declaration )
     });
     return Promise.all(ps).then(function(){
       this$.exports({
-        libs: libs
+        libs: libs,
+        ctx: dctx.f
       });
       return libs.map(function(lib){
         if (lib.propIniting) {
@@ -364,6 +372,15 @@ declarative version ( used in dependency declaration )
   }, ref$);
   rsp.env(typeof self != 'undefined' && self !== null ? self : globalThis);
   rsp.proxin = proxin;
+  rsp.dualContext = function(){
+    return {
+      p: new proxin(),
+      f: {},
+      ctx: function(){
+        return this.p.ctx();
+      }
+    };
+  };
   if (typeof module != 'undefined' && module !== null) {
     module.exports = rsp;
   } else if (typeof window != 'undefined' && window !== null) {

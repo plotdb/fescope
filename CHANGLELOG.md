@@ -3,6 +3,7 @@
 ## v4.0.1
 
  - fix bug: `prop-initing` should be true once we are going to init the lib
+ - fix bug: iframe context doesn't work since we never keep it result, causing multi-phase loading failed.
 
 
 ## v4.0.0
