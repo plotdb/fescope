@@ -195,6 +195,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
       _fetch @_url(lib), {method: \GET} .then -> lib.code = it
     Promise.all ps
       .then ~>
+        # TODO to optimizing, we may need some way to skip this if libs are bundled and preloaded.
         @exports {libs, ctx: dctx.f}
         libs.map (lib) ~>
           if lib.prop-initing =>
