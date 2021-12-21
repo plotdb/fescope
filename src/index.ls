@@ -112,7 +112,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
   bundle: (libs = []) ->
     # while `@load` does this, we still need this line to convert libs to cached object in `bundle`
     libs = (if Array.isArray(libs) => libs else [libs]).map (o) ~> @cache o
-    @load(libs, null, true).then ~>
+    @load(libs, null, true, true).then ~>
       codes = libs
         .filter -> it.code
         .map (o) ~>
@@ -183,7 +183,9 @@ rsp.prototype = Object.create(Object.prototype) <<<
     if opt.code-only => return "function(scope, ctx, win){#code}"
     return new Function("scope", "ctx", "win", code)
 
-  load: (libs, dctx = {}, force-fetch = false) ->
+  # force-fetch: always refetch data
+  # only-fetch: totally ignore updating ctx part. for bundling.
+  load: (libs, dctx = {}, force-fetch = false, only-fetch = false) ->
     libs = (if Array.isArray(libs) => libs else [libs]).map (o) ~> @cache o
     # store px in libs and create on load, otherwise different libs will intervene each other
     # TODO should we wrap libs in some kind of object so we can keep their state?
@@ -195,6 +197,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
       _fetch @_url(lib), {method: \GET} .then -> lib.code = it
     Promise.all ps
       .then ~>
+        if only-fetch => return
         # TODO to optimizing, we may need some way to skip this if libs are bundled and preloaded.
         @exports {libs, ctx: dctx.f}
         libs.map (lib) ~>

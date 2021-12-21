@@ -1,5 +1,10 @@
 # Change Logs
 
+## v4.0.3
+
+ - adding a parameter for skipping ctx since bundler doesn't need to calculate exports and update ctx.
+
+
 ## v4.0.2 
 
  - fix bug: iframe context doesn't work since we never keep it result, causing multi-phase loading failed.

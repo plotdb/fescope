@@ -202,7 +202,7 @@ declarative version ( used in dependency declaration )
       : [libs]).map(function(o){
       return this$.cache(o);
     });
-    return this.load(libs, null, true).then(function(){
+    return this.load(libs, null, true, true).then(function(){
       var codes;
       codes = libs.filter(function(it){
         return it.code;
@@ -313,10 +313,11 @@ declarative version ( used in dependency declaration )
       return "function(scope, ctx, win){" + code + "}";
     }
     return new Function("scope", "ctx", "win", code);
-  }, ref$.load = function(libs, dctx, forceFetch){
+  }, ref$.load = function(libs, dctx, forceFetch, onlyFetch){
     var px, ctx, proxy, ps, this$ = this;
     dctx == null && (dctx = {});
     forceFetch == null && (forceFetch = false);
+    onlyFetch == null && (onlyFetch = false);
     libs = (Array.isArray(libs)
       ? libs
       : [libs]).map(function(o){
@@ -340,6 +341,9 @@ declarative version ( used in dependency declaration )
       });
     });
     return Promise.all(ps).then(function(){
+      if (onlyFetch) {
+        return;
+      }
       this$.exports({
         libs: libs,
         ctx: dctx.f
