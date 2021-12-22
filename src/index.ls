@@ -80,7 +80,7 @@ rsp = (o = {}) ->
 
 rsp.env = -> [win, doc] := [it, it.document]
 rsp.prop = legacy: {webkitStorageInfo: true}
-rsp.id = (o) -> o.id or o.url or "#{o.name}@#{o.version}/#{o.path}"
+rsp.id = (o) -> o.id or o.url or "#{o.name}@#{o.version}:#{o.path}"
 rsp._cache = {}
 rsp.cache = (o) ->
   if typeof(o) == \string => o = {url: o}

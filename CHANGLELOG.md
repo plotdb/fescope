@@ -3,6 +3,7 @@
 ## v4.0.5 (upcoming)
 
  - dedup in bundler
+ - fix typo in id generation
 
 
 ## v4.0.4
