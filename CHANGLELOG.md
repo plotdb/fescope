@@ -1,5 +1,10 @@
 # Change Logs
 
+## v4.0.4
+
+ - temporarily remove `gen` from bundled code since there are bugs yet to be fixed.
+
+
 ## v4.0.3
 
  - adding a parameter for skipping ctx since bundler doesn't need to calculate exports and update ctx.

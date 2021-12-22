@@ -207,11 +207,15 @@ declarative version ( used in dependency declaration )
       codes = libs.filter(function(it){
         return it.code;
       }).map(function(o){
-        var code;
-        code = this$._wrap(o, {}, {
-          codeOnly: true
+        /*
+        code = @_wrap o, {}, code-only: true
+        """{#{if o.url => "url: '#{o.url}'," else ''}id: '#{o.id}',gen: #code}"""
+        */
+        return JSON.stringify({
+          url: o.url,
+          id: o.id,
+          code: o.code
         });
-        return "{" + (o.url ? "url: '" + o.url + "'," : '') + "id: '" + o.id + "',gen: " + code + "}";
       });
       return Promise.resolve("[" + codes.join(',') + "].forEach(function(o){rescope.cache(o);})");
     });

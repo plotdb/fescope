@@ -116,8 +116,13 @@ rsp.prototype = Object.create(Object.prototype) <<<
       codes = libs
         .filter -> it.code
         .map (o) ~>
+          # we need ctx for `@_wrap` otherwise lib won't be able to access dependencies.
+          # before we can solve this problem, we cache code only first.
+          /*
           code = @_wrap o, {}, code-only: true
           """{#{if o.url => "url: '#{o.url}'," else ''}id: '#{o.id}',gen: #code}"""
+          */
+          JSON.stringify(o{url, id, code})
       Promise.resolve "[#{codes.join(',')}].forEach(function(o){rescope.cache(o);})"
 
   exports: (o = {}) ->
