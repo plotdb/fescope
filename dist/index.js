@@ -195,13 +195,25 @@ declarative version ( used in dependency declaration )
     }
     return this._cache[o.id] = import$({}, o);
   }, ref$.bundle = function(libs){
-    var this$ = this;
+    var hash, res$, k, v, this$ = this;
     libs == null && (libs = []);
     libs = (Array.isArray(libs)
       ? libs
       : [libs]).map(function(o){
       return this$.cache(o);
     });
+    hash = {};
+    libs.filter(function(it){
+      return it && it.id;
+    }).map(function(it){
+      return hash[it.id] = it;
+    });
+    res$ = [];
+    for (k in hash) {
+      v = hash[k];
+      res$.push(v);
+    }
+    libs = res$;
     return this.load(libs, null, true, true).then(function(){
       var codes;
       codes = libs.filter(function(it){

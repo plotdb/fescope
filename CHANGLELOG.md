@@ -1,5 +1,10 @@
 # Change Logs
 
+## v4.0.5 (upcoming)
+
+ - dedup in bundler
+
+
 ## v4.0.4
 
  - temporarily remove `gen` from bundled code since there are bugs yet to be fixed.
