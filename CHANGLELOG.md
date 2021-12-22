@@ -1,6 +1,6 @@
 # Change Logs
 
-## v4.0.5 (upcoming)
+## v4.0.5
 
  - dedup in bundler
  - fix typo in id generation
