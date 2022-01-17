@@ -80,13 +80,29 @@ rsp = (o = {}) ->
 
 rsp.env = -> [win, doc] := [it, it.document]
 rsp.prop = legacy: {webkitStorageInfo: true}
-rsp.id = (o) -> o.id or o.url or "#{o.name}@#{o.version}:#{o.path}"
+rsp.id = (o) -> o.id or o.url or "#{o.name}@#{o.version or ''}:#{o.path or ''}"
 rsp._cache = {}
+rsp._ver = {map: {}, list: {}}
 rsp.cache = (o) ->
   if typeof(o) == \string => o = {url: o}
   if !o.id => o.id = rsp.id o
-  if r = rsp._cache[o.id] => return r
-  return rsp._cache[o.id] = {} <<< o
+  if @_cache[o.id] => return that
+  if o.id and !o.name =>
+    ret = /^(\S+)@(\S+):(\S+)$/.exec(o.id)
+    if !ret => [n,v,p] = [o.id, '', '']
+    else [n,v,p] = [ret.1, ret.2, ret.3]
+  else [n,v,p] = [o.name, o.version or '', o.path or '']
+  if /[^0-9.]/.exec v =>
+    if @_ver.map{}[n][v] => v = that
+    if @_cache[rsp.id({name: n, version: v, path: p})] => return that
+    for i from 0 til @_ver.list[][n].length =>
+      ver = @_ver.list[n][i]
+      if !semver.fit(ver, v) => continue
+      @_ver.map[n][v] = ver
+      o.id = rsp.id {name: n, version: ver, path: p}
+      if @_cache[o.id] => return that
+  if !(v in @_ver.list[][n]) => @_ver.list[n].push v
+  return @_cache[o.id] = ({} <<< o)
 
 rsp.prototype = Object.create(Object.prototype) <<<
   peek-scope: -> false # deprecated
@@ -105,9 +121,8 @@ rsp.prototype = Object.create(Object.prototype) <<<
   cache: (o) -> 
     if typeof(o) == \string => o = {url: o}
     if !o.id => o.id = rsp.id o
-    if r = @_cache[o.id] => return r
-    if rsp._cache[o.id] => return @_cache[o.id] = that
-    return @_cache[o.id] = {} <<< o
+    if @_cache[o.id] => return that
+    return @_cache[o.id] = rsp.cache o
 
   bundle: (libs = []) ->
     # while `@load` does this, we still need this line to convert libs to cached object in `bundle`
@@ -128,7 +143,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
           code = @_wrap o, {}, code-only: true
           """{#{if o.url => "url: '#{o.url}'," else ''}id: '#{o.id}',gen: #code}"""
           */
-          JSON.stringify(o{url, id, code})
+          JSON.stringify(o{url, id, name, version, path, code})
       Promise.resolve "[#{codes.join(',')}].forEach(function(o){rescope.cache(o);})"
 
   exports: (o = {}) ->
