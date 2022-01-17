@@ -3,7 +3,13 @@ block prehead
   base(href="/")
 block head
 block body
+  .w-102.rwd.mx-auto.my-4
+    .btn.btn-outline-secondary(ld="download") Download
+    br
+    .btn.btn-outline-secondary(ld="loader") Loader
 block script
-  +script("/assets/lib/ldfile/main/index.js")
+  +script("/assets/lib/@plotdb/semver/main/index.min.js")
+  +script("/assets/lib/ldview/main/index.min.js")
+  +script("/assets/lib/ldfile/main/index.min.js")
   +script("/assets/tmp/bundle.js")
   script: include:lsc index.ls
