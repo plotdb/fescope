@@ -1,5 +1,12 @@
 # Change Logs
 
+## v4.1.0 (upcoming)
+
+ - default empty in version / path when building id
+ - lookup acceptable versions in cache if version range provided.
+ - support custom registry that return content + version directly.
+
+
 ## v4.0.5
 
  - dedup in bundler

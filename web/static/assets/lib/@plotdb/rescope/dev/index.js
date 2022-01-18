@@ -196,7 +196,7 @@ declarative version ( used in dependency declaration )
     if (!in$(v, (ref$ = this._ver.list)[n] || (ref$[n] = []))) {
       this._ver.list[n].push(v);
     }
-    return this._cache[o.id] = import$({}, o);
+    return this._cache[o.id] = o;
   };
   rsp.prototype = (ref$ = Object.create(Object.prototype), ref$.peekScope = function(){
     return false;
@@ -392,14 +392,23 @@ declarative version ( used in dependency declaration )
     ctx = px.ctx();
     proxy = px.proxy();
     ps = libs.map(function(lib){
+      var url;
       if ((lib.code || lib.gen) && !forceFetch) {
         return Promise.resolve();
       }
-      return _fetch(this$._url(lib), {
-        method: 'GET'
-      }).then(function(it){
-        return lib.code = it;
-      });
+      url = this$._url(lib);
+      if (url.then) {
+        return url.then(function(it){
+          lib.code = it.content;
+          return this$.cache((lib.id = undefined, lib.version = it.version, lib.code = it.content, lib));
+        });
+      } else {
+        return _fetch(url, {
+          method: 'GET'
+        }).then(function(it){
+          return lib.code = it;
+        });
+      }
     });
     return Promise.all(ps).then(function(){
       if (onlyFetch) {

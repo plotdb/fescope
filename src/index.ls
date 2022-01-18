@@ -102,7 +102,7 @@ rsp.cache = (o) ->
       o.id = rsp.id {name: n, version: ver, path: p}
       if @_cache[o.id] => return that
   if !(v in @_ver.list[][n]) => @_ver.list[n].push v
-  return @_cache[o.id] = ({} <<< o)
+  return @_cache[o.id] = o
 
 rsp.prototype = Object.create(Object.prototype) <<<
   peek-scope: -> false # deprecated
@@ -220,7 +220,12 @@ rsp.prototype = Object.create(Object.prototype) <<<
     proxy = px.proxy!
     ps = libs.map (lib) ~>
       if (lib.code or lib.gen) and !force-fetch => return Promise.resolve!
-      _fetch @_url(lib), {method: \GET} .then -> lib.code = it
+      url = @_url(lib)
+      if url.then => url.then ~>
+        lib.code = it.content
+        @cache(lib <<< {id: undefined, version: it.version, code: it.content})
+      else _fetch url, {method: \GET} .then -> lib.code = it
+
     Promise.all ps
       .then ~>
         if only-fetch => return
