@@ -1,7 +1,15 @@
 # d3 check for window.d3 before initing so we should never do things like this:
 # window.d3 = 'hi'
 
-scope = new rescope {global: window}
+scope = new rescope do
+  global: window
+  registry: ({name, version, path}) ->
+    url = "https://unpkg.com/#{name}#{version and "@#version" or ''}#{path and "/#path" or ''}"
+    fetch url
+      .then (response) ->
+        ret = /^https:\/\/unpkg.com\/([^@]+)@([^/]+)\//.exec(response.url) or []
+        v = ret.2
+        response.text!then -> {version: v or version, content: it}
 
 # following is the sample code for fake rescope
 # it's possible to totally ignore the whole scope thing and use window as scope
@@ -27,11 +35,11 @@ scope.init!
       ]
 
     d3pkg = do
-      v3: \/assets/dev/d3.v3.js
+      v3: {name: \d3, version: "3", path: "d3.min.js"} #\/assets/dev/d3.v3.js
       v4: [
-        {url: "/assets/dev/d3.v4.js", async: false},
-        "https://d3js.org/d3-format.v2.min.js",
-        "https://d3js.org/d3-array.v2.min.js",
+        {url: "/assets/dev/d3.v4.js", async: false}, # test object with url
+        "https://d3js.org/d3-format.v2.min.js",      # test plain text
+        {name: "d3-array", version: "2", path: "dist/d3-array.min.js"} # test object with module info
         "https://d3js.org/topojson.v2.min.js",
         {url: "https://d3js.org/d3-color.v1.min.js", async: false},
         {url: "https://d3js.org/d3-interpolate.v1.min.js", async: false},

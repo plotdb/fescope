@@ -1,6 +1,22 @@
 var scope;
 scope = new rescope({
-  global: window
+  global: window,
+  registry: function(arg$){
+    var name, version, path, url;
+    name = arg$.name, version = arg$.version, path = arg$.path;
+    url = "https://unpkg.com/" + name + (version && "@" + version || '') + (path && "/" + path || '');
+    return fetch(url).then(function(response){
+      var ret, v;
+      ret = /^https:\/\/unpkg.com\/([^@]+)@([^/]+)\//.exec(response.url) || [];
+      v = ret[2];
+      return response.text().then(function(it){
+        return {
+          version: v || version,
+          content: it
+        };
+      });
+    });
+  }
 });
 if ((typeof useFakescope != 'undefined' && useFakescope !== null) && useFakescope) {
   console.log(" - use fakescope: true ");
@@ -30,12 +46,20 @@ scope.init().then(function(){
     ]
   };
   d3pkg = {
-    v3: '/assets/dev/d3.v3.js',
+    v3: {
+      name: 'd3',
+      version: "3",
+      path: "d3.min.js"
+    },
     v4: [
       {
         url: "/assets/dev/d3.v4.js",
         async: false
-      }, "https://d3js.org/d3-format.v2.min.js", "https://d3js.org/d3-array.v2.min.js", "https://d3js.org/topojson.v2.min.js", {
+      }, "https://d3js.org/d3-format.v2.min.js", {
+        name: "d3-array",
+        version: "2",
+        path: "dist/d3-array.min.js"
+      }, "https://d3js.org/topojson.v2.min.js", {
         url: "https://d3js.org/d3-color.v1.min.js",
         async: false
       }, {
