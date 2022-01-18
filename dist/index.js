@@ -202,13 +202,13 @@ declarative version ( used in dependency declaration )
     return false;
   }, ref$.init = function(){
     return Promise.resolve();
-  }, ref$._url = function(o){
+  }, ref$._ref = function(o){
     var that;
     return typeof o === 'string'
       ? o
       : (that = o.url)
         ? that
-        : this._reg(o);
+        : this._reg.fetch(o) || this._reg(o);
   }, ref$.registry = function(v){
     if (typeof v === 'string') {
       if (v[v.length - 1] === '/') {
@@ -392,18 +392,18 @@ declarative version ( used in dependency declaration )
     ctx = px.ctx();
     proxy = px.proxy();
     ps = libs.map(function(lib){
-      var url;
+      var ref;
       if ((lib.code || lib.gen) && !forceFetch) {
         return Promise.resolve();
       }
-      url = this$._url(lib);
-      if (url.then) {
-        return url.then(function(it){
+      ref = this$._ref(lib);
+      if (ref.then) {
+        return ref.then(function(it){
           lib.code = it.content;
           return this$.cache((lib.id = undefined, lib.version = it.version, lib.code = it.content, lib));
         });
       } else {
-        return _fetch(url, {
+        return _fetch(ref, {
           method: 'GET'
         }).then(function(it){
           return lib.code = it;

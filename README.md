@@ -57,6 +57,13 @@ This abstracts the location of libraries and thus can be customized if needed wi
 
     new rescope({registry: function(opt) {  return opt.name + opt.version + opt.path; });
 
+Return promise from a registry function call for a directly content resolving - in this case you should return an object in following form:
+
+ - `version`: exact version of the return object.
+ - `content`: content for the requested resource.
+
+`registry` can also be an object with `fetch` as a member function. Check `@plotdb/registry` for advanced registry usage.
+
 
 where registry, if provided, should be a function:
 

@@ -107,10 +107,10 @@ rsp.cache = (o) ->
 rsp.prototype = Object.create(Object.prototype) <<<
   peek-scope: -> false # deprecated
   init: -> Promise.resolve! # deprecated
-  _url: (o) ->
+  _ref: (o) ->
     return if typeof(o) == \string => o
     else if o.url => that
-    else @_reg o
+    else (@_reg.fetch or @_reg) o
 
   registry: (v) ->
     if typeof(v) == \string =>
@@ -220,11 +220,11 @@ rsp.prototype = Object.create(Object.prototype) <<<
     proxy = px.proxy!
     ps = libs.map (lib) ~>
       if (lib.code or lib.gen) and !force-fetch => return Promise.resolve!
-      url = @_url(lib)
-      if url.then => url.then ~>
+      ref = @_ref(lib)
+      if ref.then => ref.then ~>
         lib.code = it.content
         @cache(lib <<< {id: undefined, version: it.version, code: it.content})
-      else _fetch url, {method: \GET} .then -> lib.code = it
+      else _fetch ref, {method: \GET} .then -> lib.code = it
 
     Promise.all ps
       .then ~>
