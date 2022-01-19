@@ -8,8 +8,8 @@
   "files": [
     "dist/**/*"
   ],
-  "browser": "dist/index.js",
-  "main": "dist/index.js",
+  "browser": "dist/index.min.js",
+  "main": "dist/index.min.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/plotdb/rescope"

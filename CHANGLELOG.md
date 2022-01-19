@@ -5,6 +5,7 @@
  - default empty in version / path when building id
  - lookup acceptable versions in cache if version range provided.
  - support custom registry that return content + version directly.
+ - use minimized dist file as main / browser default file
 
 
 ## v4.0.5
