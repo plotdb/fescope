@@ -208,7 +208,9 @@ declarative version ( used in dependency declaration )
       ? o
       : (that = o.url)
         ? that
-        : this._reg.fetch(o) || this._reg(o);
+        : this._reg.fetch
+          ? this._reg.fetch(o)
+          : this._reg(o);
   }, ref$.registry = function(v){
     if (typeof v === 'string') {
       if (v[v.length - 1] === '/') {
