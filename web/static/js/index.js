@@ -39,8 +39,8 @@ scope.init().then(function(){
   var pkg, d3pkg;
   pkg = {
     lib: [
-      'assets/lib/bootstrap.native/main/bootstrap-native.min.js', 'assets/lib/bootstrap.ldui/main/bootstrap.ldui.min.js', {
-        url: 'assets/lib/@loadingio/ldquery/main/ldq.min.js',
+      'assets/lib/bootstrap.native/main/dist/bootstrap-native.min.js', {
+        url: 'assets/lib/@loadingio/ldquery/main/index.min.js',
         async: false
       }, 'assets/lib/ldcover/main/index.min.js', 'assets/lib/ldview/main/index.min.js', 'js/functest.js'
     ]

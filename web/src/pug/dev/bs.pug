@@ -1,8 +1,8 @@
 doctype html
 html
-  include @/@loadingio/bootstrap.ext/dist/index.pug
+  include @/@loadingio/bootstrap.ext/index.pug
   head
-    +css("/assets/lib/bootstrap/main/css/bootstrap.min.css")
+    +css("/assets/lib/bootstrap/main/dist/css/bootstrap.min.css")
     +css("/assets/lib/@loadingio/bootstrap.ext/main/index.min.css")
   body
     .w-1024.rwd.mx-auto.my-4
@@ -16,12 +16,12 @@ html
           .dropdown-item Item 3
           .dropdown-item Item 4
 
-    +script("/assets/lib/bootstrap.native/main/bootstrap-native.min.js")
-    +script("/assets/lib/@loadingio/ldquery/main/ldq.min.js")
+    +script("/assets/lib/bootstrap.native/main/dist/bootstrap-native.min.js")
+    +script("/assets/lib/@loadingio/ldquery/main/index.min.js")
     +script("/assets/lib/@plotdb/rescope/dev/index.min.js")
-    +script("/assets/lib/@plotdb/csscope/dev/csscope.min.js")
-    +script("/assets/lib/proxise/main/proxise.min.js")
-    +script("/assets/lib/@plotdb/block/dev/block.min.js")
+    +script("/assets/lib/@plotdb/csscope/dev/index.min.js")
+    +script("/assets/lib/proxise/main/index.min.js")
+    +script("/assets/lib/@plotdb/block/dev/index.min.js")
     script: :lsc
       BSN.Version = "3.0.16"
       console.log BSN

@@ -23,22 +23,22 @@
     "deploy": "npx deploy web/static"
   },
   "devDependencies": {
-    "@loadingio/bootstrap.ext": "^0.0.1",
-    "@loadingio/debounce.js": "^0.0.1",
-    "@loadingio/ldquery": "^2.2.1",
-    "@plotdb/pdmap-world": "^0.0.2",
-    "@plotdb/semver": "^0.0.1",
-    "@zbryikt/template": "^2.3.29",
+    "@loadingio/bootstrap.ext": "^0.0.4",
+    "@loadingio/debounce.js": "^1.0.1",
+    "@loadingio/ldquery": "^3.0.1",
+    "@plotdb/pdmap-world": "^0.0.5",
+    "@plotdb/semver": "^0.0.2",
+    "@zbryikt/template": "^2.3.33",
     "bootstrap": "^4.5.3",
     "bootstrap.native": "^3.0.13",
-    "deploy": "github:zbryikt/deploy",
-    "fedep": "^0.0.17",
-    "ldcover": "^2.1.0",
-    "ldfile": "^1.0.1",
-    "ldiconfont": "^0.1.8",
-    "ldview": "^0.2.7",
+    "@zbryikt/deploy": "^0.0.1",
+    "fedep": "^1.1.2",
+    "ldcover": "^3.0.1",
+    "ldfile": "^2.0.0",
+    "ldiconfont": "^0.1.10",
+    "ldview": "^1.0.0",
     "livescript": "^1.6.0",
-    "proxise": "^0.1.4",
+    "proxise": "^1.0.1",
     "yargs": "^16.1.0"
   },
   "frontendDependencies": {
@@ -59,6 +59,6 @@
     ]
   },
   "dependencies": {
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^3.2.0"
   }
 }
