@@ -1,5 +1,10 @@
 # Change Logs
 
+## v4.1.1
+
+ - downgrade `node-fetch` back to `v2.6.7` to make it work in nodejs
+
+
 ## v4.1.0
 
  - fix bug: registry.fetch is used even if not defined.

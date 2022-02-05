@@ -3,7 +3,7 @@
   "name": "@plotdb/rescope",
   "license": "MIT",
   "description": "rescope your code with any JS libraries",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "homepage": "https://github.com/plotdb/rescope",
   "files": [
     "dist/**/*"
@@ -28,10 +28,10 @@
     "@loadingio/ldquery": "^3.0.1",
     "@plotdb/pdmap-world": "^0.0.5",
     "@plotdb/semver": "^0.0.2",
+    "@zbryikt/deploy": "^0.0.1",
     "@zbryikt/template": "^2.3.33",
     "bootstrap": "^4.5.3",
     "bootstrap.native": "^3.0.13",
-    "@zbryikt/deploy": "^0.0.1",
     "fedep": "^1.1.2",
     "ldcover": "^3.0.1",
     "ldfile": "^2.0.0",
@@ -59,6 +59,6 @@
     ]
   },
   "dependencies": {
-    "node-fetch": "^3.2.0"
+    "node-fetch": "^2.6.7"
   }
 }
