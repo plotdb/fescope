@@ -1,5 +1,10 @@
 # Change Logs
 
+## v4.1.2
+
+ - fix bug: for `window` function may not be in attributes, but we check for `attr` before looking in `func`, which leads to function not found.
+
+
 ## v4.1.1
 
  - downgrade `node-fetch` back to `v2.6.7` to make it work in nodejs
