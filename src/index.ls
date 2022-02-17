@@ -48,8 +48,8 @@ proxin = (o = {})->
     get: (t, k, o) ~>
       if @lc[k]? => return @lc[k]
       if func[k]? => return func[k]
-      if !attr[k]? => return undefined
       if typeof(t[k]) == \function => return func[k] = t[k].bind t
+      if !attr[k]? => return undefined
       return t[k]
     set: (t, k, v) ~>
       if attr[k] =>

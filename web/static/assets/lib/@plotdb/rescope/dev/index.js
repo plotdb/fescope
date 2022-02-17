@@ -76,11 +76,11 @@ declarative version ( used in dependency declaration )
         if (func[k] != null) {
           return func[k];
         }
-        if (attr[k] == null) {
-          return undefined;
-        }
         if (typeof t[k] === 'function') {
           return func[k] = t[k].bind(t);
+        }
+        if (attr[k] == null) {
+          return undefined;
         }
         return t[k];
       },
