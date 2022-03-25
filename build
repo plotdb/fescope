@@ -7,6 +7,11 @@ echo "build src/index.ls -> dist/index.js ..."
 echo "minifying index.js ..."
 ./node_modules/.bin/uglifyjs dist/index.js -m -c > dist/index.min.js
 
+echo "build src/dummy.ls -> dist/dummy.js ..."
+./node_modules/.bin/lsc --no-header -cp src/dummy.ls > dist/dummy.js
+echo "minifying dummy.js ..."
+./node_modules/.bin/uglifyjs dist/dummy.js -m -c > dist/dummy.min.js
+
 echo "update web assets ..."
 rm -rf web/static/assets/lib/@plotdb/rescope/dev
 mkdir -p web/static/assets/lib/@plotdb/rescope/dev

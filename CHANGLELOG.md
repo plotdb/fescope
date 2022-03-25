@@ -1,5 +1,10 @@
 # Change Logs
 
+## v4.1.4 (upcoming)
+
+ - add `dummy.js` for testing libraries loading without rescope
+
+
 ## v4.1.3
 
  - add missing `@plotdb/semver`
