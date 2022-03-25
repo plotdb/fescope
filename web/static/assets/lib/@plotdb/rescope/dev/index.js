@@ -14,10 +14,13 @@ declarative version ( used in dependency declaration )
   id, url, name, version, path, gen
 */
 (function(){
-  var fetch, win, doc, _fetch, proxin, ref$, rsp;
+  var fetch, semver, win, doc, _fetch, proxin, ref$, rsp;
   fetch = typeof window != 'undefined' && window !== null
     ? window.fetch
     : (typeof module != 'undefined' && module !== null) && (typeof require != 'undefined' && require !== null) ? require("node-fetch") : null;
+  semver = typeof window != 'undefined' && window !== null
+    ? window.semver
+    : (typeof module != 'undefined' && module !== null) && (typeof require != 'undefined' && require !== null) ? require("@plotdb/semver") : null;
   _fetch = function(u, c){
     return fetch(u, c).then(function(ret){
       var ref$;

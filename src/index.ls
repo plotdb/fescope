@@ -16,6 +16,7 @@ declarative version ( used in dependency declaration )
 */
 
 fetch = if window? => window.fetch else if module? and require? => require "node-fetch" else null
+semver = if window? => window.semver else if module? and require? => require "@plotdb/semver" else null
 
 var win, doc
 
