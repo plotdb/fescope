@@ -36,6 +36,7 @@
     "ldcover": "^3.0.1",
     "ldfile": "^2.0.0",
     "ldiconfont": "^0.1.10",
+    "ldpalettepicker": "^4.0.0",
     "ldview": "^1.0.0",
     "livescript": "^1.6.0",
     "proxise": "^1.0.1",
@@ -53,6 +54,7 @@
       "@plotdb/semver",
       "ldcover",
       "ldfile",
+      "ldpalettepicker",
       "ldview",
       "proxise",
       "ldiconfont"
