@@ -33,6 +33,7 @@
     "bootstrap": "^4.5.3",
     "bootstrap.native": "^3.0.13",
     "fedep": "^1.1.2",
+    "jsdom": "^19.0.0",
     "ldcover": "^3.0.1",
     "ldfile": "^2.0.0",
     "ldiconfont": "^0.1.10",
