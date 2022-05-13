@@ -428,7 +428,7 @@ declarative version ( used in dependency declaration )
           if (!lib.gen) {
             lib.gen = this$._wrap(lib, ctx);
           }
-          lib.prop = lib.gen.apply(proxy, [proxy, ctx, window]);
+          lib.prop = lib.gen.apply(proxy, [proxy, ctx, win]);
           lib.propIniting = false;
         }
         return import$(ctx, lib.prop);

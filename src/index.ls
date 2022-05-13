@@ -236,7 +236,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
         libs.map (lib) ~>
           if lib.prop-initing =>
             if !lib.gen => lib.gen = @_wrap lib, ctx
-            lib.prop = lib.gen.apply proxy, [proxy, ctx, window]
+            lib.prop = lib.gen.apply proxy, [proxy, ctx, win]
             lib.prop-initing = false
           ctx <<< lib.prop
       .then ~> ctx

@@ -3,6 +3,7 @@
 ## v4.1.4 (upcoming)
 
  - add `dummy.js` for testing libraries loading without rescope
+ - fix bug: `window` should be `win` for server side usage
 
 
 ## v4.1.3
