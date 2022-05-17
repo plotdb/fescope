@@ -1,5 +1,10 @@
 # Change Logs
 
+## v4.1.5
+
+ - fix bug: semantic version pattern matching incorrect
+
+
 ## v4.1.4
 
  - add `dummy.js` for testing libraries loading without rescope

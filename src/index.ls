@@ -93,7 +93,7 @@ rsp.cache = (o) ->
     if !ret => [n,v,p] = [o.id, '', '']
     else [n,v,p] = [ret.1, ret.2, ret.3]
   else [n,v,p] = [o.name, o.version or '', o.path or '']
-  if /[^0-9.]/.exec v =>
+  if /^[0-9.]+$/.exec v =>
     if @_ver.map{}[n][v] => v = that
     if @_cache[rsp.id({name: n, version: v, path: p})] => return that
     for i from 0 til @_ver.list[][n].length =>
