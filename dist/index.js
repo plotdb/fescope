@@ -363,7 +363,7 @@ declarative version ( used in dependency declaration )
     ctx == null && (ctx = {});
     opt == null && (opt = {});
     prop = o.prop || {};
-    code = "var window, global, globalThis, self, __ret = {}; __win = {};\nwindow = global = globalThis = window = scope;";
+    code = "var window, global, globalThis, self, __ret = {}; __win = {};\nwindow = global = globalThis = self = window = scope;";
     for (k in prop) {
       code += "var " + k + "; __win['" + k + "'] = win['" + k + "']; win['" + k + "'] = undefined;";
     }

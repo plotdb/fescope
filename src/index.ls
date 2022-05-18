@@ -193,7 +193,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
     # however, since we scope everthing in a isolated global, there is no need for this.
     code = """
     var window, global, globalThis, self, __ret = {}; __win = {};
-    window = global = globalThis = window = scope;
+    window = global = globalThis = self = window = scope;
     """
     # some libs may still access window directly ( perhaps via (function() { var window = this; })();
     # so we store original win[k] in __win, and restore them later.

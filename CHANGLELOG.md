@@ -1,5 +1,10 @@
 # Change Logs
 
+## v4.1.6
+
+ - fix bug: self is undefined ( but should be window )
+
+
 ## v4.1.5
 
  - fix bug: semantic version pattern matching incorrect
