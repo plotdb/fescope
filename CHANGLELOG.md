@@ -2,7 +2,7 @@
 
 ## v4.1.7
 
- - also consider `ns` in block.id
+ - also consider `ns` in rsp.id
 
 
 ## v4.1.6
