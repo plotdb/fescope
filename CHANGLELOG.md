@@ -1,5 +1,10 @@
 # Change Logs
 
+## v4.1.7
+
+ - also consider `ns` in block.id
+
+
 ## v4.1.6
 
  - fix bug: self is undefined ( but should be window )

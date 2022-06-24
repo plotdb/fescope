@@ -138,7 +138,7 @@ declarative version ( used in dependency declaration )
     }
   };
   rsp.id = function(o){
-    return o.id || o.url || o.name + "@" + (o.version || '') + ":" + (o.path || '');
+    return o.id || o.url || (o.ns ? o.ns + ":" : '') + "" + o.name + "@" + (o.version || 'main') + ":" + (o.path || 'index.html');
   };
   rsp._cache = {};
   rsp._ver = {
