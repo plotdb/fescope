@@ -2,7 +2,7 @@
 
 ## v4.1.7
 
- - also consider `ns` in rsp.id
+ - also consider `ns` in rescope.id
 
 
 ## v4.1.6
