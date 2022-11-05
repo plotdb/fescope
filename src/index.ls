@@ -191,7 +191,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
     prop = o.prop or {}
     # NOTE: some libs may detect existency of themselves.
     # so if we are using global scope, we will have to exclude them.
-    # however, since we scope everthing in a isolated global, there is no need for this.
+    # however, since we scope everything in a isolated global, there is no need for this.
     code = """
     var window, global, globalThis, self, __ret = {}; __win = {};
     window = global = globalThis = self = window = scope;
