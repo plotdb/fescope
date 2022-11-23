@@ -1,6 +1,6 @@
 # Change Logs
 
-## v4.2.0 (upcoming)
+## v4.2.0
 
  - restructure code for node / browser and bundler
  - upgrade / audit fix modules for vulnerability fixing
