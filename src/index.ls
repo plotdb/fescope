@@ -1,26 +1,9 @@
-# rescope v4
-/*
-lib spec
- - `id`: from `rescope.id` based on url or name / version / path
- - `url`: lib url. optional, `name` / `version` / `path` must be set if omitted
- - `name`, `version`, `path`: lib information
- - `gen(proxy, ctx, window)`: function to retrieve lib exports.
- - `prop`: object with members exported from this lib.
- - `fprop`: hash with members named as values exported from this lib.
-   - derived in iframe context, should not be used in host window.
-   - should not be used outside `_exports`.
- - `code`: source code for this library.
-
-declarative version ( used in dependency declaration )
-  id, url, name, version, path, gen
-*/
-
-fetch = if window? => window.fetch else if module? and require? => require "node-fetch" else null
-semver = if window? => window.semver else if module? and require? => require "@plotdb/semver" else null
-
 var win, doc
 
 _fetch = (u, c) ->
+  if fs? and !/^https:/.exec(u) =>
+    return new Promise (res, rej) ->
+      fs.read-file u, (e, b) -> if e => rej e else res b.toString!
   (ret) <- fetch u, c .then _
   if ret and ret.ok => return ret.text!
   if !ret => return Promise.reject(new Error("404") <<< {name: \lderror, id: 404})
@@ -127,28 +110,6 @@ rsp.prototype = Object.create(Object.prototype) <<<
     if @_cache[o.id] => return that
     return @_cache[o.id] = rsp.cache o
 
-  bundle: (libs = []) ->
-    # while `@load` does this, we still need this line to convert libs to cached object in `bundle`
-    libs = (if Array.isArray(libs) => libs else [libs]).map (o) ~> @cache o
-    # dedup
-    hash = {}
-    libs
-      .filter -> it and it.id
-      .map -> hash[it.id] = it
-    libs = [v for k,v of hash]
-    @load(libs, null, true, true).then ~>
-      codes = libs
-        .filter -> it.code
-        .map (o) ~>
-          # we need ctx for `@_wrap` otherwise lib won't be able to access dependencies.
-          # before we can solve this problem, we cache code only first.
-          /*
-          code = @_wrap o, {}, code-only: true
-          """{#{if o.url => "url: '#{o.url}'," else ''}id: '#{o.id}',gen: #code}"""
-          */
-          JSON.stringify(o{url, id, name, version, path, code})
-      Promise.resolve "[#{codes.join(',')}].forEach(function(o){rescope.cache(o);})"
-
   exports: (o = {}) ->
     # TODO we should skip this step if all libs are loaded from bundle
     ctx = o.ctx or {}
@@ -254,5 +215,3 @@ rsp.proxin = proxin
 #  - `f`: context object for iframe
 #  - `ctx()`: get context from main window
 rsp.dual-context = -> {p: new proxin!, f: {}, ctx: -> @p.ctx!}
-if module? => module.exports = rsp
-else if window? => window.rescope = rsp

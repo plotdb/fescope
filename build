@@ -1,6 +1,28 @@
 #!/usr/bin/env bash
 rm -rf dist
 mkdir -p dist
+rm -rf .built
+mkdir -p .built
+
+echo "build src -> .built .."
+./node_modules/.bin/lsc -cb --no-header -o .built src
+
+cat .built/head.js > dist/node.js
+cat .built/index.js >> dist/node.js
+cat .built/bundle.js >> dist/node.js
+cat .built/foot.js >> dist/node.js
+
+cat .built/index.js >> dist/index.js
+cat .built/foot.js >> dist/index.js
+
+cat .built/index.js >> dist/bundle.js
+cat .built/bundle.js >> dist/bundle.js
+cat .built/foot.js >> dist/bundle.js
+
+echo "minify dist/index.js -> index.min.js ..."
+./node_modules/.bin/uglifyjs dist/index.js -m -c > dist/index.min.js
+echo "minify dist/bundle.js -> bundle.min.js ..."
+./node_modules/.bin/uglifyjs dist/bundle.js -m -c > dist/bundle.min.js
 
 echo "build src/index.ls -> dist/index.js ..."
 ./node_modules/.bin/lsc --no-header -cp src/index.ls > dist/index.js
@@ -16,4 +38,6 @@ echo "update web assets ..."
 rm -rf web/static/assets/lib/@plotdb/rescope/dev
 mkdir -p web/static/assets/lib/@plotdb/rescope/dev
 cp dist/* web/static/assets/lib/@plotdb/rescope/dev/
+
+rm -rf .built
 echo "done."

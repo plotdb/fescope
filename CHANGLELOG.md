@@ -1,5 +1,10 @@
 # Change Logs
 
+## v4.2.0 (upcoming)
+
+ - restructure code for node / browser and bundler
+
+
 ## v4.1.7
 
  - also consider `ns` in rescope.id

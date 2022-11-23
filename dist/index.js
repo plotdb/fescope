@@ -1,27 +1,17 @@
-/*
-lib spec
- - `id`: from `rescope.id` based on url or name / version / path
- - `url`: lib url. optional, `name` / `version` / `path` must be set if omitted
- - `name`, `version`, `path`: lib information
- - `gen(proxy, ctx, window)`: function to retrieve lib exports.
- - `prop`: object with members exported from this lib.
- - `fprop`: hash with members named as values exported from this lib.
-   - derived in iframe context, should not be used in host window.
-   - should not be used outside `_exports`.
- - `code`: source code for this library.
-
-declarative version ( used in dependency declaration )
-  id, url, name, version, path, gen
-*/
 (function(){
-  var fetch, semver, win, doc, _fetch, proxin, ref$, rsp;
-  fetch = typeof window != 'undefined' && window !== null
-    ? window.fetch
-    : (typeof module != 'undefined' && module !== null) && (typeof require != 'undefined' && require !== null) ? require("node-fetch") : null;
-  semver = typeof window != 'undefined' && window !== null
-    ? window.semver
-    : (typeof module != 'undefined' && module !== null) && (typeof require != 'undefined' && require !== null) ? require("@plotdb/semver") : null;
+  var win, doc, _fetch, proxin, ref$, rsp;
   _fetch = function(u, c){
+    if ((typeof fs != 'undefined' && fs !== null) && !/^https:/.exec(u)) {
+      return new Promise(function(res, rej){
+        return fs.readFile(u, function(e, b){
+          if (e) {
+            return rej(e);
+          } else {
+            return res(b.toString());
+          }
+        });
+      });
+    }
     return fetch(u, c).then(function(ret){
       var ref$;
       if (ret && ret.ok) {
@@ -241,46 +231,6 @@ declarative version ( used in dependency declaration )
       return that;
     }
     return this._cache[o.id] = rsp.cache(o);
-  }, ref$.bundle = function(libs){
-    var hash, res$, k, v, this$ = this;
-    libs == null && (libs = []);
-    libs = (Array.isArray(libs)
-      ? libs
-      : [libs]).map(function(o){
-      return this$.cache(o);
-    });
-    hash = {};
-    libs.filter(function(it){
-      return it && it.id;
-    }).map(function(it){
-      return hash[it.id] = it;
-    });
-    res$ = [];
-    for (k in hash) {
-      v = hash[k];
-      res$.push(v);
-    }
-    libs = res$;
-    return this.load(libs, null, true, true).then(function(){
-      var codes;
-      codes = libs.filter(function(it){
-        return it.code;
-      }).map(function(o){
-        /*
-        code = @_wrap o, {}, code-only: true
-        """{#{if o.url => "url: '#{o.url}'," else ''}id: '#{o.id}',gen: #code}"""
-        */
-        return JSON.stringify({
-          url: o.url,
-          id: o.id,
-          name: o.name,
-          version: o.version,
-          path: o.path,
-          code: o.code
-        });
-      });
-      return Promise.resolve("[" + codes.join(',') + "].forEach(function(o){rescope.cache(o);})");
-    });
   }, ref$.exports = function(o){
     var ctx, libs, ref$, hash, iw, k, results$ = [];
     o == null && (o = {});
@@ -460,11 +410,6 @@ declarative version ( used in dependency declaration )
       }
     };
   };
-  if (typeof module != 'undefined' && module !== null) {
-    module.exports = rsp;
-  } else if (typeof window != 'undefined' && window !== null) {
-    window.rescope = rsp;
-  }
   function import$(obj, src){
     var own = {}.hasOwnProperty;
     for (var key in src) if (own.call(src, key)) obj[key] = src[key];
