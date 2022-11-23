@@ -1,5 +1,5 @@
 require! <[jsdom]>
-rescope = require "../dist/index"
+rescope = require "../dist/node"
 dom = new jsdom.JSDOM('', {url: "http://localhost"})
 rescope.env dom.window
 rsp = new rescope({

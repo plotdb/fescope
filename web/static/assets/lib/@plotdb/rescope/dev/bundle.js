@@ -1,3 +1,4 @@
+(function(){
 var win, doc, _fetch, proxin, ref$, rsp;
 _fetch = function(u, c){
   if ((typeof fs != 'undefined' && fs !== null) && !/^https:/.exec(u)) {
@@ -470,4 +471,4 @@ function in$(x, xs){
   module.exports = rsp;
 } else if (typeof window != 'undefined' && window !== null) {
   window.rescope = rsp;
-}
+}}())
