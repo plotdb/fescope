@@ -13,7 +13,10 @@ html
     block head
   body
     block body
-    +script("/assets/lib/@loadingio/debounce.js/main/index.min.js")
-    +script("/assets/lib/@loadingio/ldquery/main/index.min.js")
-    +script("/assets/lib/@plotdb/rescope/dev/index.js")
+    +script([
+      {name: "@loadingio/debounce.js"},
+      {name: "@loadingio/ldquery"},
+      {name: "@plotdb/semver"},
+      {name: "@plotdb/rescope", version: "dev"}
+    ])
     block script
