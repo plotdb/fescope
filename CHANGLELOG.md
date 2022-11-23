@@ -3,6 +3,7 @@
 ## v4.2.0 (upcoming)
 
  - restructure code for node / browser and bundler
+ - upgrade / audit fix modules for vulnerability fixing
 
 
 ## v4.1.7
