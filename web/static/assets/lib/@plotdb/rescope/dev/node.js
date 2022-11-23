@@ -142,7 +142,7 @@ rsp._ver = {
   list: {}
 };
 rsp.cache = function(o){
-  var that, ret, ref$, n, v, p, i$, to$, i, ver;
+  var that, k, nv, p, s, ret, n, v, ref$, i$, to$, i, ver;
   if (typeof o === 'string') {
     o = {
       url: o
@@ -155,20 +155,26 @@ rsp.cache = function(o){
     return that;
   }
   if (o.id && !o.name) {
-    ret = /^(\S+)@(\S+):(\S+)$/.exec(o.id);
-    if (!ret) {
-      ref$ = [o.id, '', ''], n = ref$[0], v = ref$[1], p = ref$[2];
+    k = o.id.split(':');
+    if (k.length <= 2) {
+      nv = k[0], p = k[1], s = k[2];
     } else {
-      ref$ = [ret[1], ret[2], ret[3]], n = ref$[0], v = ref$[1], p = ref$[2];
+      s = k[0], nv = k[1], p = k[2];
     }
+    if (!(ret = /^(@?[^@]+)(?:@([^:]+))?$/.exec(nv))) {
+      ret = ['', o.id, ''];
+    }
+    n = ret[1];
+    v = ret[2];
   } else {
-    ref$ = [o.name, o.version || '', o.path || ''], n = ref$[0], v = ref$[1], p = ref$[2];
+    ref$ = [o.ns, o.name, o.version || '', o.path || ''], s = ref$[0], n = ref$[1], v = ref$[2], p = ref$[3];
   }
   if (/^[0-9.]+$/.exec(v)) {
     if (that = ((ref$ = this._ver.map)[n] || (ref$[n] = {}))[v]) {
       v = that;
     }
     if (that = this._cache[rsp.id({
+      ns: s,
       name: n,
       version: v,
       path: p
@@ -183,6 +189,7 @@ rsp.cache = function(o){
       }
       this._ver.map[n][v] = ver;
       o.id = rsp.id({
+        ns: s,
         name: n,
         version: ver,
         path: p
@@ -457,6 +464,7 @@ function in$(x, xs){
       return JSON.stringify({
         url: o.url,
         id: o.id,
+        ns: o.ns,
         name: o.name,
         version: o.version,
         path: o.path,

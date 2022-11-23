@@ -17,5 +17,5 @@ rsp.prototype.bundle = (libs = {}) ->
         code = @_wrap o, {}, code-only: true
         """{#{if o.url => "url: '#{o.url}'," else ''}id: '#{o.id}',gen: #code}"""
         */
-        JSON.stringify(o{url, id, name, version, path, code})
+        JSON.stringify(o{url, id, ns, name, version, path, code})
     Promise.resolve "[#{codes.join(',')}].forEach(function(o){rescope.cache(o);})"
