@@ -1,4 +1,3 @@
-(function(){
 var semver, fetch, fs;
 semver = typeof window != 'undefined' && window !== null
   ? window.semver
@@ -478,4 +477,4 @@ function in$(x, xs){
   module.exports = rsp;
 } else if (typeof window != 'undefined' && window !== null) {
   window.rescope = rsp;
-}}())
+}

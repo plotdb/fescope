@@ -7,12 +7,10 @@ mkdir -p .built
 echo "build src -> .built .."
 ./node_modules/.bin/lsc -cb --no-header -o .built src
 
-echo "(function(){" > dist/node.js
-cat .built/head.js >> dist/node.js
+cat .built/head.js > dist/node.js
 cat .built/index.js >> dist/node.js
 cat .built/bundle.js >> dist/node.js
 cat .built/foot.js >> dist/node.js
-echo "}())" >> dist/node.js
 
 echo "(function(){" > dist/index.js
 cat .built/index.js >> dist/index.js

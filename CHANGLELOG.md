@@ -1,5 +1,10 @@
 # Change Logs
 
+## v4.2.3 (upcoming)
+
+ - remove scoping since it's not necessary in node.js
+
+
 ## v4.2.2
 
  - fix building issue
