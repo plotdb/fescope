@@ -128,7 +128,11 @@ rsp.prop = {
   }
 };
 rsp.id = function(o){
-  return o.id || o.url || (o.ns ? o.ns + ":" : '') + "" + o.name + "@" + (o.version || 'main') + ":" + (o.path || 'index.html');
+  var path;
+  path = o.path || (o.type === 'js'
+    ? 'index.min.js'
+    : o.type === 'css' ? 'index.min.css' : 'index.html');
+  return o.id || o.url || (o.ns ? o.ns + ":" : '') + "" + o.name + "@" + (o.version || 'main') + ":" + path;
 };
 rsp._cache = {};
 rsp._ver = {

@@ -65,7 +65,8 @@ rsp = (o = {}) ->
 rsp.env = -> [win, doc] := [it, it.document]
 rsp.prop = legacy: {webkitStorageInfo: true}
 rsp.id = (o) ->
-  o.id or o.url or "#{if o.ns => "#{o.ns}:" else ''}#{o.name}@#{o.version or 'main'}:#{o.path or 'index.html'}"
+  path = o.path or if o.type == \js => \index.min.js else if o.type == \css => \index.min.css else \index.html
+  o.id or o.url or "#{if o.ns => "#{o.ns}:" else ''}#{o.name}@#{o.version or 'main'}:#path"
 rsp._cache = {}
 rsp._ver = {map: {}, list: {}}
 rsp.cache = (o) ->

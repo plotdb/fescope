@@ -2,6 +2,7 @@
 
 ## v4.2.3 (upcoming)
 
+ - fix bug: `id()` should generate path depending on the type in bid.
  - remove scoping since it's not necessary in node.js
 
 
