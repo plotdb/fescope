@@ -1,6 +1,6 @@
 # Change Logs
 
-## v5.0.0 (upcoming)
+## v5.0.0
 
  - `registry` should not return Promise now, and should consider `url` parameter now.
 
