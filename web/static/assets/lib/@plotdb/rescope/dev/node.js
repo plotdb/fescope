@@ -213,14 +213,14 @@ rsp.prototype = (ref$ = Object.create(Object.prototype), ref$.peekScope = functi
 }, ref$.init = function(){
   return Promise.resolve();
 }, ref$._ref = function(o){
-  var r;
+  var r, ref$;
   if (typeof o === 'string') {
     o = {
       url: o
     };
   }
   if (typeof (r = this._reg.url || this._reg) === 'function') {
-    o.url = r(o);
+    o = (ref$ = import$({}, o), ref$.url = r(o), ref$);
   }
   return this._reg.fetch
     ? this._reg.fetch(o)

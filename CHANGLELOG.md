@@ -1,5 +1,10 @@
 # Change Logs
 
+## v5.0.1
+
+ - fix bug: `_ref` pollutes the input bid.
+
+
 ## v5.0.0
 
  - `registry` should not return Promise now, and should consider `url` parameter now.

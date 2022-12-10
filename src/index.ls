@@ -99,7 +99,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
   _ref: (o) ->
     if typeof(o) == \string => o = {url: o}
     # promise from r(o) is deprecated. but if it is, url:r(o) is kinda weird. but ...
-    if typeof(r = @_reg.url or @_reg) == \function => o <<< {url: r o}
+    if typeof(r = @_reg.url or @_reg) == \function => o = {} <<< o <<< {url: r o}
     # ... it will be return directly since then @_reg.fetch won't exist.
     return if @_reg.fetch => @_reg.fetch(o) else o.url
 
