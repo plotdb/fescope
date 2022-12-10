@@ -1,21 +1,31 @@
 var scope;
 scope = new rescope({
-  global: window,
-  registry: function(arg$){
-    var name, version, path, url;
-    name = arg$.name, version = arg$.version, path = arg$.path;
-    url = "https://unpkg.com/" + name + (version && "@" + version || '') + (path && "/" + path || '');
-    return fetch(url).then(function(response){
-      var ret, v;
-      ret = /^https:\/\/unpkg.com\/([^@]+)@([^/]+)\//.exec(response.url) || [];
-      v = ret[2];
-      return response.text().then(function(it){
-        return {
-          version: v || version,
-          content: it
-        };
+  global: window
+  /* # either way should work: registry as a function returning string, or as an object as below
+  registry: ({url, name, version, path}) ->
+    url or "https://unpkg.com/#{name}#{version and "@#version" or ''}#{path and "/#path" or ''}"
+  */,
+  registry: {
+    url: function(arg$){
+      var url, name, version, path;
+      url = arg$.url, name = arg$.name, version = arg$.version, path = arg$.path;
+      return url || "https://unpkg.com/" + name + (version && "@" + version || '') + (path && "/" + path || '');
+    },
+    fetch: function(arg$){
+      var url, name, version, path;
+      url = arg$.url, name = arg$.name, version = arg$.version, path = arg$.path;
+      return fetch(url).then(function(res){
+        var ret, v;
+        ret = /^https:\/\/unpkg.com\/([^@]+)@([^/]+)\//.exec(res.url) || [];
+        v = ret[2];
+        return res.text().then(function(it){
+          return {
+            version: v || version,
+            content: it
+          };
+        });
       });
-    });
+    }
   }
 });
 if ((typeof useFakescope != 'undefined' && useFakescope !== null) && useFakescope) {

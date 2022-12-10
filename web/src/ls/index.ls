@@ -3,14 +3,18 @@
 
 scope = new rescope do
   global: window
-  registry: ({name, version, path}) ->
-    url = "https://unpkg.com/#{name}#{version and "@#version" or ''}#{path and "/#path" or ''}"
-    fetch url
-      .then (response) ->
-        ret = /^https:\/\/unpkg.com\/([^@]+)@([^/]+)\//.exec(response.url) or []
-        v = ret.2
-        response.text!then -> {version: v or version, content: it}
-
+  /* # either way should work: registry as a function returning string, or as an object as below
+  registry: ({url, name, version, path}) ->
+    url or "https://unpkg.com/#{name}#{version and "@#version" or ''}#{path and "/#path" or ''}"
+  */
+  registry:
+    url: ({url, name, version, path}) ->
+      url or "https://unpkg.com/#{name}#{version and "@#version" or ''}#{path and "/#path" or ''}"
+    fetch: ({url, name, version, path}) ->
+      (res) <- fetch url .then _
+      ret = /^https:\/\/unpkg.com\/([^@]+)@([^/]+)\//.exec(res.url) or []
+      v = ret.2
+      res.text!then -> {version: v or version, content: it}
 # following is the sample code for fake rescope
 # it's possible to totally ignore the whole scope thing and use window as scope
 # this merge all scopes into one so things may not work as expected.

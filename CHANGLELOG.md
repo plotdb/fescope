@@ -1,5 +1,10 @@
 # Change Logs
 
+## v5.0.0 (upcoming)
+
+ - `registry` should not return Promise now, and should consider `url` parameter now.
+
+
 ## v4.2.3
 
  - fix bug: `id()` should generate path depending on the type in bid.

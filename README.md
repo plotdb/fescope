@@ -62,7 +62,7 @@ Return promise from a registry function call for a directly content resolving - 
  - `version`: exact version of the return object.
  - `content`: content for the requested resource.
 
-`registry` can also be an object with `fetch` as a member function. Check `@plotdb/registry` for advanced registry usage.
+`registry` can also be an object with `url` and optionally `fetch` as a member function. Check `@plotdb/block` and `@plotdb/registry` for advanced registry usage.
 
 
 where registry, if provided, should be a function:
