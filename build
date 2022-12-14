@@ -10,6 +10,7 @@ echo "build src -> .built .."
 cat .built/head.js > dist/node.js
 cat .built/index.js >> dist/node.js
 cat .built/bundle.js >> dist/node.js
+echo "rsp.__node = true;" >> dist/node.js
 cat .built/foot.js >> dist/node.js
 
 echo "(function(){" > dist/index.js

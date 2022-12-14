@@ -1,5 +1,10 @@
 # Change Logs
 
+## v5.0.2
+
+ - fix bug: will try using `fs` once defined even in browser.
+
+
 ## v5.0.1
 
  - fix bug: `_ref` pollutes the input bid.
