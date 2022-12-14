@@ -1,7 +1,6 @@
 (function(){
 var win, doc, _fetch, proxin, ref$, rsp;
 _fetch = function(u, c){
-  console.log(">", rsp.__node);
   if (rsp.__node && (typeof fs != 'undefined' && fs !== null) && !/^https:/.exec(u)) {
     return new Promise(function(res, rej){
       return fs.readFile(u, function(e, b){
