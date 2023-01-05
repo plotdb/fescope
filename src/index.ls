@@ -187,26 +187,38 @@ rsp.prototype = Object.create(Object.prototype) <<<
     px = if libs.px => libs.px else libs.px = (if dctx and dctx.p => dctx.p else new proxin!)
     ctx = px.ctx!
     proxy = px.proxy!
-    ps = libs.map (lib) ~>
-      if (lib.code or lib.gen) and !force-fetch => return Promise.resolve!
-      ref = @_ref(lib)
-      if ref.then => ref.then ~>
-        lib.code = it.content
-        @cache(lib <<< {id: undefined, version: it.version, code: it.content})
-      else _fetch ref, {method: \GET} .then -> lib.code = it
 
-    Promise.all ps
-      .then ~>
-        if only-fetch => return
-        # TODO to optimizing, we may need some way to skip this if libs are bundled and preloaded.
-        @exports {libs, ctx: dctx.f}
-        libs.map (lib) ~>
-          if lib.prop-initing =>
-            if !lib.gen => lib.gen = @_wrap lib, ctx
-            lib.prop = lib.gen.apply proxy, [proxy, ctx, win]
-            lib.prop-initing = false
-          ctx <<< lib.prop
-      .then ~> ctx
+    [segs, seg] = [[], []]
+    for lib in libs =>
+      seg.push lib
+      if !(lib.async? and !lib.async) => continue
+      segs.push seg
+      seg = []
+    if seg.length => segs.push seg
+
+    _ = (idx = 0) ~>
+      if !(libs = segs[idx]) => return Promise.resolve(ctx)
+      ps = libs.map (lib) ~>
+        if (lib.code or lib.gen) and !force-fetch => return Promise.resolve!
+        ref = @_ref(lib)
+        if ref.then => ref.then ~>
+          lib.code = it.content
+          @cache(lib <<< {id: undefined, version: it.version, code: it.content})
+        else _fetch ref, {method: \GET} .then -> lib.code = it
+      Promise.all ps
+        .then ~>
+          if only-fetch => return
+          # TODO to optimizing, we may need some way to skip this if libs are bundled and preloaded.
+          @exports {libs, ctx: dctx.f}
+          libs.map (lib) ~>
+            if lib.prop-initing =>
+              if !lib.gen => lib.gen = @_wrap lib, ctx
+              lib.prop = lib.gen.apply proxy, [proxy, ctx, win]
+              lib.prop-initing = false
+            ctx <<< lib.prop
+        .then ~> ctx
+        .then ~> _ idx + 1
+    _ 0
 
   context: (libs, func, px) ->
     if typeof(func) != \function => [func, px] = [px, func]

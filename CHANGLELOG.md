@@ -1,5 +1,10 @@
 # Change Logs
 
+## v5.0.4
+
+ - fix bug: `async` feature isn't supported correctly
+
+
 ## v5.0.3
 
  - remove unnecessary log
