@@ -1,5 +1,10 @@
 # Change Logs
 
+## v5.0.5
+
+ - fix bug: `async` in 5.0.4 is not required and causes issues.
+
+
 ## v5.0.4
 
  - fix bug: `async` feature isn't supported correctly

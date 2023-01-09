@@ -351,7 +351,7 @@ rsp.prototype = (ref$ = Object.create(Object.prototype), ref$.peekScope = functi
   }
   return new Function("scope", "ctx", "win", code);
 }, ref$.load = function(libs, dctx, forceFetch, onlyFetch){
-  var px, ctx, proxy, ref$, segs, seg, i$, len$, lib, _, this$ = this;
+  var px, ctx, proxy, segs, _, this$ = this;
   dctx == null && (dctx = {});
   forceFetch == null && (forceFetch = false);
   onlyFetch == null && (onlyFetch = false);
@@ -367,19 +367,20 @@ rsp.prototype = (ref$ = Object.create(Object.prototype), ref$.peekScope = functi
       : new proxin();
   ctx = px.ctx();
   proxy = px.proxy();
-  ref$ = [[], []], segs = ref$[0], seg = ref$[1];
-  for (i$ = 0, len$ = libs.length; i$ < len$; ++i$) {
-    lib = libs[i$];
-    seg.push(lib);
-    if (!(lib.async != null && !lib.async)) {
-      continue;
-    }
-    segs.push(seg);
-    seg = [];
-  }
-  if (seg.length) {
-    segs.push(seg);
-  }
+  /*
+  # this tries to segment libs based on async flag.
+  # however, current implementation batches fetches and then loads by order
+  # in this case segment seems to be unnecessary.
+  # we will keep the code here for reference.
+  [segs, seg] = [[], []]
+  for lib in libs =>
+    seg.push lib
+    if !(lib.async? and !lib.async) => continue
+    segs.push seg
+    seg = []
+  if seg.length => segs.push seg
+  */
+  segs = [libs];
   _ = function(idx){
     var libs, ps;
     idx == null && (idx = 0);

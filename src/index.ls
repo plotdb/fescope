@@ -188,6 +188,11 @@ rsp.prototype = Object.create(Object.prototype) <<<
     ctx = px.ctx!
     proxy = px.proxy!
 
+    /*
+    # this tries to segment libs based on async flag.
+    # however, current implementation batches fetches and then loads by order
+    # in this case segment seems to be unnecessary.
+    # we will keep the code here for reference.
     [segs, seg] = [[], []]
     for lib in libs =>
       seg.push lib
@@ -195,6 +200,8 @@ rsp.prototype = Object.create(Object.prototype) <<<
       segs.push seg
       seg = []
     if seg.length => segs.push seg
+    */
+    segs = [libs]
 
     _ = (idx = 0) ~>
       if !(libs = segs[idx]) => return Promise.resolve(ctx)
