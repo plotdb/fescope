@@ -167,6 +167,22 @@ use `prejs` when constructing for inserting pre-required JS into both host and d
  - rescope mimics `window` object but there are still limitations. If a library declares a variable by `window.somevar` but accessing it with `somevar`, it will fail.
 
 
+## Limitation
+
+rescope uses proxy object to replace global objects such as `global`, `self`, `window` and `this`, so accessing `global` in library will actually be accessing the proxy object.
+
+However, there are still ways to get the actual window object, such as from `event.source` of `message` event:
+
+    global.fire("message", "hello");
+    global.on("message", function(event) { event.source });
+
+Some libraries check `event.source` before using it like:
+
+    if(event.source == global) { ... }
+
+Unfortunately this will fail, since `event.source` (the real global) is not the same with `global` (the proxy object).  Since proxy object should never be equivalent to the proxied object, this can't be solved in `@plotdb/rescope` side - libraries will have to be patched if we want to use them in `@plotdb/rescope`.
+
+
 ## Resources
 
  - Realm may help in what we want to do:
