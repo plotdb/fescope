@@ -155,9 +155,11 @@ rsp.prototype = Object.create(Object.prototype) <<<
 
   _wrap: (o = {}, ctx = {}, opt = {}) ->
     prop = o.prop or {}
-    # NOTE: some libs may detect existency of themselves.
-    # so if we are using global scope, we will have to exclude them.
-    # however, since we scope everything in a isolated global, there is no need for this.
+    # NOTE 1: some libs may detect existency of themselves.
+    #   so if we are using global scope, we will have to exclude them.
+    #   however, since we scope everything in a isolated global, there is no need for this.
+    # NOTE 2: some libs, such as setimmediate ( used by jszip), compare event source against `global`
+    #   yet we overwrite `global` with our scope ( proxin ) object, thus this check will fail.
     code = """
     var window, global, globalThis, self, __ret = {}; __win = {};
     window = global = globalThis = self = window = scope;
@@ -169,8 +171,11 @@ rsp.prototype = Object.create(Object.prototype) <<<
     code += "#{o.code};"
     for k of prop =>
       # either local variable, fake window obj, real window obj
-      # or possibly `this` variable if some libs use `this` as window object. ( yes, bad practice )
+      #   or possibly `this` variable if some libs use `this` as window object. ( yes, bad practice )
+      # some libs may update global.k, but access variable k. in this case, k will undefined
+      #   so we have to update k if it's undefined. ( the `if(!(k)) { ... }` code )
       code += """
+      if(!(#k)) { #k = scope['#k']; }
       __ret['#k'] = #k || window['#k'] || win['#k'] || this['#k'];
       win['#k'] = __win['#k'];
       """

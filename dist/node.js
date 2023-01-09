@@ -343,7 +343,7 @@ rsp.prototype = (ref$ = Object.create(Object.prototype), ref$.peekScope = functi
   }
   code += o.code + ";";
   for (k in prop) {
-    code += "__ret['" + k + "'] = " + k + " || window['" + k + "'] || win['" + k + "'] || this['" + k + "'];\nwin['" + k + "'] = __win['" + k + "'];";
+    code += "if(!(" + k + ")) { " + k + " = scope['" + k + "']; }\n__ret['" + k + "'] = " + k + " || window['" + k + "'] || win['" + k + "'] || this['" + k + "'];\nwin['" + k + "'] = __win['" + k + "'];";
   }
   code += "return __ret;";
   if (opt.codeOnly) {
