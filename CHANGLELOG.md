@@ -1,5 +1,10 @@
 # Change Logs
 
+## v5.0.7
+
+ - catch library error and provide additional information for this error in log for better debugging experience.
+
+
 ## v5.0.6
 
  - fix bug: some libs may access local vars but prepare it via global object, leading to variable not found issue.

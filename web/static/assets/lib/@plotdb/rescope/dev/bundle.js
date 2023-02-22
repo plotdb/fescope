@@ -264,7 +264,7 @@ rsp.prototype = (ref$ = Object.create(Object.prototype), ref$.peekScope = functi
   }
   return results$;
 }, ref$._exports = function(libs, idx, ctx){
-  var lib, ref$, hash, fprop, iw, k, att1, att2, results$ = [];
+  var lib, ref$, hash, fprop, iw, k, att1, e, att2, results$ = [];
   idx == null && (idx = 0);
   ctx == null && (ctx = {});
   if (!(lib = libs[idx])) {
@@ -294,7 +294,20 @@ rsp.prototype = (ref$ = Object.create(Object.prototype), ref$.peekScope = functi
       for (k in att1) {
         hash[k] = iw[k];
       }
-      iw.eval(lib.code);
+      try {
+        iw.eval(lib.code);
+      } catch (e$) {
+        e = e$;
+        console.error("[@plotdb/rescope] Parse failed", {
+          url: lib.url,
+          ns: lib.ns,
+          name: lib.name,
+          version: lib.version,
+          path: lib.path
+        });
+        console.error("[@plotdb/rescope] with this error:", e);
+        throw e;
+      }
       att2 = Object.fromEntries(Reflect.ownKeys(iw).filter(function(it){
         return !rsp.prop.legacy[it];
       }).map(function(it){

@@ -138,7 +138,12 @@ rsp.prototype = Object.create(Object.prototype) <<<
         for k of att1 => hash[k] = iw[k]
         # TODO use this to guarantee a global scope??
         # iw.run = function(code) { (new Function(code))(); }; iw.run(code);
-        iw.eval lib.code
+        try
+          iw.eval lib.code
+        catch e
+          console.error "[@plotdb/rescope] Parse failed", lib{url, ns, name, version, path}
+          console.error "[@plotdb/rescope] with this error:", e
+          throw e
         att2 = Object.fromEntries(Reflect.ownKeys(iw).filter(->!rsp.prop.legacy[it]).map -> [it, true])
         for k of att2 =>
           if iw[k] == hash[k] or (k in <[NaN]>) => continue
