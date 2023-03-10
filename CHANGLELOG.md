@@ -1,5 +1,10 @@
 # Change Logs
 
+## v5.0.8
+
+ - fix bug: object set via `defineProperty` can't be reached again.
+
+
 ## v5.0.7
 
  - catch library error and provide additional information for this error in log for better debugging experience.

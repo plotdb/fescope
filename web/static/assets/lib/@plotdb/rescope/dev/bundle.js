@@ -84,6 +84,10 @@ proxin = function(o){
       }
       this$.lc[k] = v;
       return true;
+    },
+    defineProperty: function(t, k, d){
+      Object.defineProperty(this$.lc, k, d);
+      return this$._proxy;
     }
   });
   return this;

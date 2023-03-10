@@ -41,6 +41,11 @@ proxin = (o = {})->
         return true
       @lc[k] = v
       return true
+    # without this, we will lose defined property
+    # and don't know how to access it without maximal callstack reached.
+    defineProperty: (t, k, d) ~>
+      Object.defineProperty @lc, k, d
+      return @_proxy
   @
 
 proxin.prototype = Object.create(Object.prototype) <<<
