@@ -1,5 +1,10 @@
 # Change Logs
 
+## v5.0.9
+
+ - fix bug: bundler incorrect ignores `http` protocol
+
+
 ## v5.0.8
 
  - fix bug: object set via `defineProperty` can't be reached again.

@@ -7,7 +7,7 @@ fetch = typeof window != 'undefined' && window !== null
   : (typeof module != 'undefined' && module !== null) && (typeof require != 'undefined' && require !== null) ? require("node-fetch") : null;
 fs = require('fs');var win, doc, _fetch, proxin, ref$, rsp;
 _fetch = function(u, c){
-  if (rsp.__node && (typeof fs != 'undefined' && fs !== null) && !/^https:/.exec(u)) {
+  if (rsp.__node && (typeof fs != 'undefined' && fs !== null) && !/^https?:/.exec(u)) {
     return new Promise(function(res, rej){
       return fs.readFile(u, function(e, b){
         if (e) {

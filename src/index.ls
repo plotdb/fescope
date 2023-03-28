@@ -1,7 +1,7 @@
 var win, doc
 
 _fetch = (u, c) ->
-  if rsp.__node and fs? and !/^https:/.exec(u) =>
+  if rsp.__node and fs? and !/^https?:/.exec(u) =>
     return new Promise (res, rej) ->
       fs.read-file u, (e, b) -> if e => rej e else res b.toString!
   (ret) <- fetch u, c .then _
