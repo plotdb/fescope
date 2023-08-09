@@ -1,5 +1,10 @@
 # Change Logs
 
+## v5.0.11
+
+ - fix bug: strict mode workaround in the previous version doesn't work
+
+
 ## v5.0.10
 
  - workaround: cancel strict mode for correct prop parsing
