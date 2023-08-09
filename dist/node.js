@@ -305,7 +305,7 @@ rsp.prototype = (ref$ = Object.create(Object.prototype), ref$.peekScope = functi
         hash[k] = iw[k];
       }
       try {
-        iw.eval(lib.code);
+        iw.eval('"";' + lib.code);
       } catch (e$) {
         e = e$;
         console.error("[@plotdb/rescope] Parse failed", {

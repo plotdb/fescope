@@ -1,5 +1,10 @@
 # Change Logs
 
+## v5.0.10
+
+ - workaround: cancel strict mode for correct prop parsing
+
+
 ## v5.0.9
 
  - fix bug: bundler incorrect ignores `http` protocol

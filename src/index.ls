@@ -144,7 +144,17 @@ rsp.prototype = Object.create(Object.prototype) <<<
         # TODO use this to guarantee a global scope??
         # iw.run = function(code) { (new Function(code))(); }; iw.run(code);
         try
-          iw.eval lib.code
+          # strict mode keeps global variables from window, but we need them for establish prop list.
+          # for example, `marked` below can not be found in att2:
+          #
+          #     "use strict";var marked = "...";
+          #
+          # which was found in `marked` ({name: 'marked', version: '7.0.0', path: 'marked.min.js'})
+          # thus, we simply add an empty string at the beginning of the code to nullify it.
+          # this is a bad hack and we will need alternative method to overcome this. (TODO)
+          # hopefully this is used only here for resolve export vars from a module -
+          # we still enable strict mode in actual environment (`_wrap` below)
+          iw.eval('"";' + lib.code)
         catch e
           console.error "[@plotdb/rescope] Parse failed", lib{url, ns, name, version, path}
           console.error "[@plotdb/rescope] with this error:", e
