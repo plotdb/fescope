@@ -1,5 +1,10 @@
 # Change Logs
 
+## v5.0.12
+
+ - remove sandbox attribute from iframe since we do need to interact between iframe and its host.
+
+
 ## v5.0.11
 
  - fix bug: strict mode workaround in the previous version doesn't work

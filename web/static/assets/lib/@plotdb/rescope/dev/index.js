@@ -54,7 +54,6 @@ proxin = function(o){
     ref$.opacity = 0;
     ifr.setAttribute('title', "rescope script loader");
     ifr.setAttribute('name', "pdb-proxin-" + this.id);
-    ifr.setAttribute('sandbox', 'allow-same-origin allow-scripts');
     doc.body.appendChild(ifr);
   }
   attr = Object.fromEntries(Reflect.ownKeys(this.iframe.contentWindow).map(function(it){
@@ -115,7 +114,6 @@ rsp = function(o){
   ref$.opacity = 0;
   ifr.setAttribute('title', "rescope script loader");
   ifr.setAttribute('name', "pdb-rescope-" + this.id);
-  ifr.setAttribute('sandbox', 'allow-same-origin allow-scripts');
   doc.body.appendChild(ifr);
   ifr.contentWindow.document.body.innerHTML = (o.preloads || []).map(function(it){
     return "<script type=\"text/javascript\" src=\"" + it + "\"></script>";

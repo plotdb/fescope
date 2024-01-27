@@ -24,7 +24,6 @@ proxin = (o = {})->
     ifr.style <<< position: \absolute, top: 0, left: 0, width: 0, height: 0, pointerEvents: \none, opacity: 0
     ifr.setAttribute \title, "rescope script loader"
     ifr.setAttribute \name, "pdb-proxin-#{@id}"
-    ifr.setAttribute \sandbox, ('allow-same-origin allow-scripts')
     doc.body.appendChild ifr
   attr = Object.fromEntries(Reflect.ownKeys(@iframe.contentWindow).map -> [it, true])
   func = {}
@@ -61,7 +60,6 @@ rsp = (o = {}) ->
   ifr.style <<< position: \absolute, top: 0, left: 0, width: 0, height: 0, pointerEvents: \none, opacity: 0
   ifr.setAttribute \title, "rescope script loader"
   ifr.setAttribute \name, "pdb-rescope-#{@id}"
-  ifr.setAttribute \sandbox, ('allow-same-origin allow-scripts')
   doc.body.appendChild ifr
   ifr.contentWindow.document.body.innerHTML = (o.preloads or [])
     .map(-> """<script type="text/javascript" src="#it"></script>""").join('')
