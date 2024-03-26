@@ -185,9 +185,13 @@ Unfortunately this will fail, since `event.source` (the real global) is not the 
 
 ## Resources
 
- - Realm may help in what we want to do:
+ - ShadowRealm may help in what we want to do:
+   - https://github.com/tc39/proposal-shadowrealm/
+ - Realm, predecessor of ShadowRealm
+   - Note: Realms proposal has been superceded by the ShadowRealm Proposal
    - https://github.com/tc39/proposal-realms/#ecmascript-spec-proposal-for-realms-api
    - https://github.com/Agoric/realms-shim
+     - based on their current statue: OBSOLETE, INSECURE, NOT RECOMMENDED FOR USE
    - https://www.figma.com/blog/how-we-built-the-figma-plugin-system/
  - also check how Vue does its own scoping in template:
    - https://github.com/vuejs/vue/blob/v2.6.10/src/core/instance/proxy.js#L9
