@@ -2,7 +2,7 @@
 
 ## v5.0.14
 
- - extend the attr import from original function from `protoype` to all attributes.
+ - extend the attr import from original function from `prototype` to all attributes.
 
 
 ## v5.0.13
