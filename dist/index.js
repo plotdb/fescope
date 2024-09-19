@@ -62,7 +62,6 @@ proxin = function(o){
   func = {};
   this._proxy = new Proxy(o.target || win, {
     get: function(t, k, o){
-      var ref$;
       if (this$.lc[k] != null) {
         return this$.lc[k];
       }
@@ -70,7 +69,7 @@ proxin = function(o){
         return func[k];
       }
       if (typeof t[k] === 'function') {
-        return func[k] = (ref$ = t[k].bind(t), ref$.prototype = t[k].prototype, ref$);
+        return func[k] = import$(t[k].bind(t), t[k]);
       }
       if (attr[k] == null) {
         return undefined;

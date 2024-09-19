@@ -1,5 +1,10 @@
 # Change Logs
 
+## v5.0.14
+
+ - extend the attr import from original function from `protoype` to all attributes.
+
+
 ## v5.0.13
 
  - in Proxy `get`, return the bound function with `prototype` updated from original value.

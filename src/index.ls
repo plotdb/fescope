@@ -33,9 +33,9 @@ proxin = (o = {})->
       if func[k]? => return func[k]
       if typeof(t[k]) == \function =>
         # NOTE: bound function doesn't contain original prototype and some other properties.
-        # here we pass prototype first. we probably will want to add more in the future
-        # if missing any of them causing issues.
-        return func[k] = (t[k].bind t) <<< t[k]{prototype}
+        # for example, webpack uses Symbol.prototype, and highcharts uses Node.TEXT_NODE.
+        # thus we have to import attributes from original value with `<<<` here.
+        return func[k] = (t[k].bind t) <<< t[k]
       if !attr[k]? => return undefined
       return t[k]
     set: (t, k, v) ~>
