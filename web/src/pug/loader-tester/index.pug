@@ -1,0 +1,16 @@
+extends /base.pug
+block body
+block script
+  .p-5.w-1024.rwd.mx-auto
+    h3.mb-4 Loader Tester
+    p this page helps you test loading specific libs by entering their URL in below input box:
+    .input-group.mb-4
+      input.form-control.border(ld="url",placeholder="lib url",value="/assets/ext/vis.js")
+      .input-group-append: .btn.border(ld="load") Load
+    p result
+    .p-4.border.rounded.bg-light(ld="result",style="white-space:pre-wrap;font-family:monospace") n/a
+
+    +script([
+      {name: "ldview"}
+    ])
+    script(type="module"): include:lsc index.ls
