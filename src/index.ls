@@ -31,7 +31,11 @@ proxin = (o = {})->
     get: (t, k, o) ~>
       if @lc[k]? => return @lc[k]
       if func[k]? => return func[k]
-      if typeof(t[k]) == \function => return func[k] = t[k].bind t
+      if typeof(t[k]) == \function =>
+        # NOTE: bound function doesn't contain original prototype and some other properties.
+        # here we pass prototype first. we probably will want to add more in the future
+        # if missing any of them causing issues.
+        return func[k] = (t[k].bind t) <<< t[k]{prototype}
       if !attr[k]? => return undefined
       return t[k]
     set: (t, k, v) ~>
@@ -172,6 +176,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
     # NOTE we can only retrieve synchronously assigned props.
 
   _wrap: (o = {}, ctx = {}, opt = {}) ->
+    varre = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/
     prop = o.prop or {}
     # NOTE 1: some libs may detect existency of themselves.
     #   so if we are using global scope, we will have to exclude them.
@@ -184,19 +189,31 @@ rsp.prototype = Object.create(Object.prototype) <<<
     """
     # some libs may still access window directly ( perhaps via (function() { var window = this; })();
     # so we store original win[k] in __win, and restore them later.
-    for k of prop => code += "var #k; __win['#k'] = win['#k']; win['#k'] = undefined;"
-    for k of ctx => code += "var #k = window['#k'] = ctx['#k'];"
+    # we check `/-/` against k to prevent illegal varible names;
+    # we may want to extend this check to complete variable patterns 
+    for k of prop =>
+      if varre.exec(k) => code += "var #k;"
+      code += "__win['#k'] = win['#k']; win['#k'] = undefined;"
+    for k of ctx =>
+      code += "window['#k'] = ctx['#k'];"
+      if varre.exec(k) => code += "var #k = window['#k'];"
     code += "#{o.code};"
     for k of prop =>
       # either local variable, fake window obj, real window obj
       #   or possibly `this` variable if some libs use `this` as window object. ( yes, bad practice )
       # some libs may update global.k, but access variable k. in this case, k will undefined
       #   so we have to update k if it's undefined. ( the `if(!(k)) { ... }` code )
-      code += """
-      if(!(#k)) { #k = scope['#k']; }
-      __ret['#k'] = #k || window['#k'] || win['#k'] || this['#k'];
-      win['#k'] = __win['#k'];
-      """
+      if varre.exec(k) =>
+        code += """
+        if(!(#k)) { #k = scope['#k']; }
+        __ret['#k'] = #k || window['#k'] || win['#k'] || this['#k'];
+        win['#k'] = __win['#k'];
+        """
+      else
+        code += """
+        __ret['#k'] = window['#k'] || win['#k'] || this['#k'];
+        win['#k'] = __win['#k'];
+        """
     code += "return __ret;"
     if opt.code-only => return "function(scope, ctx, win){#code}"
     return new Function("scope", "ctx", "win", code)

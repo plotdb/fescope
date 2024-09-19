@@ -62,6 +62,7 @@ proxin = function(o){
   func = {};
   this._proxy = new Proxy(o.target || win, {
     get: function(t, k, o){
+      var ref$;
       if (this$.lc[k] != null) {
         return this$.lc[k];
       }
@@ -69,7 +70,7 @@ proxin = function(o){
         return func[k];
       }
       if (typeof t[k] === 'function') {
-        return func[k] = t[k].bind(t);
+        return func[k] = (ref$ = t[k].bind(t), ref$.prototype = t[k].prototype, ref$);
       }
       if (attr[k] == null) {
         return undefined;
@@ -338,21 +339,32 @@ rsp.prototype = (ref$ = Object.create(Object.prototype), ref$.peekScope = functi
   }
   return results$;
 }, ref$._wrap = function(o, ctx, opt){
-  var prop, code, k;
+  var varre, prop, code, k;
   o == null && (o = {});
   ctx == null && (ctx = {});
   opt == null && (opt = {});
+  varre = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
   prop = o.prop || {};
   code = "var window, global, globalThis, self, __ret = {}; __win = {};\nwindow = global = globalThis = self = window = scope;";
   for (k in prop) {
-    code += "var " + k + "; __win['" + k + "'] = win['" + k + "']; win['" + k + "'] = undefined;";
+    if (varre.exec(k)) {
+      code += "var " + k + ";";
+    }
+    code += "__win['" + k + "'] = win['" + k + "']; win['" + k + "'] = undefined;";
   }
   for (k in ctx) {
-    code += "var " + k + " = window['" + k + "'] = ctx['" + k + "'];";
+    code += "window['" + k + "'] = ctx['" + k + "'];";
+    if (varre.exec(k)) {
+      code += "var " + k + " = window['" + k + "'];";
+    }
   }
   code += o.code + ";";
   for (k in prop) {
-    code += "if(!(" + k + ")) { " + k + " = scope['" + k + "']; }\n__ret['" + k + "'] = " + k + " || window['" + k + "'] || win['" + k + "'] || this['" + k + "'];\nwin['" + k + "'] = __win['" + k + "'];";
+    if (varre.exec(k)) {
+      code += "if(!(" + k + ")) { " + k + " = scope['" + k + "']; }\n__ret['" + k + "'] = " + k + " || window['" + k + "'] || win['" + k + "'] || this['" + k + "'];\nwin['" + k + "'] = __win['" + k + "'];";
+    } else {
+      code += "__ret['" + k + "'] = window['" + k + "'] || win['" + k + "'] || this['" + k + "'];\nwin['" + k + "'] = __win['" + k + "'];";
+    }
   }
   code += "return __ret;";
   if (opt.codeOnly) {

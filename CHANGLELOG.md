@@ -1,5 +1,11 @@
 # Change Logs
 
+## v5.0.13
+
+ - in Proxy `get`, return the bound function with `prototype` updated from original value.
+ - prevent declaration of variables with illegal variable names in `_wrap`.
+
+
 ## v5.0.12
 
  - remove sandbox attribute from iframe since we do need to interact between iframe and its host.
