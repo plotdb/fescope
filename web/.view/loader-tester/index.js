@@ -84,9 +84,10 @@ pug_html = pug_html + "\u003Cscript" + (" type=\"text\u002Fjavascript\""+pug_att
 
 if (cfg && cfg.pack) {
 var name = md5(str);
-var filename = "/js/pack/" + name + "." + (typeof(cfg.min) == "undefined" || cfg.min ? "min" : "") + ".js";
-hashfile({type: "js", name: name, files: urls});
-pug_html = pug_html + "\u003Cscript" + (" type=\"text\u002Fjavascript\""+pug_attr("src", filename + libLoader._v, true, true)) + "\u003E\u003C\u002Fscript\u003E";
+//var filename = "/js/pack/" + name + "." + (typeof(cfg.min) == "undefined" || cfg.min ? "min" : "") + ".js";
+var fn = "/assets/bundle/" + name + "." + (typeof(cfg.min) == "undefined" || cfg.min ? "min" : "") + ".js";
+hashfile({type: "js", name: name, files: urls, src: locals.filename});
+pug_html = pug_html + "\u003Cscript" + (" type=\"text\u002Fjavascript\""+pug_attr("src", fn + libLoader._v, true, true)) + "\u003E\u003C\u002Fscript\u003E";
 }
 };
 pug_mixins["css"] = pug_interp = function(os,cfg){
@@ -147,9 +148,10 @@ pug_html = pug_html + "\u003Clink" + (" rel=\"stylesheet\" type=\"text\u002Fcss\
 
 if (cfg && cfg.pack) {
 var name = md5(str);
-var filename = "/css/pack/" + name + "." + (typeof(cfg.min) == "undefined" || cfg.min ? "min" : "") + ".css";
-hashfile({type: "css", name: name, files: urls});
-pug_html = pug_html + "\u003Clink" + (" rel=\"stylesheet\" type=\"text\u002Fcss\""+pug_attr("href", filename + libLoader._v, true, true)) + "\u003E";
+//var filename = "/css/pack/" + name + "." + (typeof(cfg.min) == "undefined" || cfg.min ? "min" : "") + ".css";
+var fn = "/assets/bundle/" + name + "." + (typeof(cfg.min) == "undefined" || cfg.min ? "min" : "") + ".css";
+hashfile({type: "css", name: name, files: urls, src: locals.filename});
+pug_html = pug_html + "\u003Clink" + (" rel=\"stylesheet\" type=\"text\u002Fcss\""+pug_attr("href", fn + libLoader._v, true, true)) + "\u003E";
 }
 };
 pug_html = pug_html + "\u003Chtml\u003E";
@@ -238,11 +240,11 @@ pug_mixins["script"]([
       {name: "@plotdb/semver"},
       {name: "@plotdb/rescope", version: "dev"}
     ]);
-pug_html = pug_html + "\u003Cdiv class=\"p-5 w-1024 rwd mx-auto\"\u003E\u003Ch3 class=\"mb-4\"\u003ELoader Tester\u003C\u002Fh3\u003E\u003Cp\u003Ethis page helps you test loading specific libs by entering their URL in below input box:\u003C\u002Fp\u003E\u003Cdiv class=\"mb-4\"\u003E\u003Cdiv class=\"input-group mb-2\"\u003E\u003Cinput class=\"form-control border\" ld=\"url\" placeholder=\"lib url\"\u003E\u003Cdiv class=\"input-group-append\"\u003E\u003Cdiv class=\"btn border\" ld=\"load\"\u003ELoad\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cdiv class=\"text-secondary\"\u003Eyou can try following: \u003Cspan class=\"clickable text-primary\" ld=\"sample\" data-url=\"\u002Fassets\u002Floader-tester\u002Fvis.js\"\u003Evis.js\u003C\u002Fspan\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cp\u003Eresult\u003C\u002Fp\u003E\u003Cdiv class=\"p-4 border rounded bg-light\" ld=\"result\" style=\"white-space:pre-wrap;font-family:monospace\"\u003En\u002Fa\u003C\u002Fdiv\u003E";
+pug_html = pug_html + "\u003Cdiv class=\"p-5 w-1024 rwd mx-auto\"\u003E\u003Ch3 class=\"mb-4\"\u003ELoader Tester\u003C\u002Fh3\u003E\u003Cp\u003Ethis page helps you test loading specific libs by entering their URL in below input box:\u003C\u002Fp\u003E\u003Cdiv class=\"mb-4\"\u003E\u003Cdiv class=\"input-group mb-2\"\u003E\u003Cinput class=\"form-control border\" ld=\"url\" placeholder=\"lib url\"\u003E\u003Cdiv class=\"input-group-append\"\u003E\u003Cdiv class=\"btn border\" ld=\"load\"\u003ELoad\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cdiv class=\"text-secondary d-flex g-2\"\u003E\u003Cspan\u003Eyou can try following: \u003C\u002Fspan\u003E\u003Cspan class=\"clickable text-primary\" ld=\"sample\" data-url=\"\u002Fassets\u002Floader-tester\u002Fvis.js\"\u003Evis.js\u003C\u002Fspan\u003E\u003Cspan class=\"clickable text-primary\" ld=\"sample\" data-url=\"\u002Fassets\u002Floader-tester\u002Famcharts-core.js\"\u003Eamcharts-core.js\u003C\u002Fspan\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cp\u003Eresult\u003C\u002Fp\u003E\u003Cdiv class=\"p-4 border rounded bg-light\" ld=\"result\" style=\"white-space:pre-wrap;font-family:monospace\"\u003En\u002Fa\u003C\u002Fdiv\u003E";
 pug_mixins["script"]([
       {name: "ldview"}
     ]);
-pug_html = pug_html + "\u003Cscript type=\"module\"\u003Evar scope,load,view;scope=new rescope({registry:function(e){var t,r,s,l;t=e.url,r=e.name,s=e.version,l=e.path;return t}});load=function(e){var t;t=e.url;return scope.load([{url:t}]).then(function(t){var e,r;e=\"success with:\\n\\n\"+function(){var e=[];for(r in t){e.push(\" - \"+r)}return e}().join(\"\\n\");view.get(\"result\").classList.toggle(\"border-danger\",false);view.get(\"result\").classList.toggle(\"text-danger\",false);view.get(\"result\").classList.toggle(\"text-success\",true);view.get(\"result\").classList.toggle(\"border-success\",true);return view.get(\"result\").textContent=e})[\"catch\"](function(e){view.get(\"result\").classList.toggle(\"border-danger\",true);view.get(\"result\").classList.toggle(\"text-danger\",true);view.get(\"result\").classList.toggle(\"text-success\",false);view.get(\"result\").classList.toggle(\"border-success\",false);return view.get(\"result\").textContent=\"error: \\n\\n\"+e.toString()})};view=new ldview({root:document.body,action:{click:{sample:function(e){var t;t=e.node;view.get(\"url\").value=t.dataset.url;return load({url:view.get(\"url\").value})},load:function(){var e;if(!(e=view.get(\"url\").value)){return}return load({url:e})}}}});\u003C\u002Fscript\u003E\u003C\u002Fdiv\u003E\u003C\u002Fbody\u003E\u003C\u002Fhtml\u003E";
+pug_html = pug_html + "\u003Cscript type=\"module\"\u003Evar scope,load,view;scope=new rescope({registry:function(e){var t,r,s,l;t=e.url,r=e.name,s=e.version,l=e.path;return t}});load=function(e){var t;t=e.url;return scope.load([{url:t}]).then(function(t){var e,r;e=\"success with:\\n\\n\"+function(){var e=[];for(r in t){e.push(\" - \"+r)}return e}().join(\"\\n\");view.get(\"result\").classList.toggle(\"border-danger\",false);view.get(\"result\").classList.toggle(\"text-danger\",false);view.get(\"result\").classList.toggle(\"text-success\",true);view.get(\"result\").classList.toggle(\"border-success\",true);return view.get(\"result\").textContent=e})[\"catch\"](function(e){view.get(\"result\").classList.toggle(\"border-danger\",true);view.get(\"result\").classList.toggle(\"text-danger\",true);view.get(\"result\").classList.toggle(\"text-success\",false);view.get(\"result\").classList.toggle(\"border-success\",false);view.get(\"result\").textContent=\"error: \\n\\n\"+e.toString();throw e})};view=new ldview({root:document.body,action:{click:{sample:function(e){var t;t=e.node;view.get(\"url\").value=t.dataset.url;return load({url:view.get(\"url\").value})},load:function(){var e;if(!(e=view.get(\"url\").value)){return}return load({url:e})}}}});\u003C\u002Fscript\u003E\u003C\u002Fdiv\u003E\u003C\u002Fbody\u003E\u003C\u002Fhtml\u003E";
     }.call(this, "Array" in locals_for_with ?
         locals_for_with.Array :
         typeof Array !== 'undefined' ? Array : undefined, "JSON" in locals_for_with ?

@@ -8,7 +8,11 @@ block script
       .input-group.mb-2
         input.form-control.border(ld="url",placeholder="lib url")
         .input-group-append: .btn.border(ld="load") Load
-      .text-secondary you can try following: #[span.clickable.text-primary(ld="sample",data-url="/assets/loader-tester/vis.js") vis.js]
+      .text-secondary.d-flex.g-2
+        span you can try following: 
+        span.clickable.text-primary(ld="sample",data-url="/assets/loader-tester/vis.js") vis.js
+        //- amcharts looks up for `<script>` tag at initial time, which definitely will fail for rescope.
+        span.clickable.text-primary(ld="sample",data-url="/assets/loader-tester/amcharts-core.js") amcharts-core.js
 
     p result
     .p-4.border.rounded.bg-light(ld="result",style="white-space:pre-wrap;font-family:monospace") n/a

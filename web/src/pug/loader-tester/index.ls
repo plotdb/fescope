@@ -16,6 +16,7 @@ load = ({url}) ->
       view.get(\result).classList.toggle \text-success, false
       view.get(\result).classList.toggle \border-success, false
       view.get(\result).textContent = "error: \n\n" + e.toString!
+      throw e
 
 view = new ldview do
   root: document.body
