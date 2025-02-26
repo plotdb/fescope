@@ -1,5 +1,11 @@
 # Change Logs
 
+## v5.0.15
+
+ - use Proxy + Reflect to replace `<<<` for preparing function attributes inaccessible due to `bind`
+ - use callback mechanism to update local variable to sync members in window with local variables (rspvarsetcb)
+
+
 ## v5.0.14
 
  - extend the attr import from original function from `prototype` to all attributes.
