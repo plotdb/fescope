@@ -2,7 +2,7 @@ scope = new rescope do
   registry: ({url, name, version, path}) -> url
 
 load = ({url}) ->
-  scope.load [{url}]
+  scope.load(url.split(' ').filter(->it).map(->{url:it.trim!}))
     .then (ctx) ->
       text = "success with:\n\n" + [" - #k" for k of ctx].join(\\n)
       view.get(\result).classList.toggle \border-danger, false

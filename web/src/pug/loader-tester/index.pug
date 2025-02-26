@@ -3,6 +3,7 @@ block body
 block script
   .p-5.w-1024.rwd.mx-auto
     h3.mb-4 Loader Tester
+    p Some assumption in Rescope is broken in different scenario, leading to issues when loading external libraries. We collect such libs under `web/static/assets/loader-tester` with a simple analyzing about the reasons why they failed.
     p this page helps you test loading specific libs by entering their URL in below input box:
     .mb-4
       .input-group.mb-2
@@ -13,6 +14,7 @@ block script
         span.clickable.text-primary(ld="sample",data-url="/assets/loader-tester/vis.js") vis.js
         //- amcharts looks up for `<script>` tag at initial time, which definitely will fail for rescope.
         span.clickable.text-primary(ld="sample",data-url="/assets/loader-tester/amcharts-core.js") amcharts-core.js
+        span.clickable.text-primary(ld="sample",data-url="https://cdn.zingchart.com/zingchart.min.js https://cdn.zingchart.com/modules/zingchart-chord.min.js") zingchart.js (+chord)
 
     p result
     .p-4.border.rounded.bg-light(ld="result",style="white-space:pre-wrap;font-family:monospace") n/a
