@@ -1,5 +1,8 @@
 var win, doc
 
+# this helps for turning on/off rspvarsetcb feature. remove when we are confident about this.
+enable-rspvarsetcb = true
+
 _fetch = (u, c) ->
   if rsp.__node and fs? and !/^https?:/.exec(u) =>
     return new Promise (res, rej) ->
@@ -10,7 +13,7 @@ _fetch = (u, c) ->
   ret.clone!text!then (t) ->
     i = ret.status or 404
     e = new Error("#i #t") <<< {name: \lderror, id: i, message: t}
-    try 
+    try
       if (j = JSON.parse(t)) and j.name == \lderror => e <<< j <<< {json: j}
     catch err
     return Promise.reject e
@@ -35,10 +38,26 @@ proxin = (o = {})->
         # NOTE: bound function doesn't contain original prototype and some other properties.
         # for example, webpack uses Symbol.prototype, and highcharts uses Node.TEXT_NODE.
         # thus we have to import attributes from original value with `<<<` here.
-        return func[k] = (t[k].bind t) <<< t[k]
+        # instead of using `<<<`, we use Proxy object here to retrieve members
+        # inaccessible due to binding.
+        #  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy
+        # old code keeps here for reference.
+        #ret = func[k] = (t[k].bind t) <<< t[k] # `<<<` doesn't work as expected
+        #ret.prototype = t[k].prototype         # we still have to manually assign.
+        f = Reflect.get(t,k,o)
+        ret = func[k] = new Proxy(
+          f.bind(t),
+          {get: (d, g, o) -> Reflect.get((if g in d => d else f), g, o)}
+        )
+        return ret
       if !attr[k]? => return undefined
       return t[k]
     set: (t, k, v) ~>
+      if enable-rspvarsetcb =>
+        if k == '_rspvarsetcb_' =>
+          var-setter.on(v.k, v.f)
+          return true
+        var-setter.fire k, v
       if attr[k] =>
         t[k] = v
         return true
@@ -49,6 +68,10 @@ proxin = (o = {})->
     defineProperty: (t, k, d) ~>
       Object.defineProperty @lc, k, d
       return @_proxy
+  var-setter =
+    evthdr: {}
+    on: (n, cb) -> (if Array.isArray(n) => n else [n]).map (n) ~> @evthdr.[][n].push cb
+    fire: (n, ...v) -> for cb in (@evthdr[n] or []) => cb.apply @, v
   @
 
 proxin.prototype = Object.create(Object.prototype) <<<
@@ -116,7 +139,7 @@ rsp.prototype = Object.create(Object.prototype) <<<
       @_reg = ((v) -> (o) -> "#{v}/#{o.name}/#{o.version or 'main'}/#{o.path or 'index.min.js'}") v
     else @_reg = v
 
-  cache: (o) -> 
+  cache: (o) ->
     if typeof(o) == \string => o = {url: o}
     if !o.id => o.id = rsp.id o
     if @_cache[o.id] => return that
@@ -187,22 +210,32 @@ rsp.prototype = Object.create(Object.prototype) <<<
     var window, global, globalThis, self, __ret = {}; __win = {};
     window = global = globalThis = self = window = scope;
     """
+    # libs may set window.somevar then trying to access `somvar` as local var.
+    # without monitoring `window.somvar` and when changed update `somevar`, local var will be undefined.
+    # thus, we use `_rspvarsetcb_` as a special kw to notify Proxy to add a cb for `k`,
+    # so in Proxy we can call cb for `k` when `window[k]` is updated.
+    #
+    _ = if !enable-rspvarsetcb => (->) else (k) -> "window['_rspvarsetcb_'] = {k:'#k',f:function(v){#{k}=v}};"
     # some libs may still access window directly ( perhaps via (function() { var window = this; })();
     # so we store original win[k] in __win, and restore them later.
     # we check `/-/` against k to prevent illegal varible names;
-    # we may want to extend this check to complete variable patterns 
+    # we may want to extend this check to complete variable patterns
     for k of prop =>
-      if varre.exec(k) => code += "var #k;"
+      if varre.exec(k) => code += "var #k;#{_(k)}"
       code += "__win['#k'] = win['#k']; win['#k'] = undefined;"
     for k of ctx =>
       code += "window['#k'] = ctx['#k'];"
-      if varre.exec(k) => code += "var #k = window['#k'];"
+      if varre.exec(k) => code += "var #k = window['#k'];#{_(k)}"
     code += "#{o.code};"
     for k of prop =>
       # either local variable, fake window obj, real window obj
       #   or possibly `this` variable if some libs use `this` as window object. ( yes, bad practice )
       # some libs may update global.k, but access variable k. in this case, k will undefined
       #   so we have to update k if it's undefined. ( the `if(!(k)) { ... }` code )
+      #   this was the earlier patch before we realize that lib itself may also access k,
+      #   so we actually have to update k right after global.k is updated.
+      #   this is done by above `rspvarsetcb` callback mechanism
+      #   thus the `if(!(k))` probably won't be needed anymore.
       if varre.exec(k) =>
         code += """
         if(!(#k)) { #k = scope['#k']; }

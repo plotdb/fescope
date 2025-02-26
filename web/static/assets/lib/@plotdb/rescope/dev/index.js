@@ -1,5 +1,6 @@
 (function(){
-var win, doc, _fetch, proxin, ref$, rsp;
+var win, doc, enableRspvarsetcb, _fetch, proxin, ref$, rsp;
+enableRspvarsetcb = true;
 _fetch = function(u, c){
   if (rsp.__node && (typeof fs != 'undefined' && fs !== null) && !/^https?:/.exec(u)) {
     return new Promise(function(res, rej){
@@ -36,7 +37,7 @@ _fetch = function(u, c){
   });
 };
 proxin = function(o){
-  var ifr, ref$, attr, func, this$ = this;
+  var ifr, ref$, attr, func, varSetter, this$ = this;
   o == null && (o = {});
   this.lc = o.context || {};
   this.id = Math.random().toString(36).substring(2);
@@ -62,6 +63,7 @@ proxin = function(o){
   func = {};
   this._proxy = new Proxy(o.target || win, {
     get: function(t, k, o){
+      var f, ret;
       if (this$.lc[k] != null) {
         return this$.lc[k];
       }
@@ -69,7 +71,13 @@ proxin = function(o){
         return func[k];
       }
       if (typeof t[k] === 'function') {
-        return func[k] = import$(t[k].bind(t), t[k]);
+        f = Reflect.get(t, k, o);
+        ret = func[k] = new Proxy(f.bind(t), {
+          get: function(d, g, o){
+            return Reflect.get(in$(g, d) ? d : f, g, o);
+          }
+        });
+        return ret;
       }
       if (attr[k] == null) {
         return undefined;
@@ -77,6 +85,13 @@ proxin = function(o){
       return t[k];
     },
     set: function(t, k, v){
+      if (enableRspvarsetcb) {
+        if (k === '_rspvarsetcb_') {
+          varSetter.on(v.k, v.f);
+          return true;
+        }
+        varSetter.fire(k, v);
+      }
       if (attr[k]) {
         t[k] = v;
         return true;
@@ -89,6 +104,31 @@ proxin = function(o){
       return this$._proxy;
     }
   });
+  varSetter = {
+    evthdr: {},
+    on: function(n, cb){
+      var this$ = this;
+      return (Array.isArray(n)
+        ? n
+        : [n]).map(function(n){
+        var ref$;
+        return ((ref$ = this$.evthdr)[n] || (ref$[n] = [])).push(cb);
+      });
+    },
+    fire: function(n){
+      var v, res$, i$, to$, ref$, len$, cb, results$ = [];
+      res$ = [];
+      for (i$ = 1, to$ = arguments.length; i$ < to$; ++i$) {
+        res$.push(arguments[i$]);
+      }
+      v = res$;
+      for (i$ = 0, len$ = (ref$ = this.evthdr[n] || []).length; i$ < len$; ++i$) {
+        cb = ref$[i$];
+        results$.push(cb.apply(this, v));
+      }
+      return results$;
+    }
+  };
   return this;
 };
 proxin.prototype = (ref$ = Object.create(Object.prototype), ref$.proxy = function(){
@@ -338,23 +378,28 @@ rsp.prototype = (ref$ = Object.create(Object.prototype), ref$.peekScope = functi
   }
   return results$;
 }, ref$._wrap = function(o, ctx, opt){
-  var varre, prop, code, k;
+  var varre, prop, code, _, k;
   o == null && (o = {});
   ctx == null && (ctx = {});
   opt == null && (opt = {});
   varre = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
   prop = o.prop || {};
   code = "var window, global, globalThis, self, __ret = {}; __win = {};\nwindow = global = globalThis = self = window = scope;";
+  _ = !enableRspvarsetcb
+    ? function(){}
+    : function(k){
+      return "window['_rspvarsetcb_'] = {k:'" + k + "',f:function(v){" + k + "=v}};";
+    };
   for (k in prop) {
     if (varre.exec(k)) {
-      code += "var " + k + ";";
+      code += "var " + k + ";" + _(k);
     }
     code += "__win['" + k + "'] = win['" + k + "']; win['" + k + "'] = undefined;";
   }
   for (k in ctx) {
     code += "window['" + k + "'] = ctx['" + k + "'];";
     if (varre.exec(k)) {
-      code += "var " + k + " = window['" + k + "'];";
+      code += "var " + k + " = window['" + k + "'];" + _(k);
     }
   }
   code += o.code + ";";
